@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSC Futuristic Tracker by Masrur</title>
+    <title>SSC Portal - Secure Access</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-deep: #050510;
             --accent-cyan: #00f3ff;
             --accent-pink: #bc13fe;
-            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --neon-glow: 0 0 10px rgba(0, 243, 255, 0.5), 0 0 20px rgba(0, 243, 255, 0.3);
+            --neon-glow: 0 0 10px rgba(0, 243, 255, 0.5);
         }
 
         * { box-sizing: border-box; }
@@ -25,15 +25,73 @@
                 radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.1) 0%, transparent 20%),
                 radial-gradient(circle at 90% 80%, rgba(0, 243, 255, 0.1) 0%, transparent 20%);
             color: white;
-            height: 100vh;
+            min-height: 100vh;
             overflow: hidden;
             display: flex;
-            flex-direction: column; /* Changed for footer */
+            flex-direction: column;
             align-items: center;
             justify-content: center;
         }
 
-        /* --- 3D STAGE --- */
+        /* --- AUTH SECTION (LOGIN/SIGNUP) --- */
+        #auth-container {
+            position: absolute;
+            z-index: 1000;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-deep); /* Cover everything else */
+            transition: opacity 0.5s;
+        }
+
+        .auth-box {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--accent-cyan);
+            padding: 40px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
+        }
+
+        .auth-box h2 { margin: 0 0 20px 0; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 2px; }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #333;
+            color: white;
+            border-radius: 5px;
+            outline: none;
+        }
+        input:focus { border-color: var(--accent-pink); }
+
+        .btn-main {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: linear-gradient(90deg, var(--accent-cyan), #007bff);
+            border: none;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            text-transform: uppercase;
+        }
+        .btn-main:hover { box-shadow: 0 0 15px var(--accent-cyan); }
+
+        .link { color: #aaa; font-size: 0.9rem; margin-top: 15px; cursor: pointer; }
+        .link span { color: var(--accent-cyan); text-decoration: underline; }
+
+        .hidden { display: none !important; }
+
+        /* --- APP SECTION (3D TRACKER) --- */
         .stage {
             width: 90%;
             max-width: 1200px;
@@ -41,312 +99,160 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            perspective: 2000px; /* Deep 3D space */
+            perspective: 2000px;
             gap: 40px;
-            /* Ensure space for fixed footer on scroll */
-            padding-bottom: 60px; 
+            padding-bottom: 60px;
+            transition: opacity 0.5s;
         }
 
-        /* --- THE BOOK (LEFT) --- */
+        /* --- BOOK & DASHBOARD STYLES (SAME AS BEFORE) --- */
         .book-wrapper {
-            position: relative;
-            width: 320px;
-            height: 480px;
+            position: relative; width: 320px; height: 480px;
             transform-style: preserve-3d;
             transition: all 1s cubic-bezier(0.645, 0.045, 0.355, 1);
-            z-index: 10;
-            cursor: pointer;
+            z-index: 10; cursor: pointer;
         }
-
-        /* Animation State: Active (Side View) */
-        .stage.active .book-wrapper {
-            transform: translateX(-150px) rotateY(-10deg) scale(0.85);
-        }
+        .stage.active .book-wrapper { transform: translateX(-150px) rotateY(-10deg) scale(0.85); }
         
- 
-
-        .book {
-            position: absolute; width: 100%; height: 100%;
-            transform-style: preserve-3d;
-            transition: transform 1s;
-        }
-
+        .book { position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 1s; }
         .book:hover { transform: rotateY(-10deg) rotateX(5deg); }
         .book.open { transform: rotateY(-160deg); }
 
-        .front, .back, .pages {
+        .front, .pages {
             position: absolute; width: 100%; height: 100%;
-            border-radius: 10px 20px 20px 10px;
-            backface-visibility: hidden;
+            border-radius: 10px 20px 20px 10px; backface-visibility: hidden;
         }
-
         .front {
             background: linear-gradient(135deg, #1a1a2e, #16213e);
             border: 2px solid var(--accent-cyan);
             box-shadow: 0 0 40px rgba(0, 243, 255, 0.15);
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            transform: rotateY(0deg);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
             z-index: 2;
         }
-
-        .front h1 {
-            font-size: 3.5rem; margin: 0;
-            background: linear-gradient(to bottom, #fff, #aaa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .tap-hint {
-            margin-top: 30px; font-size: 0.9rem; letter-spacing: 2px;
-            color: var(--accent-cyan); animation: pulse 2s infinite;
-        }
-
-        /* Pages (Subject Menu) */
         .pages {
-            background: #0f0c15;
-            border: 1px solid var(--glass-border);
-            transform: rotateY(180deg); /* Shows when flipped */
-            z-index: 1;
-            padding: 30px;
-            display: flex; flex-direction: column; gap: 15px;
-            justify-content: center;
+            background: #0f0c15; border: 1px solid var(--glass-border);
+            transform: rotateY(180deg); z-index: 1; padding: 30px;
+            display: flex; flex-direction: column; gap: 15px; justify-content: center;
         }
 
-        .subject-btn {
-            padding: 15px;
-            border: 1px solid var(--glass-border);
-            background: rgba(255,255,255,0.03);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex; align-items: center; gap: 15px;
-            font-size: 1.1rem;
-            color: #ccc;
-        }
-        .subject-btn:hover {
-            border-color: var(--accent-cyan);
-            background: rgba(0, 243, 255, 0.1);
-            color: white;
-            box-shadow: var(--neon-glow);
-            transform: translateX(10px);
-        }
-
-        /* --- DASHBOARD (RIGHT) --- */
         .dashboard-wrapper {
-            flex: 1;
-            height: 100%;
-            opacity: 0;
+            flex: 1; height: 100%; opacity: 0;
             transform: translateX(100px) rotateY(-10deg);
             transition: all 0.8s ease 0.3s;
-            pointer-events: none;
-            display: flex; flex-direction: column;
-            gap: 20px;
+            pointer-events: none; display: flex; flex-direction: column; gap: 20px;
         }
-
-        .stage.active .dashboard-wrapper {
-            opacity: 1; transform: translateX(0); pointer-events: all;
-        }
+        .stage.active .dashboard-wrapper { opacity: 1; transform: translateX(0); pointer-events: all; }
 
         .glass-panel {
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px;
+            height: 100%; display: flex; flex-direction: column;
         }
 
-        /* Header */
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .title-neon {
-            font-size: 2rem; font-weight: bold; text-transform: uppercase;
-            text-shadow: 0 0 15px var(--accent-pink);
-        }
-        .close-btn {
-            background: none; border: 1px solid var(--glass-border); color: white;
-            padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: 0.3s;
-        }
-        .close-btn:hover { background: var(--accent-pink); border-color: var(--accent-pink); }
-
-        /* Content Grid */
-        .content-grid {
-            display: flex; gap: 20px; height: 100%; overflow: hidden;
-        }
-
-        /* Ring Chart */
-        .chart-box {
-            flex: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            position: relative;
-        }
+        /* Elements */
+        .subject-btn { padding: 15px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03); border-radius: 8px; cursor: pointer; color: #ccc; display: flex; gap: 15px; align-items: center; transition: 0.3s; }
+        .subject-btn:hover { border-color: var(--accent-cyan); color: white; transform: translateX(10px); }
         
-        .ring-svg { width: 220px; height: 220px; transform: rotate(-90deg); }
-        .ring-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 10; }
-        .ring-progress {
-            fill: none; stroke: url(#gradientColor); /* Uses gradient definition */
-            stroke-width: 10; stroke-linecap: round;
-            stroke-dasharray: 628; /* 2*PI*100 */
-            stroke-dashoffset: 628;
-            transition: stroke-dashoffset 1.5s ease-out;
-            filter: drop-shadow(0 0 8px var(--accent-cyan));
-        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .title-neon { font-size: 2rem; font-weight: bold; color: white; text-shadow: 0 0 10px var(--accent-pink); }
+        
+        .content-grid { display: flex; gap: 20px; height: 100%; overflow: hidden; }
+        .chart-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .list-box { flex: 1.5; overflow-y: auto; padding-right: 10px; }
 
-        .percent-display {
-            position: absolute; font-size: 3.5rem; font-weight: bold;
-            text-shadow: 0 0 20px rgba(255,255,255,0.2);
-        }
+        .chapter { padding: 15px; margin-bottom: 10px; border-left: 2px solid #333; cursor: pointer; display: flex; justify-content: space-between; background: rgba(255,255,255,0.02); }
+        .chapter.done { border-left-color: #00ff88; }
+        .chapter.done span { color: #00ff88; text-decoration: line-through; opacity: 0.6; }
 
-        /* Chapter List */
-        .list-box {
-            flex: 1.5; overflow-y: auto; padding-right: 10px;
-        }
-        .list-box::-webkit-scrollbar { width: 4px; }
-        .list-box::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 4px; }
+        /* SVG Ring */
+        .ring-svg { width: 180px; height: 180px; transform: rotate(-90deg); }
+        .ring-progress { fill: none; stroke: var(--accent-cyan); stroke-width: 8; stroke-dasharray: 502; stroke-dashoffset: 502; transition: 1s; }
+        .percent-display { position: absolute; font-size: 2.5rem; font-weight: bold; }
 
-        .chapter {
-            padding: 15px; margin-bottom: 10px;
-            background: linear-gradient(90deg, rgba(255,255,255,0.02) 0%, transparent 100%);
-            border-left: 2px solid transparent;
-            cursor: pointer; transition: 0.2s;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .chapter:hover {
-            background: linear-gradient(90deg, rgba(0, 243, 255, 0.08) 0%, transparent 100%);
-            border-left-color: var(--accent-cyan);
-            padding-left: 20px;
-        }
-        .chapter.done {
-            border-left-color: #00ff88;
-        }
-        .chapter.done span {
-            color: #00ff88; text-decoration: line-through; opacity: 0.5;
-        }
-
-        /* --- NEW FUTURISTIC FOOTER --- */
+        /* Footer */
         .futuristic-footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            text-align: center;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.02); /* Subtle glass */
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            border-top: 1px solid var(--glass-border);
-            z-index: 100;
-            font-size: 0.9rem;
-            color: #aaa;
-            letter-spacing: 1px;
+            position: fixed; bottom: 0; width: 100%; text-align: center; padding: 15px;
+            background: rgba(0,0,0,0.8); border-top: 1px solid #333; color: #888; z-index: 2000;
         }
+        .highlight { color: var(--accent-cyan); font-weight: bold; }
 
-        .futuristic-footer .highlight {
-            color: var(--accent-cyan);
-            text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
-            font-weight: bold;
-        }
-
-        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-
-       /* --- MOBILE OPTIMIZATION --- */
-       @media (max-width: 768px) {
-            .stage { 
-                flex-direction: column; 
-                overflow-y: auto; 
-                height: 100vh; 
-                /* Add more padding at bottom so content is not hidden behind footer */
-                padding: 20px 0 80px 0; 
-                gap: 20px;
-            }
-            /* Adjusted scale for better mobile fit */
-            .stage.active .book-wrapper { transform: translateY(-120px) scale(0.55); }
-
-            /* Footer adjustments for small screens */
-            .futuristic-footer {
-                padding: 10px;
-                font-size: 0.8rem;
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-            }
-            .footer-divider { display: none; }
+        /* Mobile */
+        @media (max-width: 768px) {
+            .stage { flex-direction: column; overflow-y: auto; padding: 20px 0 80px 0; }
+            .stage.active .book-wrapper { transform: translateY(-120px) scale(0.6); }
+            .content-grid { flex-direction: column; }
+            .chart-box { min-height: 200px; }
         }
     </style>
 </head>
 <body>
 
-    <svg style="position: absolute; width: 0; height: 0;">
-        <defs>
-            <linearGradient id="gradientColor" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#00f3ff" />
-                <stop offset="100%" stop-color="#bc13fe" />
-            </linearGradient>
-        </defs>
-    </svg>
+    <div id="auth-container">
+        <div id="login-form" class="auth-box">
+            <h2>System Login</h2>
+            <input type="email" id="login-email" placeholder="Access ID (Email)">
+            <input type="password" id="login-password" placeholder="Passcode">
+            <button class="btn-main" id="btnLogin">Enter System</button>
+            <div class="link">New User? <span id="showSignup">Register Access</span></div>
+        </div>
 
-    <div class="stage" id="stage">
-        
+        <div id="signup-form" class="auth-box hidden">
+            <h2>New Registration</h2>
+            <input type="text" id="signup-name" placeholder="Agent Name">
+            <input type="email" id="signup-email" placeholder="Email">
+            <input type="password" id="signup-password" placeholder="Create Passcode">
+            <button class="btn-main" id="btnSignup">Initialize</button>
+            <div class="link">Has ID? <span id="showLogin">Login</span></div>
+        </div>
+    </div>
+
+    <div class="stage hidden" id="stage">
         <div class="book-wrapper">
             <div class="book" id="book">
                 <div class="front">
                     <h1>SSC 2026</h1>
-                    <p style="letter-spacing: 5px; color: #888;">STUDY TRACKER</p>
-                    <div class="tap-hint">TAP TO OPEN</div>
+                    <p style="letter-spacing: 5px; color: #888;">TRACKER</p>
+                    <p id="user-display" style="color:var(--accent-pink); margin-top:10px; font-size:12px;">Agent: ...</p>
+                    <div style="margin-top:30px; font-size:10px; letter-spacing:2px; color:cyan;">TAP TO OPEN</div>
                 </div>
                 <div class="pages">
-                    <div class="subject-btn" onclick="openDashboard('physics')">
-                        <span>⚛️</span> পদার্থবিজ্ঞান
-                    </div>
-                    <div class="subject-btn" onclick="openDashboard('chemistry')">
-                        <span>🧪</span> রসায়ন
-                    </div>
-                    <div class="subject-btn" onclick="openDashboard('biology')">
-                        <span>🧬</span> জীববিজ্ঞান
-                    </div>
-                    <div class="subject-btn" onclick="openDashboard('higherMath')">
-                        <span>📐</span> উচ্চতর গণিত
-                    </div>
+                    <div class="subject-btn" onclick="openDashboard('physics')"><span>⚛️</span> পদার্থবিজ্ঞান</div>
+                    <div class="subject-btn" onclick="openDashboard('chemistry')"><span>🧪</span> রসায়ন</div>
+                    <div class="subject-btn" onclick="openDashboard('biology')"><span>🧬</span> জীববিজ্ঞান</div>
+                    <div class="subject-btn" onclick="openDashboard('higherMath')"><span>📐</span> উচ্চতর গণিত</div>
+                    <button onclick="logout()" style="margin-top:20px; padding:10px; background:#dc3545; border:none; color:white; border-radius:5px;">LOGOUT</button>
                 </div>
             </div>
         </div>
 
         <div class="dashboard-wrapper">
-            <div class="glass-panel" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="glass-panel">
                 <div class="header">
-                    <div class="title-neon" id="dashTitle">PHYSICS</div>
-                    <button class="close-btn" onclick="closeDashboard()">CLOSE</button>
+                    <div class="title-neon" id="dashTitle">SUBJECT</div>
+                    <button onclick="closeDashboard()" style="background:none; border:1px solid #555; color:white; padding:5px 15px; border-radius:20px;">X</button>
                 </div>
-
                 <div class="content-grid">
                     <div class="chart-box">
-                        <svg class="ring-svg">
-                            <circle class="ring-bg" cx="110" cy="110" r="100"></circle>
-                            <circle class="ring-progress" id="progressRing" cx="110" cy="110" r="100"></circle>
-                        </svg>
+                        <svg class="ring-svg"><circle cx="90" cy="90" r="80" style="stroke:#333; fill:none; stroke-width:8;"></circle><circle class="ring-progress" id="progressRing" cx="90" cy="90" r="80"></circle></svg>
                         <div class="percent-display" id="percentText">0%</div>
-                        <div style="margin-top: 10px; color: #aaa; font-size: 0.9rem;">COMPLETED</div>
                     </div>
-
-                    <div class="list-box" id="chapterList">
-                        </div>
+                    <div class="list-box" id="chapterList"></div>
                 </div>
             </div>
         </div>
-
     </div>
 
     <div class="futuristic-footer">
-        <p>Developed by <span class="highlight">Masrur Muntasir</span> <span class="footer-divider">|</span> BSc. in CSE, DIU</p>
+        <p>Developed by <span class="highlight">Masrur Muntasir</span> | BSc. in CSE, DIU</p>
     </div>
 
     <script type="module">
+        // Import Firebase Functions
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // 🔥🔥🔥 তোমার আসল FIREBASE CONFIG এখানে বসাও (আগের প্রজেক্ট থেকে কপি করে) 🔥🔥🔥
+        // 🔥🔥🔥 নিচে তোমার FIREBASE CONFIG বসাও 🔥🔥🔥
        const firebaseConfig = {
   apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ",
   authDomain: "masrur-app-dccc1.firebaseapp.com",
@@ -357,27 +263,73 @@
   appId: "1:54049170636:web:0d0fd5f530027e72688e69",
   measurementId: "G-0R3B6EB17B"
 };
-        // 👆👆👆 কনফিগ না বসালে কাজ করবে না
-
+        };
+        
+        // Initialize
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const auth = getAuth(app);
 
-        // UI Elements
+        // DOM Elements
+        const authContainer = document.getElementById('auth-container');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
         const stage = document.getElementById('stage');
-        const book = document.getElementById('book');
-        const dashTitle = document.getElementById('dashTitle');
-        const chapterList = document.getElementById('chapterList');
-        const progressRing = document.getElementById('progressRing');
-        const percentText = document.getElementById('percentText');
+        const userDisplay = document.getElementById('user-display');
+        
+        let currentUser = null;
+        let activeSubject = null;
 
-        // Book Handling
-        book.addEventListener('click', (e) => {
-            if(e.target.closest('.front')) {
-                book.classList.add('open');
+        // --- AUTH LOGIC ---
+        // Toggle Forms
+        document.getElementById('showSignup').onclick = () => { loginForm.classList.add('hidden'); signupForm.classList.remove('hidden'); };
+        document.getElementById('showLogin').onclick = () => { signupForm.classList.add('hidden'); loginForm.classList.remove('hidden'); };
+
+        // Signup
+        document.getElementById('btnSignup').onclick = () => {
+            const email = document.getElementById('signup-email').value;
+            const pass = document.getElementById('signup-password').value;
+            const name = document.getElementById('signup-name').value;
+            
+            createUserWithEmailAndPassword(auth, email, pass)
+                .then((cred) => {
+                    updateProfile(cred.user, { displayName: name });
+                    alert("ID Created! Welcome Agent " + name);
+                })
+                .catch(err => alert(err.message));
+        };
+
+        // Login
+        document.getElementById('btnLogin').onclick = () => {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            
+            signInWithEmailAndPassword(auth, email, pass)
+                .catch(err => alert("Access Denied: " + err.message));
+        };
+
+        // Logout
+        window.logout = () => signOut(auth);
+
+        // State Listener (The Gatekeeper)
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Logged In
+                currentUser = user;
+                authContainer.classList.add('hidden');
+                stage.classList.remove('hidden');
+                userDisplay.innerText = "Agent: " + (user.displayName || "Unknown");
+                loadUserData(); // Load this user's data
+            } else {
+                // Logged Out
+                currentUser = null;
+                authContainer.classList.remove('hidden');
+                stage.classList.add('hidden');
+                closeDashboard();
             }
         });
 
-        // Data
+        // --- TRACKER LOGIC ---
         const syllabus = {
             physics: { title: "PHYSICS", chapters: ["ভৌত রাশি ও পরিমাপ", "গতি", "বল", "কাজ, ক্ষমতা ও শক্তি", "পদার্থের অবস্থা ও চাপ", "বস্তুর উপর তাপের প্রভাব", "তরঙ্গ ও শব্দ", "আলোর প্রতিফলন", "আলোর প্রতিসরণ", "স্থির তড়িৎ", "চল তড়িৎ", "বিদ্যুতের চৌম্বক ক্রিয়া", "আধুনিক পদার্থবিজ্ঞান", "জীবন বাঁচাতে পদার্থবিজ্ঞান"] },
             chemistry: { title: "CHEMISTRY", chapters: ["রসায়নের ধারণা", "পদার্থের অবস্থা", "পদার্থের গঠন", "পর্যায় সারণি", "রাসায়নিক বন্ধন", "মোলের ধারণা ও রাসায়নিক গণনা", "রাসায়নিক বিক্রিয়া", "রসায়ন ও শক্তি", "এসিড-ক্ষার সমতা", "খনিজ সম্পদ: ধাতু-অধাতু", "খনিজ সম্পদ: জীবাশ্ম", "আমাদের জীবনে রসায়ন"] },
@@ -385,18 +337,21 @@
             higherMath: { title: "HIGHER MATH", chapters: ["সেট ও ফাংশন", "বীজগাণিতিক রাশি", "জ্যামিতি", "জ্যামিতিক অংকন", "সমীকরণ", "অসমতা", "অসীম ধারা", "ত্রিকোণমিতি", "সূচকীয় ও লগারিদমীয় ফাংশন", "দ্বিপদী বিস্তৃতি", "স্থানাঙ্ক জ্যামিতি", "সমতলীয় ভেক্টর", "ঘন জ্যামিতি", "সম্ভাবনা"] }
         };
 
-        let currentData = {};
-        let activeSubject = null;
+        let userData = {};
 
-        // Sync Firebase
-        onValue(ref(db, 'progress'), (snapshot) => {
-            currentData = snapshot.val() || {};
-            if(activeSubject) renderDashboard(activeSubject);
-        });
+        function loadUserData() {
+            if(!currentUser) return;
+            // Listen only to THIS user's data
+            const userRef = ref(db, 'progress/' + currentUser.uid);
+            onValue(userRef, (snapshot) => {
+                userData = snapshot.val() || {};
+                if(activeSubject) renderDashboard(activeSubject);
+            });
+        }
 
         window.openDashboard = function(key) {
             activeSubject = key;
-            stage.classList.add('active'); // Activates animations
+            stage.classList.add('active');
             renderDashboard(key);
         };
 
@@ -407,36 +362,40 @@
 
         function renderDashboard(key) {
             const data = syllabus[key];
-            const userProgress = currentData[key] || [];
+            const subjectProgress = (userData[key]) || []; // Load from user data
             
-            dashTitle.innerText = data.title;
-            chapterList.innerHTML = '';
+            document.getElementById('dashTitle').innerText = data.title;
+            const list = document.getElementById('chapterList');
+            list.innerHTML = '';
             
             let doneCount = 0;
-
             data.chapters.forEach((chap, idx) => {
-                const isDone = userProgress[idx] === true;
+                const isDone = subjectProgress[idx] === true;
                 if(isDone) doneCount++;
 
                 const div = document.createElement('div');
                 div.className = `chapter ${isDone ? 'done' : ''}`;
                 div.innerHTML = `<span>${idx + 1}. ${chap}</span> <span>${isDone ? '✔' : ''}</span>`;
                 div.onclick = () => toggleChapter(key, idx, isDone);
-                chapterList.appendChild(div);
+                list.appendChild(div);
             });
 
-            // Update Ring
+            // Ring Animation
             const total = data.chapters.length;
             const percent = Math.round((doneCount / total) * 100);
+            const radius = 80;
+            const circumference = 2 * Math.PI * radius; // approx 502
+            const offset = circumference - (circumference * percent) / 100;
             
-            // 628 is circumference of r=100 circle (2 * pi * 100)
-            const offset = 628 - (628 * percent) / 100;
-            progressRing.style.strokeDashoffset = offset;
-            percentText.innerText = percent + "%";
+            const ring = document.getElementById('progressRing');
+            ring.style.strokeDashoffset = offset;
+            document.getElementById('percentText').innerText = percent + "%";
         }
 
         function toggleChapter(subj, idx, currentStatus) {
-            set(ref(db, `progress/${subj}/${idx}`), !currentStatus);
+            if(!currentUser) return;
+            // Save to: progress/USER_ID/subject/index
+            set(ref(db, `progress/${currentUser.uid}/${subj}/${idx}`), !currentStatus);
         }
 
     </script>
