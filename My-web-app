@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masrur's Connect</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <style>
+        /* আগের স্টাইলগুলোই আছে, শুধু Admin Panel এর জন্য কিছু নতুন স্টাইল */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; flex-direction: column; min-height: 100vh; }
+        .container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; flex-direction: column; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; margin-bottom: 20px; }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; }
+        input { border: 1px solid #ddd; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .hidden { display: none !important; }
+        .live-count { color: red; font-weight: bold; margin-bottom: 10px; }
+        
+        /* Footer Design */
+        footer { background: #fff; padding: 15px; border-top: 1px solid #ddd; text-align: center; margin-top: auto; }
+        .developer-credit { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; font-size: 14px; color: #555; }
+        .developer-credit strong { color: #007bff; }
+        @media (max-width: 600px) { .divider { display: none; } .developer-credit { flex-direction: column; } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="status-bar" class="hidden">
+            <p class="live-count">🔴 Live Users: <span id="online-count">0</span></p>
+        </div>
+
+        <div id="login-form" class="card">
+            <h2>Login</h2>
+            <input type="email" id="login-email" placeholder="Email">
+            <input type="password" id="login-password" placeholder="Password">
+            <button onclick="loginUser()">Login</button>
+            <p style="margin-top:10px; font-size:14px;">No account? <span onclick="showSignUp()" style="color:blue; cursor:pointer;">Sign Up</span></p>
+        </div>
+
+        <div id="signup-form" class="card hidden">
+            <h2>Sign Up</h2>
+            <input type="text" id="signup-name" placeholder="Full Name">
+            <input type="email" id="signup-email" placeholder="Email">
+            <input type="password" id="signup-password" placeholder="Password">
+            <button onclick="registerUser()">Sign Up</button>
+            <p style="margin-top:10px; font-size:14px;">Have account? <span onclick="showLogin()" style="color:blue; cursor:pointer;">Login</span></p>
+        </div>
+
+        <div id="dashboard" class="card hidden">
+            <h2 id="welcome-msg">Welcome</h2>
+            <p>You are securely logged in.</p>
+            <button onclick="logoutUser()" style="background:#dc3545;">Logout</button>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="developer-credit">
+            <p>Developed by <strong>Masrur Muntasir</strong></p>
+            <span class="divider">|</span>
+            <p>BSc. in CSE, DIU</p>
+        </div>
+    </footer>
+
+    <script>
+        // ==========================================
+        // ১. নিচে আপনার FIREBASE CONFIG বসান
+        // ==========================================
+        const firebaseConfig = {
+  apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ",
+  authDomain: "masrur-app-dccc1.firebaseapp.com",
+  databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com",
+  projectId: "masrur-app-dccc1",
+  storageBucket: "masrur-app-dccc1.firebasestorage.app",
+  messagingSenderId: "54049170636",
+  appId: "1:54049170636:web:0d0fd5f530027e72688e69",
+  measurementId: "G-0R3B6EB17B"
+};
+        // ==========================================
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // DOM Elements
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const dashboard = document.getElementById('dashboard');
+        const statusBar = document.getElementById('status-bar');
+        const onlineCountSpan = document.getElementById('online-count');
+
+        // Check Login State
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is logged in
+                loginForm.classList.add('hidden');
+                signupForm.classList.add('hidden');
+                dashboard.classList.remove('hidden');
+                statusBar.classList.remove('hidden');
+                
+                document.getElementById('welcome-msg').innerText = "Hello, " + (user.displayName || "User");
+                
+                // Set User Online Status
+                const userStatusRef = db.ref('status/' + user.uid);
+                userStatusRef.set({
+                    state: 'online',
+                    last_changed: firebase.database.ServerValue.TIMESTAMP,
+                    name: user.displayName
+                });
+                
+                // If user disconnects (closes tab/app), set offline
+                userStatusRef.onDisconnect().set({
+                    state: 'offline',
+                    last_changed: firebase.database.ServerValue.TIMESTAMP
+                });
+
+            } else {
+                // User is logged out
+                dashboard.classList.add('hidden');
+                statusBar.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            }
+        });
+
+        // Live User Counter
+        const allStatusRef = db.ref('status');
+        allStatusRef.on('value', (snapshot) => {
+            let count = 0;
+            snapshot.forEach((childSnapshot) => {
+                const data = childSnapshot.val();
+                if (data.state === 'online') {
+                    count++;
+                }
+            });
+            onlineCountSpan.innerText = count;
+        });
+
+        // Functions
+        function showSignUp() {
+            loginForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+        }
+        function showLogin() {
+            signupForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        }
+
+        function registerUser() {
+            const email = document.getElementById('signup-email').value;
+            const pass = document.getElementById('signup-password').value;
+            const name = document.getElementById('signup-name').value;
+
+            auth.createUserWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    userCredential.user.updateProfile({ displayName: name });
+                    alert("Account Created! You are logged in.");
+                })
+                .catch((error) => alert(error.message));
+        }
+
+        function loginUser() {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            auth.signInWithEmailAndPassword(email, pass)
+                .catch((error) => alert(error.message));
+        }
+
+        function logoutUser() {
+            const user = auth.currentUser;
+            if(user) {
+                db.ref('status/' + user.uid).set({ state: 'offline' });
+            }
+            auth.signOut();
+        }
+    </script>
+</body>
+</html>
