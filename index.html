@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSC Portal - Masrur</title>
+    <title>SSC Futuristic Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -15,189 +15,261 @@
             --bg-deep: #050510;
             --accent-cyan: #00f3ff;
             --accent-pink: #bc13fe;
+            --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
+            --neon-glow: 0 0 10px rgba(0, 243, 255, 0.5), 0 0 20px rgba(0, 243, 255, 0.3);
         }
 
         * { box-sizing: border-box; }
 
         body {
-            margin: 0;
-            font-family: 'Rajdhani', sans-serif;
+            margin: 0; font-family: 'Rajdhani', sans-serif;
             background-color: var(--bg-deep);
-            color: white;
-            min-height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 243, 255, 0.1) 0%, transparent 20%);
+            color: white; height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* Login Section */
-        #auth-container {
-            position: absolute;
-            z-index: 1000;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #050510;
+        /* --- AUTH LOGIN SCREEN (Futuristic Style) --- */
+        #auth-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 16, 0.95); z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px); transition: opacity 0.5s;
         }
 
-        .auth-box {
-            background: rgba(0, 0, 0, 0.8);
+        .auth-card {
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--accent-cyan);
-            padding: 30px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 350px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.15);
+            padding: 40px; border-radius: 20px; text-align: center;
+            width: 350px; position: relative; overflow: hidden;
         }
 
-        input {
-            width: 100%; padding: 10px; margin: 10px 0;
-            background: #111; border: 1px solid #444; color: white; border-radius: 5px;
+        .auth-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink));
         }
 
-        .btn-main {
-            width: 100%; padding: 10px; background: var(--accent-cyan);
-            border: none; font-weight: bold; cursor: pointer; margin-top: 10px; border-radius: 5px;
+        .auth-input {
+            width: 100%; padding: 15px; margin: 10px 0;
+            background: rgba(0,0,0,0.3); border: 1px solid #333;
+            color: var(--accent-cyan); font-family: 'Rajdhani', sans-serif; font-size: 1.1rem;
+            border-radius: 5px; outline: none; transition: 0.3s;
         }
+        .auth-input:focus { border-color: var(--accent-pink); box-shadow: 0 0 10px rgba(188, 19, 254, 0.3); }
 
-        .link { margin-top: 15px; font-size: 14px; cursor: pointer; color: #aaa; }
-        .link span { color: var(--accent-cyan); text-decoration: underline; }
+        .btn-neon {
+            width: 100%; padding: 15px; margin-top: 15px;
+            background: transparent; border: 2px solid var(--accent-cyan);
+            color: var(--accent-cyan); font-weight: bold; font-size: 1.2rem;
+            text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .btn-neon:hover { background: var(--accent-cyan); color: #000; box-shadow: 0 0 20px var(--accent-cyan); }
 
-        .hidden { display: none !important; }
+        .auth-switch { margin-top: 20px; color: #888; font-size: 0.9rem; cursor: pointer; }
+        .auth-switch span { color: var(--accent-pink); text-decoration: underline; }
 
-        /* 3D App Section */
+        .hidden { display: none !important; opacity: 0; pointer-events: none; }
+
+        /* --- 3D STAGE (Your Original Design) --- */
         .stage {
             width: 90%; max-width: 1200px; height: 80vh;
             display: flex; align-items: center; justify-content: center;
             perspective: 2000px; gap: 40px; padding-bottom: 60px;
+            opacity: 0; transition: opacity 1s; /* Hidden until login */
         }
+        .stage.visible { opacity: 1; }
 
-        /* Book */
         .book-wrapper {
-            position: relative; width: 300px; height: 450px;
-            transform-style: preserve-3d; transition: 1s; z-index: 10;
+            position: relative; width: 320px; height: 480px;
+            transform-style: preserve-3d; transition: all 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+            z-index: 10; cursor: pointer;
         }
-        .stage.active .book-wrapper { transform: translateX(-150px) rotateY(-10deg) scale(0.8); }
+        .stage.active .book-wrapper { transform: translateX(-150px) rotateY(-10deg) scale(0.85); }
+        
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .stage { flex-direction: column; overflow-y: auto; height: 100vh; padding: 20px 0 80px 0; }
+            .stage.active .book-wrapper { transform: translateY(-100px) scale(0.6); }
+        }
 
-        .book { position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; transition: 1s; cursor: pointer; }
+        .book { position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 1s; }
+        .book:hover { transform: rotateY(-10deg) rotateX(5deg); }
         .book.open { transform: rotateY(-160deg); }
 
-        .front {
+        .front, .back, .pages {
             position: absolute; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border: 2px solid var(--accent-cyan);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border-radius: 10px 20px 20px 10px; backface-visibility: hidden; z-index: 2;
+            border-radius: 10px 20px 20px 10px; backface-visibility: hidden;
         }
 
+        .front {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 2px solid var(--accent-cyan);
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.15);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transform: rotateY(0deg); z-index: 2;
+        }
+
+        .front h1 {
+            font-size: 3.5rem; margin: 0;
+            background: linear-gradient(to bottom, #fff, #aaa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .tap-hint { margin-top: 30px; font-size: 0.9rem; letter-spacing: 2px; color: var(--accent-cyan); animation: pulse 2s infinite; }
+
         .pages {
-            position: absolute; width: 100%; height: 100%;
-            background: #111; border: 1px solid #333;
-            transform: rotateY(180deg); z-index: 1;
-            display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 20px;
-            border-radius: 10px 20px 20px 10px;
+            background: #0f0c15; border: 1px solid var(--glass-border);
+            transform: rotateY(180deg); z-index: 1; padding: 30px;
+            display: flex; flex-direction: column; gap: 15px; justify-content: center;
         }
 
         .subject-btn {
-            padding: 12px; background: #222; border: 1px solid #444;
-            color: #ddd; cursor: pointer; text-align: left; border-radius: 5px;
+            padding: 15px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03);
+            border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 15px; font-size: 1.1rem; color: #ccc;
         }
-        .subject-btn:hover { border-color: var(--accent-cyan); background: #2a2a2a; color: white; }
+        .subject-btn:hover {
+            border-color: var(--accent-cyan); background: rgba(0, 243, 255, 0.1);
+            color: white; box-shadow: var(--neon-glow); transform: translateX(10px);
+        }
 
-        /* Dashboard */
         .dashboard-wrapper {
-            flex: 1; height: 100%; opacity: 0; pointer-events: none;
-            transform: translateX(100px); transition: 0.5s;
+            flex: 1; height: 100%; opacity: 0;
+            transform: translateX(100px) rotateY(-10deg); transition: all 0.8s ease 0.3s;
+            pointer-events: none; display: flex; flex-direction: column; gap: 20px;
         }
-        .stage.active .dashboard-wrapper { opacity: 1; pointer-events: all; transform: translateX(0); }
+        .stage.active .dashboard-wrapper { opacity: 1; transform: translateX(0); pointer-events: all; }
 
         .glass-panel {
-            background: rgba(0,0,0,0.7); border: 1px solid #333; border-radius: 15px;
-            padding: 20px; height: 100%; display: flex; flex-direction: column;
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); height: 100%; display: flex; flex-direction: column;
         }
 
-        /* Footer */
-        .footer {
-            position: fixed; bottom: 0; width: 100%; text-align: center;
-            padding: 10px; background: #000; color: #666; font-size: 12px; border-top: 1px solid #333;
-        }
-        .highlight { color: var(--accent-cyan); }
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        .title-neon { font-size: 2rem; font-weight: bold; text-transform: uppercase; text-shadow: 0 0 15px var(--accent-pink); }
+        .close-btn { background: none; border: 1px solid var(--glass-border); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
+        .close-btn:hover { background: var(--accent-pink); border-color: var(--accent-pink); }
 
-        /* Mobile Fix */
-        @media (max-width: 768px) {
-            .stage { flex-direction: column; overflow-y: auto; height: 100vh; padding-top: 20px; }
-            .stage.active .book-wrapper { transform: translateY(-100px) scale(0.6); }
-            .dashboard-wrapper { width: 100%; }
+        .content-grid { display: flex; gap: 20px; height: 100%; overflow: hidden; margin-top: 20px; }
+        
+        .chart-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .ring-svg { width: 220px; height: 220px; transform: rotate(-90deg); }
+        .ring-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 10; }
+        .ring-progress {
+            fill: none; stroke: url(#gradientColor); stroke-width: 10; stroke-linecap: round;
+            stroke-dasharray: 628; stroke-dashoffset: 628; transition: stroke-dashoffset 1.5s ease-out;
+            filter: drop-shadow(0 0 8px var(--accent-cyan));
         }
+        .percent-display { position: absolute; font-size: 3.5rem; font-weight: bold; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+
+        .list-box { flex: 1.5; overflow-y: auto; padding-right: 10px; }
+        .list-box::-webkit-scrollbar { width: 4px; }
+        .list-box::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 4px; }
+
+        .chapter {
+            padding: 15px; margin-bottom: 10px; background: linear-gradient(90deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+            border-left: 2px solid transparent; cursor: pointer; transition: 0.2s;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .chapter:hover { background: linear-gradient(90deg, rgba(0, 243, 255, 0.08) 0%, transparent 100%); border-left-color: var(--accent-cyan); padding-left: 20px; }
+        .chapter.done { border-left-color: #00ff88; }
+        .chapter.done span { color: #00ff88; text-decoration: line-through; opacity: 0.5; }
+
+        .futuristic-footer {
+            position: fixed; bottom: 0; width: 100%; text-align: center; padding: 15px;
+            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(5px);
+            border-top: 1px solid var(--glass-border); z-index: 100; font-size: 0.9rem; color: #aaa; letter-spacing: 1px;
+        }
+        .highlight { color: var(--accent-cyan); text-shadow: 0 0 5px rgba(0, 243, 255, 0.5); font-weight: bold; }
+        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div id="auth-container">
-        <div id="login-form" class="auth-box">
-            <h2 style="color:var(--accent-cyan)">LOGIN</h2>
-            <input type="email" id="login-email" placeholder="Email">
-            <input type="password" id="login-password" placeholder="Password">
-            <button class="btn-main" onclick="handleLogin()">ENTER</button>
-            <div class="link">No ID? <span onclick="toggleForms()">Register</span></div>
+    <svg style="position: absolute; width: 0; height: 0;">
+        <defs>
+            <linearGradient id="gradientColor" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#00f3ff" />
+                <stop offset="100%" stop-color="#bc13fe" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <div id="auth-overlay">
+        <div id="login-card" class="auth-card">
+            <h2 class="title-neon">SYSTEM LOGIN</h2>
+            <input type="email" id="login-email" class="auth-input" placeholder="ACCESS ID (Email)">
+            <input type="password" id="login-password" class="auth-input" placeholder="PASSCODE">
+            <button class="btn-neon" onclick="login()">INITIALIZE</button>
+            <p class="auth-switch">No Access ID? <span onclick="showSignup()">Create One</span></p>
         </div>
 
-        <div id="signup-form" class="auth-box hidden">
-            <h2 style="color:var(--accent-pink)">REGISTER</h2>
-            <input type="text" id="signup-name" placeholder="Name">
-            <input type="email" id="signup-email" placeholder="Email">
-            <input type="password" id="signup-password" placeholder="Password">
-            <button class="btn-main" onclick="handleSignup()">CREATE ID</button>
-            <div class="link">Has ID? <span onclick="toggleForms()">Login</span></div>
+        <div id="signup-card" class="auth-card hidden">
+            <h2 class="title-neon" style="color:var(--accent-pink); text-shadow: 0 0 15px var(--accent-cyan);">NEW AGENT</h2>
+            <input type="text" id="signup-name" class="auth-input" placeholder="AGENT NAME">
+            <input type="email" id="signup-email" class="auth-input" placeholder="EMAIL">
+            <input type="password" id="signup-password" class="auth-input" placeholder="CREATE PASSCODE">
+            <button class="btn-neon" style="border-color:var(--accent-pink); color:var(--accent-pink)" onclick="signup()">REGISTER</button>
+            <p class="auth-switch">Has Access? <span onclick="showLogin()">Login</span></p>
         </div>
     </div>
 
-    <div id="stage" class="stage hidden">
+    <div class="stage" id="stage">
+        
         <div class="book-wrapper">
-            <div class="book" id="book" onclick="toggleBook(this)">
+            <div class="book" id="book">
                 <div class="front">
                     <h1>SSC 2026</h1>
-                    <p style="color:#aaa; letter-spacing:3px;">TRACKER</p>
-                    <small id="user-name" style="color:var(--accent-pink); margin-top:10px;"></small>
-                    <p style="margin-top:20px; font-size:10px; color:cyan;">TAP TO OPEN</p>
+                    <p style="letter-spacing: 5px; color: #888;">TRACKER</p>
+                    <p id="user-display" style="color:var(--accent-cyan); margin-top:10px; font-weight:bold;"></p>
+                    <div class="tap-hint">TAP TO OPEN</div>
                 </div>
                 <div class="pages">
-                    <div class="subject-btn" onclick="openSubject('physics')">⚛️ Physics</div>
-                    <div class="subject-btn" onclick="openSubject('chemistry')">🧪 Chemistry</div>
-                    <div class="subject-btn" onclick="openSubject('biology')">🧬 Biology</div>
-                    <div class="subject-btn" onclick="openSubject('higherMath')">📐 Higher Math</div>
-                    <button onclick="logout()" style="margin-top:20px; background:#d33; color:white; border:none; padding:10px;">LOGOUT</button>
+                    <div class="subject-btn" onclick="openDashboard('physics')"><span>⚛️</span> পদার্থবিজ্ঞান</div>
+                    <div class="subject-btn" onclick="openDashboard('chemistry')"><span>🧪</span> রসায়ন</div>
+                    <div class="subject-btn" onclick="openDashboard('biology')"><span>🧬</span> জীববিজ্ঞান</div>
+                    <div class="subject-btn" onclick="openDashboard('higherMath')"><span>📐</span> উচ্চতর গণিত</div>
+                    <button onclick="logout()" style="margin-top:20px; background:rgba(255,0,0,0.2); border:1px solid red; color:white; padding:10px; width:100%; cursor:pointer;">SYSTEM LOGOUT</button>
                 </div>
             </div>
         </div>
 
         <div class="dashboard-wrapper">
             <div class="glass-panel">
-                <div style="display:flex; justify-content:space-between;">
-                    <h2 id="dashTitle" style="margin:0; color:white;">SUBJECT</h2>
-                    <button onclick="closeDash()" style="background:none; border:1px solid #555; color:white;">X</button>
+                <div class="header">
+                    <div class="title-neon" id="dashTitle">PHYSICS</div>
+                    <button class="close-btn" onclick="closeDashboard()">CLOSE</button>
                 </div>
-                <hr style="border-color:#333">
-                <div id="chapterList" style="overflow-y:auto; flex:1;"></div>
+
+                <div class="content-grid">
+                    <div class="chart-box">
+                        <svg class="ring-svg">
+                            <circle class="ring-bg" cx="110" cy="110" r="100"></circle>
+                            <circle class="ring-progress" id="progressRing" cx="110" cy="110" r="100"></circle>
+                        </svg>
+                        <div class="percent-display" id="percentText">0%</div>
+                        <div style="margin-top: 10px; color: #aaa; font-size: 0.9rem;">COMPLETED</div>
+                    </div>
+                    <div class="list-box" id="chapterList"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="footer">
-        Developed by <span class="highlight">Masrur Muntasir</span> | BSc. in CSE, DIU
+    <div class="futuristic-footer">
+        <p>Developed by <span class="highlight">Masrur Muntasir</span> | BSc. in CSE, DIU</p>
     </div>
 
     <script>
         // ==========================================
-        // 1. YOUR FIREBASE CONFIG HERE
+        // 🔥🔥🔥 তোমার FIREBASE CONFIG এখানে বসাও 🔥🔥🔥
         // ==========================================
-      const firebaseConfig = {
+     const firebaseConfig = {
   apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ",
   authDomain: "masrur-app-dccc1.firebaseapp.com",
   databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com",
@@ -213,108 +285,123 @@
         const auth = firebase.auth();
         const db = firebase.database();
 
-        // Elements
-        const authDiv = document.getElementById('auth-container');
-        const stageDiv = document.getElementById('stage');
-        const loginForm = document.getElementById('login-form');
-        const signupForm = document.getElementById('signup-form');
+        // UI Elements
+        const authOverlay = document.getElementById('auth-overlay');
+        const stage = document.getElementById('stage');
         const book = document.getElementById('book');
+        const loginCard = document.getElementById('login-card');
+        const signupCard = document.getElementById('signup-card');
 
         // --- AUTH FUNCTIONS ---
-        function toggleForms() {
-            loginForm.classList.toggle('hidden');
-            signupForm.classList.toggle('hidden');
+        function showSignup() {
+            loginCard.classList.add('hidden');
+            signupCard.classList.remove('hidden');
         }
 
-        function handleLogin() {
+        function showLogin() {
+            signupCard.classList.add('hidden');
+            loginCard.classList.remove('hidden');
+        }
+
+        function login() {
             const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-password').value;
-            auth.signInWithEmailAndPassword(email, pass).catch(e => alert(e.message));
+            auth.signInWithEmailAndPassword(email, pass).catch(e => alert("Access Denied: " + e.message));
         }
 
-        function handleSignup() {
+        function signup() {
             const email = document.getElementById('signup-email').value;
             const pass = document.getElementById('signup-password').value;
             const name = document.getElementById('signup-name').value;
-            
             auth.createUserWithEmailAndPassword(email, pass).then(cred => {
                 cred.user.updateProfile({ displayName: name });
-                alert("Account Created!");
+                alert("Agent Registered Successfully!");
+                showLogin();
             }).catch(e => alert(e.message));
         }
 
         function logout() {
             auth.signOut();
-            closeDash();
             book.classList.remove('open');
+            closeDashboard();
         }
 
-        // Auth Listener
+        // Listener
         auth.onAuthStateChanged(user => {
             if (user) {
-                authDiv.classList.add('hidden');
-                stageDiv.classList.remove('hidden');
-                document.getElementById('user-name').innerText = user.displayName;
+                authOverlay.classList.add('hidden');
+                stage.classList.add('visible');
+                document.getElementById('user-display').innerText = "AGENT: " + (user.displayName || "UNKNOWN");
                 loadData(user.uid);
             } else {
-                authDiv.classList.remove('hidden');
-                stageDiv.classList.add('hidden');
+                authOverlay.classList.remove('hidden');
+                stage.classList.remove('visible');
             }
         });
 
-        // --- APP FUNCTIONS ---
-        function toggleBook(el) {
+        // --- APP LOGIC (IDENTICAL TO YOUR DESIGN) ---
+        book.addEventListener('click', (e) => {
             // Only open if clicking cover, not inside pages
-            if (!event.target.closest('.pages')) {
-                el.classList.add('open');
+            if (e.target.closest('.front')) {
+                book.classList.add('open');
             }
-        }
+        });
 
-        const chapters = {
-            physics: ["ভৌত রাশি ও পরিমাপ", "গতি", "বল", "কাজ, ক্ষমতা ও শক্তি", "পদার্থের অবস্থা ও চাপ", "বস্তুর উপর তাপের প্রভাব", "তরঙ্গ ও শব্দ", "আলোর প্রতিফলন", "আলোর প্রতিসরণ", "স্থির তড়িৎ", "চল তড়িৎ", "বিদ্যুতের চৌম্বক ক্রিয়া", "আধুনিক পদার্থবিজ্ঞান", "জীবন বাঁচাতে পদার্থবিজ্ঞান"],
-            chemistry: ["রসায়নের ধারণা", "পদার্থের অবস্থা", "পদার্থের গঠন", "পর্যায় সারণি", "রাসায়নিক বন্ধন", "মোলের ধারণা ও রাসায়নিক গণনা", "রাসায়নিক বিক্রিয়া", "রসায়ন ও শক্তি", "এসিড-ক্ষার সমতা", "খনিজ সম্পদ: ধাতু-অধাতু", "খনিজ সম্পদ: জীবাশ্ম", "আমাদের জীবনে রসায়ন"],
-            biology: ["জীবন পাঠ", "জীবকোষ ও টিস্যু", "কোষ বিভাজন", "জীবনীশক্তি", "খাদ্য, পুষ্টি ও পরিপাক", "জীবে পরিবহন", "গ্যাসীয় বিনিময়", "রেচন প্রক্রিয়া", "দৃঢ়তা প্রদান ও চলন", "সমন্বয় ও নিঃসরণ", "জীবের প্রজনন", "জীবের বংশগতি ও বিবর্তন", "জীবের পরিবেশ", "জীবপ্রযুক্তি"],
-            higherMath: ["সেট ও ফাংশন", "বীজগাণিতিক রাশি", "জ্যামিতি", "জ্যামিতিক অংকন", "সমীকরণ", "অসমতা", "অসীম ধারা", "ত্রিকোণমিতি", "সূচকীয় ও লগারিদমীয় ফাংশন", "দ্বিপদী বিস্তৃতি", "স্থানাঙ্ক জ্যামিতি", "সমতলীয় ভেক্টর", "ঘন জ্যামিতি", "সম্ভাবনা"]
+        const syllabus = {
+            physics: { title: "PHYSICS", chapters: ["ভৌত রাশি ও পরিমাপ", "গতি", "বল", "কাজ, ক্ষমতা ও শক্তি", "পদার্থের অবস্থা ও চাপ", "বস্তুর উপর তাপের প্রভাব", "তরঙ্গ ও শব্দ", "আলোর প্রতিফলন", "আলোর প্রতিসরণ", "স্থির তড়িৎ", "চল তড়িৎ", "বিদ্যুতের চৌম্বক ক্রিয়া", "আধুনিক পদার্থবিজ্ঞান", "জীবন বাঁচাতে পদার্থবিজ্ঞান"] },
+            chemistry: { title: "CHEMISTRY", chapters: ["রসায়নের ধারণা", "পদার্থের অবস্থা", "পদার্থের গঠন", "পর্যায় সারণি", "রাসায়নিক বন্ধন", "মোলের ধারণা ও রাসায়নিক গণনা", "রাসায়নিক বিক্রিয়া", "রসায়ন ও শক্তি", "এসিড-ক্ষার সমতা", "খনিজ সম্পদ: ধাতু-অধাতু", "খনিজ সম্পদ: জীবাশ্ম", "আমাদের জীবনে রসায়ন"] },
+            biology: { title: "BIOLOGY", chapters: ["জীবন পাঠ", "জীবকোষ ও টিস্যু", "কোষ বিভাজন", "জীবনীশক্তি", "খাদ্য, পুষ্টি ও পরিপাক", "জীবে পরিবহন", "গ্যাসীয় বিনিময়", "রেচন প্রক্রিয়া", "দৃঢ়তা প্রদান ও চলন", "সমন্বয় ও নিঃসরণ", "জীবের প্রজনন", "জীবের বংশগতি ও বিবর্তন", "জীবের পরিবেশ", "জীবপ্রযুক্তি"] },
+            higherMath: { title: "HIGHER MATH", chapters: ["সেট ও ফাংশন", "বীজগাণিতিক রাশি", "জ্যামিতি", "জ্যামিতিক অংকন", "সমীকরণ", "অসমতা", "অসীম ধারা", "ত্রিকোণমিতি", "সূচকীয় ও লগারিদমীয় ফাংশন", "দ্বিপদী বিস্তৃতি", "স্থানাঙ্ক জ্যামিতি", "সমতলীয় ভেক্টর", "ঘন জ্যামিতি", "সম্ভাবনা"] }
         };
 
         let currentData = {};
-        let activeSub = null;
+        let activeSubject = null;
 
         function loadData(uid) {
             db.ref('progress/' + uid).on('value', snap => {
                 currentData = snap.val() || {};
-                if(activeSub) openSubject(activeSub);
+                if(activeSubject) renderDashboard(activeSubject);
             });
         }
 
-        function openSubject(sub) {
-            activeSub = sub;
-            stageDiv.classList.add('active');
-            document.getElementById('dashTitle').innerText = sub.toUpperCase();
+        function openDashboard(key) {
+            activeSubject = key;
+            stage.classList.add('active');
+            renderDashboard(key);
+        };
+
+        function closeDashboard() {
+            stage.classList.remove('active');
+            activeSubject = null;
+        };
+
+        function renderDashboard(key) {
+            const data = syllabus[key];
+            const userProgress = currentData[key] || [];
             
+            document.getElementById('dashTitle').innerText = data.title;
             const list = document.getElementById('chapterList');
             list.innerHTML = '';
-            const subData = currentData[sub] || [];
-
-            chapters[sub].forEach((chap, idx) => {
-                const isDone = subData[idx] === true;
+            
+            let doneCount = 0;
+            data.chapters.forEach((chap, idx) => {
+                const isDone = userProgress[idx] === true;
+                if(isDone) doneCount++;
                 const div = document.createElement('div');
-                div.style.padding = "10px";
-                div.style.borderBottom = "1px solid #333";
-                div.style.cursor = "pointer";
-                div.style.color = isDone ? "#0f0" : "#fff";
-                div.innerHTML = `<span>${idx+1}. ${chap}</span> ${isDone ? '✔' : ''}`;
+                div.className = `chapter ${isDone ? 'done' : ''}`;
+                div.innerHTML = `<span>${idx + 1}. ${chap}</span> <span>${isDone ? '✔' : ''}</span>`;
                 div.onclick = () => {
                     const uid = auth.currentUser.uid;
-                    db.ref(`progress/${uid}/${sub}/${idx}`).set(!isDone);
+                    db.ref(`progress/${uid}/${key}/${idx}`).set(!isDone);
                 };
                 list.appendChild(div);
             });
-        }
 
-        function closeDash() {
-            stageDiv.classList.remove('active');
-            activeSub = null;
+            const total = data.chapters.length;
+            const percent = Math.round((doneCount / total) * 100);
+            const offset = 628 - (628 * percent) / 100;
+            document.getElementById('progressRing').style.strokeDashoffset = offset;
+            document.getElementById('percentText').innerText = percent + "%";
         }
     </script>
 </body>
