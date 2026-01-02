@@ -16,7 +16,7 @@
         :root {
             /* Premium Futuristic Palette */
             --bg-deep: #020204;
-            --glass-panel: rgba(15, 15, 20, 0.75);
+            --glass-panel: rgba(15, 15, 20, 0.85);
             --glass-border: rgba(255, 255, 255, 0.08);
             --glass-highlight: rgba(255, 255, 255, 0.15);
             
@@ -43,26 +43,22 @@
             margin: 0; background: var(--bg-deep); color: var(--text-main);
             font-family: var(--font-body); height: 100vh; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
-            /* Animated Deep Space Background */
-            background-image: radial-gradient(circle at top right, rgba(0, 243, 255, 0.1), transparent 40%),
-                              radial-gradient(circle at bottom left, rgba(188, 19, 254, 0.1), transparent 40%);
-            background-size: 200% 200%;
-            animation: bgShift 20s ease infinite alternate;
+            background-image: radial-gradient(circle at top right, rgba(0, 243, 255, 0.08), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(188, 19, 254, 0.08), transparent 40%);
+            background-size: cover;
         }
-
-        @keyframes bgShift { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
 
         /* --- AUTH SCREEN --- */
         #auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999;
-            background: rgba(2, 2, 4, 0.95); backdrop-filter: blur(20px);
+            background: rgba(2, 2, 4, 0.98); backdrop-filter: blur(10px);
             display: flex; align-items: center; justify-content: center;
             transition: opacity 0.6s var(--smooth-ease);
         }
         .login-card {
             width: 340px; padding: 40px; 
             background: var(--glass-panel); border: 1px solid var(--glass-border);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
             border-radius: 20px; text-align: center; position: relative; overflow: hidden;
         }
         .login-card::before {
@@ -74,7 +70,7 @@
             border: 1px solid var(--glass-border); color: white; border-radius: 10px;
             transition: 0.3s; font-family: var(--font-body);
         }
-        .inp:focus { border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
+        .inp:focus { border-color: var(--accent-blue); }
         .btn {
             width: 100%; padding: 15px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
             border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer;
@@ -84,20 +80,18 @@
 
         /* --- MAIN LAYOUT --- */
         .app-container {
-            width: 95%; max-width: 1250px; height: 92vh;
-            display: flex; gap: 25px; opacity: 0; pointer-events: none;
+            width: 95%; max-width: 1300px; height: 92vh;
+            display: flex; gap: 20px; opacity: 0; pointer-events: none;
             transition: opacity 0.8s var(--smooth-ease);
         }
         .app-container.active { opacity: 1; pointer-events: all; }
 
-        /* PREMIUM GLASS PANEL STYLE */
+        /* PANELS */
         .glass-panel {
             background: var(--glass-panel); border: 1px solid var(--glass-border);
-            backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-            border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-            transition: 0.3s var(--smooth-ease);
+            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
-        .glass-panel:hover { border-color: var(--glass-highlight); box-shadow: 0 20px 50px rgba(0, 243, 255, 0.1); }
 
         /* SIDEBAR */
         .nav-panel { width: 300px; padding: 25px; display: flex; flex-direction: column; }
@@ -107,29 +101,35 @@
             display: flex; align-items: center; gap: 15px;
         }
         .logo-img { width: 50px; height: auto; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
-        .brand-title { font-family: var(--font-head); font-size: 1.4rem; color: var(--accent-blue); font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
+        .brand-title { font-family: var(--font-head); font-size: 1.4rem; color: var(--accent-blue); font-weight: 700; letter-spacing: 1px; }
         .brand-sub { font-size: 0.7rem; color: var(--text-mute); letter-spacing: 2px; margin-top: 2px;}
 
         .nav-menu { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        
         .nav-item {
             padding: 14px; border-radius: 12px; cursor: pointer; color: var(--text-mute);
             transition: 0.3s var(--smooth-ease); display: flex; align-items: center; gap: 12px; font-weight: 500;
             border: 1px solid transparent;
         }
-        .nav-item i { width: 20px; text-align: center; transition: 0.3s; }
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text-main); border-color: var(--glass-border); transform: translateX(5px); }
-        .nav-item.active { background: rgba(0, 243, 255, 0.1); color: var(--accent-blue); border-color: var(--accent-blue); box-shadow: 0 0 20px rgba(0, 243, 255, 0.1) inset; }
-        .nav-item.active i { color: var(--accent-blue); filter: drop-shadow(0 0 5px var(--accent-blue)); }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text-main); transform: translateX(5px); }
+        .nav-item.active { background: rgba(0, 243, 255, 0.1); color: var(--accent-blue); border-color: var(--accent-blue); }
+
+        /* FRB PULSE BUTTON IN SIDEBAR */
+        .nav-item.promo-btn {
+            background: rgba(255, 215, 0, 0.05); color: var(--accent-gold); border: 1px solid rgba(255, 215, 0, 0.2);
+            animation: pulse-glow 2s infinite; font-weight: bold;
+        }
+        .nav-item.promo-btn:hover { background: var(--accent-gold); color: black; }
+        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.2); } 70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); } }
 
         .dev-footer {
             margin-top: auto; padding-top: 20px; border-top: 1px solid var(--glass-border);
-            text-align: center; font-size: 0.7rem; color: #666; line-height: 1.6; opacity: 0.7; transition: 0.3s;
+            text-align: center; font-size: 0.7rem; color: #666; line-height: 1.6;
         }
-        .dev-footer:hover { opacity: 1; }
-        .dev-name { color: var(--accent-blue); font-weight: 700; font-family: var(--font-head); letter-spacing: 0.5px; }
+        .dev-name { color: var(--accent-blue); font-weight: 700; }
 
         /* CONTENT */
-        .content-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .content-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
         .header-bar {
             height: 70px; border-bottom: 1px solid var(--glass-border); display: flex;
@@ -139,74 +139,72 @@
         .user-profile { display: flex; align-items: center; gap: 10px; padding: 8px 15px; background: rgba(255,255,255,0.05); border-radius: 30px; border: 1px solid var(--glass-border); }
 
         .view-area { flex: 1; padding: 30px; overflow-y: auto; }
-        .tab-view { display: none; animation: slideUp 0.5s var(--smooth-ease); }
+        .tab-view { display: none; animation: fadeIn 0.4s ease; }
         .tab-view.active { display: block; }
 
-        /* COMPONENTS (Cards & Lists) */
+        /* HERO BANNER IN DASHBOARD */
+        .hero-banner {
+            background: linear-gradient(135deg, #0088cc 0%, #bc13fe 100%);
+            border-radius: 16px; padding: 25px; margin-bottom: 25px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 10px 30px rgba(0, 136, 204, 0.3);
+            position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.2);
+        }
+        .hero-banner::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            animation: rotate 15s linear infinite; pointer-events: none;
+        }
+        @keyframes rotate { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
+
         .chapter-card {
             display: flex; justify-content: space-between; align-items: center;
             padding: 18px 25px; margin-bottom: 12px; background: rgba(255,255,255,0.02);
             border: 1px solid var(--glass-border); border-radius: 12px; cursor: pointer;
             transition: 0.3s var(--smooth-ease);
         }
-        .chapter-card:hover { background: rgba(255,255,255,0.05); border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .chapter-card:hover { background: rgba(255,255,255,0.05); border-color: var(--accent-blue); transform: translateX(5px); }
         .chapter-card.done { border-left: 4px solid var(--success); background: rgba(0, 210, 106, 0.05); }
-        
-        /* CONTACT & COMMUNITY CARDS */
-        .section-title { font-family: var(--font-head); color: var(--accent-blue); font-size: 0.9rem; margin: 25px 0 15px 0; letter-spacing: 1.5px; font-weight: 700; }
 
         .contact-card {
             display: flex; align-items: center; background: rgba(255,255,255,0.02);
-            border: 1px solid var(--glass-border); padding: 25px; border-radius: 16px;
-            margin-bottom: 15px; transition: 0.3s var(--smooth-ease); position: relative; overflow: hidden;
+            border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px;
+            margin-bottom: 15px; transition: 0.3s;
         }
-        .contact-card:hover { border-color: var(--accent-purple); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(188, 19, 254, 0.1); }
-        .contact-card::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.03), transparent); transform: translateX(-100%); transition: 0.5s; }
-        .contact-card:hover::after { transform: translateX(100%); }
-
-        .icon-box { width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); }
-        
-        .role-badge { font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.1); margin-top: 6px; display: inline-block; font-weight: 600; letter-spacing: 0.5px; }
+        .contact-card:hover { border-color: var(--accent-purple); transform: translateY(-3px); }
         
         .action-btn {
-            margin-left: auto; padding: 12px 25px; border-radius: 30px; text-decoration: none;
-            font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;
+            margin-left: auto; padding: 10px 20px; border-radius: 30px; text-decoration: none;
+            font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
             transition: 0.3s; font-family: var(--font-head); letter-spacing: 1px;
+            z-index: 2; cursor: pointer;
         }
-        .btn-wa { background: rgba(37, 211, 102, 0.15); color: var(--whatsapp); border: 1px solid var(--whatsapp); }
-        .btn-wa:hover { background: var(--whatsapp); color: black; box-shadow: 0 0 20px var(--whatsapp); }
-        .btn-tg { background: rgba(0, 136, 204, 0.15); color: var(--telegram); border: 1px solid var(--telegram); }
-        .btn-tg:hover { background: var(--telegram); color: white; box-shadow: 0 0 20px var(--telegram); }
+        .btn-banner { background: white; color: #0088cc; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .btn-banner:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
 
-        .frb-banner {
-            background: linear-gradient(135deg, rgba(0, 136, 204, 0.8), rgba(188, 19, 254, 0.8));
-            padding: 25px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 25px; color: white; border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 15px 30px rgba(0, 136, 204, 0.2); position: relative; overflow: hidden;
-        }
-        .frb-banner::before { content:''; position:absolute; width:200%; height:200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); top:-50%; left:-50%; animation: rotate 10s linear infinite; }
-        @keyframes rotate { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
+        .btn-wa { background: rgba(37, 211, 102, 0.1); color: var(--whatsapp); border: 1px solid var(--whatsapp); }
+        .btn-wa:hover { background: var(--whatsapp); color: black; }
+        .btn-tg { background: rgba(0, 136, 204, 0.1); color: var(--telegram); border: 1px solid var(--telegram); }
+        .btn-tg:hover { background: var(--telegram); color: white; }
 
-        /* Animations */
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
-        ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 
         /* Mobile */
         @media (max-width: 768px) {
             .app-container { flex-direction: column; width: 100%; height: 100%; border-radius: 0; gap: 0; }
             .nav-panel { width: 100%; height: auto; padding: 15px; flex-direction: row; border-radius: 0; overflow-x: auto; border-bottom: 1px solid var(--glass-border); align-items: center; }
-            .brand-section { border-bottom: none; margin-bottom: 0; padding-bottom: 0; margin-right: 20px; }
+            .brand-section { border-bottom: none; margin-bottom: 0; padding-bottom: 0; margin-right: 15px; }
             .logo-img { width: 35px; } .brand-title { font-size: 1.1rem; } .brand-sub, .dev-footer { display: none; }
             .nav-menu { flex-direction: row; gap: 10px; }
-            .nav-item { white-space: nowrap; padding: 10px 15px; font-size: 0.8rem; }
+            .nav-item { white-space: nowrap; padding: 8px 12px; font-size: 0.8rem; }
             .header-bar { height: 60px; padding: 0 20px; }
-            .frb-banner { flex-direction: column; text-align: center; gap: 15px; }
-            .frb-banner .action-btn { width: 100%; justify-content: center; }
+            .hero-banner { flex-direction: column; text-align: center; gap: 15px; }
+            .hero-banner .action-btn { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -230,28 +228,34 @@
                 <img src="logo.png" alt="Logo" class="logo-img">
                 <div>
                     <div class="brand-title">BIGGAN CLASS</div>
-                    <div class="brand-sub">CLASS 9 & 10 PLATFORM</div>
+                    <div class="brand-sub">CLASS 9 & 10</div>
                 </div>
             </div>
             
             <div class="nav-menu">
-                <div style="font-size:0.7rem; color:#666; margin:15px 0 5px 0; font-weight:700; letter-spacing:1px;">MODULES</div>
+                <a href="https://t.me/biggan_class" target="_blank" style="text-decoration:none;">
+                    <div class="nav-item promo-btn">
+                        <i class="fas fa-rocket"></i> Free FRB Course
+                    </div>
+                </a>
+
+                <div style="font-size:0.7rem; color:#666; margin:15px 0 5px 0; font-weight:700;">MODULES</div>
                 <div class="nav-item active" onclick="loadTab('physics', this)"><i class="fas fa-atom"></i> Physics</div>
                 <div class="nav-item" onclick="loadTab('chemistry', this)"><i class="fas fa-flask"></i> Chemistry</div>
                 <div class="nav-item" onclick="loadTab('biology', this)"><i class="fas fa-dna"></i> Biology</div>
                 <div class="nav-item" onclick="loadTab('higherMath', this)"><i class="fas fa-calculator"></i> Higher Math</div>
                 
-                <div style="font-size:0.7rem; color:#666; margin:25px 0 5px 0; font-weight:700; letter-spacing:1px;">HUB</div>
+                <div style="font-size:0.7rem; color:#666; margin:20px 0 5px 0; font-weight:700;">HUB</div>
                 <div class="nav-item" onclick="loadTab('leaderboard', this)"><i class="fas fa-trophy" style="color:var(--accent-gold);"></i> Ranking</div>
-                <div class="nav-item" onclick="loadTab('pomodoro', this)"><i class="fas fa-stopwatch"></i> Focus Timer</div>
-                <div class="nav-item" onclick="loadTab('contact', this)" style="color:var(--accent-blue);"><i class="fas fa-headset"></i> Help & Community</div>
+                <div class="nav-item" onclick="loadTab('pomodoro', this)"><i class="fas fa-stopwatch"></i> Timer</div>
+                <div class="nav-item" onclick="loadTab('contact', this)" style="color:var(--accent-blue);"><i class="fas fa-headset"></i> Support</div>
                 
                 <div style="flex:1;"></div>
-                <button onclick="logout()" style="background:none; border:none; color:#ff4757; cursor:pointer; font-size:0.9rem; padding:15px 5px; text-align:left; display:flex; align-items:center; gap:10px; font-weight:600; transition:0.3s;"><i class="fas fa-sign-out-alt"></i> Terminate Session</button>
+                <button onclick="logout()" style="background:none; border:none; color:#ff4757; cursor:pointer; font-size:0.85rem; padding:10px 5px; text-align:left; display:flex; align-items:center; gap:10px; font-weight:600;"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
 
             <div class="dev-footer">
-                Designed & Engineered by <br> <span class="dev-name">Masrur Muntasir</span>
+                Engineered by <br> <span class="dev-name">Masrur Muntasir</span>
                 <br>Moderator Team Leader
                 <br>BSc. in CSE, DIU
             </div>
@@ -268,70 +272,59 @@
 
             <div class="view-area">
                 
-                <div id="view-subject" class="tab-view active"><div id="chapter-container">Loading Module...</div></div>
+                <div id="view-subject" class="tab-view active">
+                    
+                    <div class="hero-banner">
+                        <div>
+                            <div style="font-weight:700; font-size:1.4rem; font-family:var(--font-head);"><i class="fas fa-star"></i> Free FRB Course</div>
+                            <div style="font-size:0.9rem; opacity:0.9; margin-top:5px;">Join the exclusive Telegram Channel now!</div>
+                        </div>
+                        <a href="https://t.me/biggan_class" target="_blank" class="action-btn btn-banner">
+                            <i class="fab fa-telegram-plane"></i> Join Now
+                        </a>
+                    </div>
+
+                    <div id="chapter-container">Loading Module...</div>
+                </div>
 
                 <div id="view-leaderboard" class="tab-view"><div id="rank-list">Syncing Global Data...</div></div>
 
                 <div id="view-pomodoro" class="tab-view">
                     <div style="text-align:center; padding-top:80px;">
-                        <div style="position:relative; width:250px; height:250px; margin:0 auto;">
-                            <svg width="250" height="250" style="transform: rotate(-90deg);">
-                                <circle cx="125" cy="125" r="110" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="none"/>
-                                <circle cx="125" cy="125" r="110" stroke="url(#gradient)" stroke-width="8" fill="none" stroke-dasharray="691" stroke-dashoffset="0" id="timer-ring" style="transition:1s linear;"/>
-                                <defs><linearGradient id="gradient"><stop offset="0%" stop-color="#00f3ff"/><stop offset="100%" stop-color="#bc13fe"/></linearGradient></defs>
-                            </svg>
-                            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
-                                <div style="font-family:var(--font-head); font-size:4rem; font-weight:700;" id="time">25:00</div>
-                                <div style="color:var(--accent-blue); font-size:0.8rem; letter-spacing:2px;">FOCUS SESSION</div>
-                            </div>
-                        </div>
-                        <button class="btn" onclick="startTimer()" style="width:180px; margin-top:40px; border-radius:30px;">INITIATE FOCUS</button>
+                        <div style="font-family:var(--font-head); font-size:5rem; font-weight:700; text-shadow:0 0 20px rgba(0,243,255,0.3);" id="time">25:00</div>
+                        <div style="color:var(--accent-blue); letter-spacing:2px; margin-bottom:30px;">FOCUS SESSION</div>
+                        <button class="btn" onclick="startTimer()" style="width:160px; border-radius:30px;">START FOCUS</button>
                     </div>
                 </div>
 
                 <div id="view-contact" class="tab-view">
-                    
-                    <div class="frb-banner" style="position:relative; z-index:1;">
-                        <div>
-                            <div style="font-weight:700; font-size:1.3rem; font-family:var(--font-head); letter-spacing:1px;"><i class="fas fa-rocket"></i> FRB Premium Course</div>
-                            <div style="font-size:0.9rem; opacity:0.9; margin-top:5px;">Exclusive access via Telegram Channel</div>
-                        </div>
-                        <a href="https://t.me/biggan_class" target="_blank" class="action-btn" style="background:white; color:#0088cc; box-shadow:0 10px 20px rgba(0,0,0,0.2);">
-                            <i class="fab fa-telegram-plane"></i> Access Course
-                        </a>
-                    </div>
-
-                    <div class="section-title">OFFICIAL COMMUNITY</div>
-                    
+                    <div style="color:var(--accent-blue); font-size:0.9rem; margin-bottom:15px; font-weight:bold;">OFFICIAL COMMUNITY</div>
                     <div class="contact-card">
-                        <div class="icon-box" style="color:var(--telegram);"><i class="fab fa-telegram"></i></div>
+                        <div style="font-size:24px; color:var(--telegram); margin-right:15px;"><i class="fab fa-telegram"></i></div>
                         <div>
-                            <div style="font-weight:700; font-size:1.1rem;">BIGGAN CLASS 9&10</div>
-                            <div style="font-size:0.8rem; color:#aaa;">Official Student Group Chat</div>
+                            <div style="font-weight:700;">BIGGAN CLASS 9&10</div>
+                            <div style="font-size:0.8rem; color:#aaa;">Official Student Group</div>
                         </div>
                         <a href="https://t.me/biggan_class_SSC" target="_blank" class="action-btn btn-tg">Join Group</a>
                     </div>
 
-                    <div class="section-title">ADMINISTRATION & SUPPORT</div>
-
+                    <div style="color:var(--accent-blue); font-size:0.9rem; margin:25px 0 15px 0; font-weight:bold;">SUPPORT TEAM</div>
                     <div class="contact-card">
-                        <div class="icon-box" style="color:#ffd700; background:rgba(255, 215, 0, 0.1);"><i class="fas fa-chalkboard-teacher"></i></div>
+                        <div style="font-size:24px; color:#ffd700; margin-right:15px;"><i class="fas fa-chalkboard-teacher"></i></div>
                         <div>
-                            <div style="font-weight:700; font-size:1.1rem;">Pial Hasan</div>
-                            <div class="role-badge" style="color:#ffd700; background:rgba(255, 215, 0, 0.15);">Instructor</div>
+                            <div style="font-weight:700;">Pial Hasan</div>
+                            <div style="font-size:0.7rem; color:#ffd700;">Instructor</div>
                         </div>
                         <a href="https://wa.me/8801792595165" target="_blank" class="action-btn btn-wa"><i class="fab fa-whatsapp"></i> Message</a>
                     </div>
-
                     <div class="contact-card">
-                        <div class="icon-box" style="color:var(--accent-blue); background:rgba(0, 243, 255, 0.1);"><i class="fas fa-laptop-code"></i></div>
+                        <div style="font-size:24px; color:var(--accent-blue); margin-right:15px;"><i class="fas fa-code"></i></div>
                         <div>
-                            <div style="font-weight:700; font-size:1.1rem;">Masrur Muntasir</div>
-                            <div class="role-badge" style="color:var(--accent-blue); background:rgba(0, 243, 255, 0.15);">Moderator Team Leader</div>
+                            <div style="font-weight:700;">Masrur Muntasir</div>
+                            <div style="font-size:0.7rem; color:var(--accent-blue);">Tech Support</div>
                         </div>
                         <a href="https://wa.me/8801706592005" target="_blank" class="action-btn btn-wa"><i class="fab fa-whatsapp"></i> Support</a>
                     </div>
-
                 </div>
 
             </div>
@@ -341,19 +334,16 @@
     <audio id="alarm" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
     <script>
-        // ==========================================
-        // 🔥🔥🔥 FIREBASE CONFIG 🔥🔥🔥
-        // ==========================================
-       const firebaseConfig = {
-  apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ",
-  authDomain: "masrur-app-dccc1.firebaseapp.com",
-  databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com",
-  projectId: "masrur-app-dccc1",
-  storageBucket: "masrur-app-dccc1.firebasestorage.app",
-  messagingSenderId: "54049170636",
-  appId: "1:54049170636:web:0d0fd5f530027e72688e69",
-  measurementId: "G-0R3B6EB17B"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ",
+            authDomain: "masrur-app-dccc1.firebaseapp.com",
+            databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com",
+            projectId: "masrur-app-dccc1",
+            storageBucket: "masrur-app-dccc1.firebasestorage.app",
+            messagingSenderId: "54049170636",
+            appId: "1:54049170636:web:0d0fd5f530027e72688e69",
+            measurementId: "G-0R3B6EB17B"
+        };
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -362,10 +352,9 @@
         let currentUser = null;
         let timerInt = null;
         let timeLeft = 1500;
-        const totalTime = 1500;
 
         const syllabus = {
-            physics: { title: "PHYSICS", chapters: ["ভৌত রাশি", "গতি", "বল", "কাজ", "পদার্থের অবস্থা", "তাপ", "তরঙ্গ", "আলো", "তড়িৎ"] },
+            physics: { title: "PHYSICS", chapters: ["ভৌত রাশি", "গতি", "বল", "কাজ", "পদার্থের অবস্থা", "তাপ", "তরঙ্গ", "আলো", "তড়িৎ"] },
             chemistry: { title: "CHEMISTRY", chapters: ["ধারণা", "অবস্থা", "গঠন", "পর্যায় সারণি", "বন্ধন", "মোল", "বিক্রিয়", "শক্তি"] },
             biology: { title: "BIOLOGY", chapters: ["জীবন পাঠ", "কোষ", "বিভাজন", "জীবনীশক্তি", "খাদ্য", "পরিবহন", "রেচন", "সমন্বয়"] },
             higherMath: { title: "HIGHER MATH", chapters: ["সেট", "বীজগণিত", "জ্যামিতি", "সমীকরণ", "অসমতা", "ধারা", "ত্রিকোণমিতি", "সূচক"] }
@@ -394,8 +383,13 @@
         });
 
         function loadTab(key, el) {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            if(el) el.classList.add('active');
+            if(key === 'contact' || key === 'leaderboard' || key === 'pomodoro') {
+                // Keep active subject tab highlighted if switching to tool
+            } else {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                if(el) el.classList.add('active');
+            }
+            
             document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
 
             if(syllabus[key]) {
@@ -454,13 +448,10 @@
 
         function startTimer() {
             if(timerInt) return;
-            const ring = document.getElementById('timer-ring');
             timerInt = setInterval(() => {
                 timeLeft--;
                 document.getElementById('time').innerText = `${Math.floor(timeLeft/60).toString().padStart(2,'0')}:${(timeLeft%60).toString().padStart(2,'0')}`;
-                const offset = 691 - (timeLeft / totalTime) * 691;
-                ring.style.strokeDashoffset = offset;
-                if(timeLeft<=0) { clearInterval(timerInt); timerInt=null; timeLeft=1500; alert("Session Complete!"); ring.style.strokeDashoffset = 0; }
+                if(timeLeft<=0) { clearInterval(timerInt); timerInt=null; timeLeft=1500; alert("Session Complete!"); }
             }, 1000);
         }
     </script>
