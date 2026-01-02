@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSC Portal - Secure Access</title>
+    <title>SSC Portal - Masrur</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
     <style>
         :root {
             --bg-deep: #050510;
             --accent-cyan: #00f3ff;
             --accent-pink: #bc13fe;
-            --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --neon-glow: 0 0 10px rgba(0, 243, 255, 0.5);
         }
 
         * { box-sizing: border-box; }
@@ -21,9 +24,6 @@
             margin: 0;
             font-family: 'Rajdhani', sans-serif;
             background-color: var(--bg-deep);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 243, 255, 0.1) 0%, transparent 20%);
             color: white;
             min-height: 100vh;
             overflow: hidden;
@@ -33,7 +33,7 @@
             justify-content: center;
         }
 
-        /* --- AUTH SECTION (LOGIN/SIGNUP) --- */
+        /* Login Section */
         #auth-container {
             position: absolute;
             z-index: 1000;
@@ -42,146 +42,98 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--bg-deep); /* Cover everything else */
-            transition: opacity 0.5s;
+            background: #050510;
         }
 
         .auth-box {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.8);
             border: 1px solid var(--accent-cyan);
-            padding: 40px;
-            border-radius: 15px;
+            padding: 30px;
+            border-radius: 10px;
             width: 90%;
-            max-width: 400px;
+            max-width: 350px;
             text-align: center;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
         }
 
-        .auth-box h2 { margin: 0 0 20px 0; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 2px; }
-        
         input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid #333;
-            color: white;
-            border-radius: 5px;
-            outline: none;
+            width: 100%; padding: 10px; margin: 10px 0;
+            background: #111; border: 1px solid #444; color: white; border-radius: 5px;
         }
-        input:focus { border-color: var(--accent-pink); }
 
         .btn-main {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            background: linear-gradient(90deg, var(--accent-cyan), #007bff);
-            border: none;
-            color: black;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 5px;
-            text-transform: uppercase;
+            width: 100%; padding: 10px; background: var(--accent-cyan);
+            border: none; font-weight: bold; cursor: pointer; margin-top: 10px; border-radius: 5px;
         }
-        .btn-main:hover { box-shadow: 0 0 15px var(--accent-cyan); }
 
-        .link { color: #aaa; font-size: 0.9rem; margin-top: 15px; cursor: pointer; }
+        .link { margin-top: 15px; font-size: 14px; cursor: pointer; color: #aaa; }
         .link span { color: var(--accent-cyan); text-decoration: underline; }
 
         .hidden { display: none !important; }
 
-        /* --- APP SECTION (3D TRACKER) --- */
+        /* 3D App Section */
         .stage {
-            width: 90%;
-            max-width: 1200px;
-            height: 80vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            perspective: 2000px;
-            gap: 40px;
-            padding-bottom: 60px;
-            transition: opacity 0.5s;
+            width: 90%; max-width: 1200px; height: 80vh;
+            display: flex; align-items: center; justify-content: center;
+            perspective: 2000px; gap: 40px; padding-bottom: 60px;
         }
 
-        /* --- BOOK & DASHBOARD STYLES (SAME AS BEFORE) --- */
+        /* Book */
         .book-wrapper {
-            position: relative; width: 320px; height: 480px;
-            transform-style: preserve-3d;
-            transition: all 1s cubic-bezier(0.645, 0.045, 0.355, 1);
-            z-index: 10; cursor: pointer;
+            position: relative; width: 300px; height: 450px;
+            transform-style: preserve-3d; transition: 1s; z-index: 10;
         }
-        .stage.active .book-wrapper { transform: translateX(-150px) rotateY(-10deg) scale(0.85); }
-        
-        .book { position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 1s; }
-        .book:hover { transform: rotateY(-10deg) rotateX(5deg); }
+        .stage.active .book-wrapper { transform: translateX(-150px) rotateY(-10deg) scale(0.8); }
+
+        .book { position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; transition: 1s; cursor: pointer; }
         .book.open { transform: rotateY(-160deg); }
 
-        .front, .pages {
-            position: absolute; width: 100%; height: 100%;
-            border-radius: 10px 20px 20px 10px; backface-visibility: hidden;
-        }
         .front {
+            position: absolute; width: 100%; height: 100%;
             background: linear-gradient(135deg, #1a1a2e, #16213e);
             border: 2px solid var(--accent-cyan);
-            box-shadow: 0 0 40px rgba(0, 243, 255, 0.15);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 2;
-        }
-        .pages {
-            background: #0f0c15; border: 1px solid var(--glass-border);
-            transform: rotateY(180deg); z-index: 1; padding: 30px;
-            display: flex; flex-direction: column; gap: 15px; justify-content: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border-radius: 10px 20px 20px 10px; backface-visibility: hidden; z-index: 2;
         }
 
-        .dashboard-wrapper {
-            flex: 1; height: 100%; opacity: 0;
-            transform: translateX(100px) rotateY(-10deg);
-            transition: all 0.8s ease 0.3s;
-            pointer-events: none; display: flex; flex-direction: column; gap: 20px;
+        .pages {
+            position: absolute; width: 100%; height: 100%;
+            background: #111; border: 1px solid #333;
+            transform: rotateY(180deg); z-index: 1;
+            display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 20px;
+            border-radius: 10px 20px 20px 10px;
         }
-        .stage.active .dashboard-wrapper { opacity: 1; transform: translateX(0); pointer-events: all; }
+
+        .subject-btn {
+            padding: 12px; background: #222; border: 1px solid #444;
+            color: #ddd; cursor: pointer; text-align: left; border-radius: 5px;
+        }
+        .subject-btn:hover { border-color: var(--accent-cyan); background: #2a2a2a; color: white; }
+
+        /* Dashboard */
+        .dashboard-wrapper {
+            flex: 1; height: 100%; opacity: 0; pointer-events: none;
+            transform: translateX(100px); transition: 0.5s;
+        }
+        .stage.active .dashboard-wrapper { opacity: 1; pointer-events: all; transform: translateX(0); }
 
         .glass-panel {
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px;
-            height: 100%; display: flex; flex-direction: column;
+            background: rgba(0,0,0,0.7); border: 1px solid #333; border-radius: 15px;
+            padding: 20px; height: 100%; display: flex; flex-direction: column;
         }
-
-        /* Elements */
-        .subject-btn { padding: 15px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03); border-radius: 8px; cursor: pointer; color: #ccc; display: flex; gap: 15px; align-items: center; transition: 0.3s; }
-        .subject-btn:hover { border-color: var(--accent-cyan); color: white; transform: translateX(10px); }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .title-neon { font-size: 2rem; font-weight: bold; color: white; text-shadow: 0 0 10px var(--accent-pink); }
-        
-        .content-grid { display: flex; gap: 20px; height: 100%; overflow: hidden; }
-        .chart-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .list-box { flex: 1.5; overflow-y: auto; padding-right: 10px; }
-
-        .chapter { padding: 15px; margin-bottom: 10px; border-left: 2px solid #333; cursor: pointer; display: flex; justify-content: space-between; background: rgba(255,255,255,0.02); }
-        .chapter.done { border-left-color: #00ff88; }
-        .chapter.done span { color: #00ff88; text-decoration: line-through; opacity: 0.6; }
-
-        /* SVG Ring */
-        .ring-svg { width: 180px; height: 180px; transform: rotate(-90deg); }
-        .ring-progress { fill: none; stroke: var(--accent-cyan); stroke-width: 8; stroke-dasharray: 502; stroke-dashoffset: 502; transition: 1s; }
-        .percent-display { position: absolute; font-size: 2.5rem; font-weight: bold; }
 
         /* Footer */
-        .futuristic-footer {
-            position: fixed; bottom: 0; width: 100%; text-align: center; padding: 15px;
-            background: rgba(0,0,0,0.8); border-top: 1px solid #333; color: #888; z-index: 2000;
+        .footer {
+            position: fixed; bottom: 0; width: 100%; text-align: center;
+            padding: 10px; background: #000; color: #666; font-size: 12px; border-top: 1px solid #333;
         }
-        .highlight { color: var(--accent-cyan); font-weight: bold; }
+        .highlight { color: var(--accent-cyan); }
 
-        /* Mobile */
+        /* Mobile Fix */
         @media (max-width: 768px) {
-            .stage { flex-direction: column; overflow-y: auto; padding: 20px 0 80px 0; }
-            .stage.active .book-wrapper { transform: translateY(-120px) scale(0.6); }
-            .content-grid { flex-direction: column; }
-            .chart-box { min-height: 200px; }
+            .stage { flex-direction: column; overflow-y: auto; height: 100vh; padding-top: 20px; }
+            .stage.active .book-wrapper { transform: translateY(-100px) scale(0.6); }
+            .dashboard-wrapper { width: 100%; }
         }
     </style>
 </head>
@@ -189,71 +141,63 @@
 
     <div id="auth-container">
         <div id="login-form" class="auth-box">
-            <h2>System Login</h2>
-            <input type="email" id="login-email" placeholder="Access ID (Email)">
-            <input type="password" id="login-password" placeholder="Passcode">
-            <button class="btn-main" id="btnLogin">Enter System</button>
-            <div class="link">New User? <span id="showSignup">Register Access</span></div>
+            <h2 style="color:var(--accent-cyan)">LOGIN</h2>
+            <input type="email" id="login-email" placeholder="Email">
+            <input type="password" id="login-password" placeholder="Password">
+            <button class="btn-main" onclick="handleLogin()">ENTER</button>
+            <div class="link">No ID? <span onclick="toggleForms()">Register</span></div>
         </div>
 
         <div id="signup-form" class="auth-box hidden">
-            <h2>New Registration</h2>
-            <input type="text" id="signup-name" placeholder="Agent Name">
+            <h2 style="color:var(--accent-pink)">REGISTER</h2>
+            <input type="text" id="signup-name" placeholder="Name">
             <input type="email" id="signup-email" placeholder="Email">
-            <input type="password" id="signup-password" placeholder="Create Passcode">
-            <button class="btn-main" id="btnSignup">Initialize</button>
-            <div class="link">Has ID? <span id="showLogin">Login</span></div>
+            <input type="password" id="signup-password" placeholder="Password">
+            <button class="btn-main" onclick="handleSignup()">CREATE ID</button>
+            <div class="link">Has ID? <span onclick="toggleForms()">Login</span></div>
         </div>
     </div>
 
-    <div class="stage hidden" id="stage">
+    <div id="stage" class="stage hidden">
         <div class="book-wrapper">
-            <div class="book" id="book">
+            <div class="book" id="book" onclick="toggleBook(this)">
                 <div class="front">
                     <h1>SSC 2026</h1>
-                    <p style="letter-spacing: 5px; color: #888;">TRACKER</p>
-                    <p id="user-display" style="color:var(--accent-pink); margin-top:10px; font-size:12px;">Agent: ...</p>
-                    <div style="margin-top:30px; font-size:10px; letter-spacing:2px; color:cyan;">TAP TO OPEN</div>
+                    <p style="color:#aaa; letter-spacing:3px;">TRACKER</p>
+                    <small id="user-name" style="color:var(--accent-pink); margin-top:10px;"></small>
+                    <p style="margin-top:20px; font-size:10px; color:cyan;">TAP TO OPEN</p>
                 </div>
                 <div class="pages">
-                    <div class="subject-btn" onclick="openDashboard('physics')"><span>⚛️</span> পদার্থবিজ্ঞান</div>
-                    <div class="subject-btn" onclick="openDashboard('chemistry')"><span>🧪</span> রসায়ন</div>
-                    <div class="subject-btn" onclick="openDashboard('biology')"><span>🧬</span> জীববিজ্ঞান</div>
-                    <div class="subject-btn" onclick="openDashboard('higherMath')"><span>📐</span> উচ্চতর গণিত</div>
-                    <button onclick="logout()" style="margin-top:20px; padding:10px; background:#dc3545; border:none; color:white; border-radius:5px;">LOGOUT</button>
+                    <div class="subject-btn" onclick="openSubject('physics')">⚛️ Physics</div>
+                    <div class="subject-btn" onclick="openSubject('chemistry')">🧪 Chemistry</div>
+                    <div class="subject-btn" onclick="openSubject('biology')">🧬 Biology</div>
+                    <div class="subject-btn" onclick="openSubject('higherMath')">📐 Higher Math</div>
+                    <button onclick="logout()" style="margin-top:20px; background:#d33; color:white; border:none; padding:10px;">LOGOUT</button>
                 </div>
             </div>
         </div>
 
         <div class="dashboard-wrapper">
             <div class="glass-panel">
-                <div class="header">
-                    <div class="title-neon" id="dashTitle">SUBJECT</div>
-                    <button onclick="closeDashboard()" style="background:none; border:1px solid #555; color:white; padding:5px 15px; border-radius:20px;">X</button>
+                <div style="display:flex; justify-content:space-between;">
+                    <h2 id="dashTitle" style="margin:0; color:white;">SUBJECT</h2>
+                    <button onclick="closeDash()" style="background:none; border:1px solid #555; color:white;">X</button>
                 </div>
-                <div class="content-grid">
-                    <div class="chart-box">
-                        <svg class="ring-svg"><circle cx="90" cy="90" r="80" style="stroke:#333; fill:none; stroke-width:8;"></circle><circle class="ring-progress" id="progressRing" cx="90" cy="90" r="80"></circle></svg>
-                        <div class="percent-display" id="percentText">0%</div>
-                    </div>
-                    <div class="list-box" id="chapterList"></div>
-                </div>
+                <hr style="border-color:#333">
+                <div id="chapterList" style="overflow-y:auto; flex:1;"></div>
             </div>
         </div>
     </div>
 
-    <div class="futuristic-footer">
-        <p>Developed by <span class="highlight">Masrur Muntasir</span> | BSc. in CSE, DIU</p>
+    <div class="footer">
+        Developed by <span class="highlight">Masrur Muntasir</span> | BSc. in CSE, DIU
     </div>
 
-    <script type="module">
-        // Import Firebase Functions
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-        // 🔥🔥🔥 নিচে তোমার FIREBASE CONFIG বসাও 🔥🔥🔥
-       const firebaseConfig = {
+    <script>
+        // ==========================================
+        // 1. YOUR FIREBASE CONFIG HERE
+        // ==========================================
+      const firebaseConfig = {
   apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ",
   authDomain: "masrur-app-dccc1.firebaseapp.com",
   databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com",
@@ -263,141 +207,115 @@
   appId: "1:54049170636:web:0d0fd5f530027e72688e69",
   measurementId: "G-0R3B6EB17B"
 };
-        };
         
-        // Initialize
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth(app);
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
 
-        // DOM Elements
-        const authContainer = document.getElementById('auth-container');
+        // Elements
+        const authDiv = document.getElementById('auth-container');
+        const stageDiv = document.getElementById('stage');
         const loginForm = document.getElementById('login-form');
         const signupForm = document.getElementById('signup-form');
-        const stage = document.getElementById('stage');
-        const userDisplay = document.getElementById('user-display');
-        
-        let currentUser = null;
-        let activeSubject = null;
+        const book = document.getElementById('book');
 
-        // --- AUTH LOGIC ---
-        // Toggle Forms
-        document.getElementById('showSignup').onclick = () => { loginForm.classList.add('hidden'); signupForm.classList.remove('hidden'); };
-        document.getElementById('showLogin').onclick = () => { signupForm.classList.add('hidden'); loginForm.classList.remove('hidden'); };
+        // --- AUTH FUNCTIONS ---
+        function toggleForms() {
+            loginForm.classList.toggle('hidden');
+            signupForm.classList.toggle('hidden');
+        }
 
-        // Signup
-        document.getElementById('btnSignup').onclick = () => {
+        function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            auth.signInWithEmailAndPassword(email, pass).catch(e => alert(e.message));
+        }
+
+        function handleSignup() {
             const email = document.getElementById('signup-email').value;
             const pass = document.getElementById('signup-password').value;
             const name = document.getElementById('signup-name').value;
             
-            createUserWithEmailAndPassword(auth, email, pass)
-                .then((cred) => {
-                    updateProfile(cred.user, { displayName: name });
-                    alert("ID Created! Welcome Agent " + name);
-                })
-                .catch(err => alert(err.message));
-        };
+            auth.createUserWithEmailAndPassword(email, pass).then(cred => {
+                cred.user.updateProfile({ displayName: name });
+                alert("Account Created!");
+            }).catch(e => alert(e.message));
+        }
 
-        // Login
-        document.getElementById('btnLogin').onclick = () => {
-            const email = document.getElementById('login-email').value;
-            const pass = document.getElementById('login-password').value;
-            
-            signInWithEmailAndPassword(auth, email, pass)
-                .catch(err => alert("Access Denied: " + err.message));
-        };
+        function logout() {
+            auth.signOut();
+            closeDash();
+            book.classList.remove('open');
+        }
 
-        // Logout
-        window.logout = () => signOut(auth);
-
-        // State Listener (The Gatekeeper)
-        onAuthStateChanged(auth, (user) => {
+        // Auth Listener
+        auth.onAuthStateChanged(user => {
             if (user) {
-                // Logged In
-                currentUser = user;
-                authContainer.classList.add('hidden');
-                stage.classList.remove('hidden');
-                userDisplay.innerText = "Agent: " + (user.displayName || "Unknown");
-                loadUserData(); // Load this user's data
+                authDiv.classList.add('hidden');
+                stageDiv.classList.remove('hidden');
+                document.getElementById('user-name').innerText = user.displayName;
+                loadData(user.uid);
             } else {
-                // Logged Out
-                currentUser = null;
-                authContainer.classList.remove('hidden');
-                stage.classList.add('hidden');
-                closeDashboard();
+                authDiv.classList.remove('hidden');
+                stageDiv.classList.add('hidden');
             }
         });
 
-        // --- TRACKER LOGIC ---
-        const syllabus = {
-            physics: { title: "PHYSICS", chapters: ["ভৌত রাশি ও পরিমাপ", "গতি", "বল", "কাজ, ক্ষমতা ও শক্তি", "পদার্থের অবস্থা ও চাপ", "বস্তুর উপর তাপের প্রভাব", "তরঙ্গ ও শব্দ", "আলোর প্রতিফলন", "আলোর প্রতিসরণ", "স্থির তড়িৎ", "চল তড়িৎ", "বিদ্যুতের চৌম্বক ক্রিয়া", "আধুনিক পদার্থবিজ্ঞান", "জীবন বাঁচাতে পদার্থবিজ্ঞান"] },
-            chemistry: { title: "CHEMISTRY", chapters: ["রসায়নের ধারণা", "পদার্থের অবস্থা", "পদার্থের গঠন", "পর্যায় সারণি", "রাসায়নিক বন্ধন", "মোলের ধারণা ও রাসায়নিক গণনা", "রাসায়নিক বিক্রিয়া", "রসায়ন ও শক্তি", "এসিড-ক্ষার সমতা", "খনিজ সম্পদ: ধাতু-অধাতু", "খনিজ সম্পদ: জীবাশ্ম", "আমাদের জীবনে রসায়ন"] },
-            biology: { title: "BIOLOGY", chapters: ["জীবন পাঠ", "জীবকোষ ও টিস্যু", "কোষ বিভাজন", "জীবনীশক্তি", "খাদ্য, পুষ্টি ও পরিপাক", "জীবে পরিবহন", "গ্যাসীয় বিনিময়", "রেচন প্রক্রিয়া", "দৃঢ়তা প্রদান ও চলন", "সমন্বয় ও নিঃসরণ", "জীবের প্রজনন", "জীবের বংশগতি ও বিবর্তন", "জীবের পরিবেশ", "জীবপ্রযুক্তি"] },
-            higherMath: { title: "HIGHER MATH", chapters: ["সেট ও ফাংশন", "বীজগাণিতিক রাশি", "জ্যামিতি", "জ্যামিতিক অংকন", "সমীকরণ", "অসমতা", "অসীম ধারা", "ত্রিকোণমিতি", "সূচকীয় ও লগারিদমীয় ফাংশন", "দ্বিপদী বিস্তৃতি", "স্থানাঙ্ক জ্যামিতি", "সমতলীয় ভেক্টর", "ঘন জ্যামিতি", "সম্ভাবনা"] }
+        // --- APP FUNCTIONS ---
+        function toggleBook(el) {
+            // Only open if clicking cover, not inside pages
+            if (!event.target.closest('.pages')) {
+                el.classList.add('open');
+            }
+        }
+
+        const chapters = {
+            physics: ["ভৌত রাশি ও পরিমাপ", "গতি", "বল", "কাজ, ক্ষমতা ও শক্তি", "পদার্থের অবস্থা ও চাপ", "বস্তুর উপর তাপের প্রভাব", "তরঙ্গ ও শব্দ", "আলোর প্রতিফলন", "আলোর প্রতিসরণ", "স্থির তড়িৎ", "চল তড়িৎ", "বিদ্যুতের চৌম্বক ক্রিয়া", "আধুনিক পদার্থবিজ্ঞান", "জীবন বাঁচাতে পদার্থবিজ্ঞান"],
+            chemistry: ["রসায়নের ধারণা", "পদার্থের অবস্থা", "পদার্থের গঠন", "পর্যায় সারণি", "রাসায়নিক বন্ধন", "মোলের ধারণা ও রাসায়নিক গণনা", "রাসায়নিক বিক্রিয়া", "রসায়ন ও শক্তি", "এসিড-ক্ষার সমতা", "খনিজ সম্পদ: ধাতু-অধাতু", "খনিজ সম্পদ: জীবাশ্ম", "আমাদের জীবনে রসায়ন"],
+            biology: ["জীবন পাঠ", "জীবকোষ ও টিস্যু", "কোষ বিভাজন", "জীবনীশক্তি", "খাদ্য, পুষ্টি ও পরিপাক", "জীবে পরিবহন", "গ্যাসীয় বিনিময়", "রেচন প্রক্রিয়া", "দৃঢ়তা প্রদান ও চলন", "সমন্বয় ও নিঃসরণ", "জীবের প্রজনন", "জীবের বংশগতি ও বিবর্তন", "জীবের পরিবেশ", "জীবপ্রযুক্তি"],
+            higherMath: ["সেট ও ফাংশন", "বীজগাণিতিক রাশি", "জ্যামিতি", "জ্যামিতিক অংকন", "সমীকরণ", "অসমতা", "অসীম ধারা", "ত্রিকোণমিতি", "সূচকীয় ও লগারিদমীয় ফাংশন", "দ্বিপদী বিস্তৃতি", "স্থানাঙ্ক জ্যামিতি", "সমতলীয় ভেক্টর", "ঘন জ্যামিতি", "সম্ভাবনা"]
         };
 
-        let userData = {};
+        let currentData = {};
+        let activeSub = null;
 
-        function loadUserData() {
-            if(!currentUser) return;
-            // Listen only to THIS user's data
-            const userRef = ref(db, 'progress/' + currentUser.uid);
-            onValue(userRef, (snapshot) => {
-                userData = snapshot.val() || {};
-                if(activeSubject) renderDashboard(activeSubject);
+        function loadData(uid) {
+            db.ref('progress/' + uid).on('value', snap => {
+                currentData = snap.val() || {};
+                if(activeSub) openSubject(activeSub);
             });
         }
 
-        window.openDashboard = function(key) {
-            activeSubject = key;
-            stage.classList.add('active');
-            renderDashboard(key);
-        };
-
-        window.closeDashboard = function() {
-            stage.classList.remove('active');
-            activeSubject = null;
-        };
-
-        function renderDashboard(key) {
-            const data = syllabus[key];
-            const subjectProgress = (userData[key]) || []; // Load from user data
+        function openSubject(sub) {
+            activeSub = sub;
+            stageDiv.classList.add('active');
+            document.getElementById('dashTitle').innerText = sub.toUpperCase();
             
-            document.getElementById('dashTitle').innerText = data.title;
             const list = document.getElementById('chapterList');
             list.innerHTML = '';
-            
-            let doneCount = 0;
-            data.chapters.forEach((chap, idx) => {
-                const isDone = subjectProgress[idx] === true;
-                if(isDone) doneCount++;
+            const subData = currentData[sub] || [];
 
+            chapters[sub].forEach((chap, idx) => {
+                const isDone = subData[idx] === true;
                 const div = document.createElement('div');
-                div.className = `chapter ${isDone ? 'done' : ''}`;
-                div.innerHTML = `<span>${idx + 1}. ${chap}</span> <span>${isDone ? '✔' : ''}</span>`;
-                div.onclick = () => toggleChapter(key, idx, isDone);
+                div.style.padding = "10px";
+                div.style.borderBottom = "1px solid #333";
+                div.style.cursor = "pointer";
+                div.style.color = isDone ? "#0f0" : "#fff";
+                div.innerHTML = `<span>${idx+1}. ${chap}</span> ${isDone ? '✔' : ''}`;
+                div.onclick = () => {
+                    const uid = auth.currentUser.uid;
+                    db.ref(`progress/${uid}/${sub}/${idx}`).set(!isDone);
+                };
                 list.appendChild(div);
             });
-
-            // Ring Animation
-            const total = data.chapters.length;
-            const percent = Math.round((doneCount / total) * 100);
-            const radius = 80;
-            const circumference = 2 * Math.PI * radius; // approx 502
-            const offset = circumference - (circumference * percent) / 100;
-            
-            const ring = document.getElementById('progressRing');
-            ring.style.strokeDashoffset = offset;
-            document.getElementById('percentText').innerText = percent + "%";
         }
 
-        function toggleChapter(subj, idx, currentStatus) {
-            if(!currentUser) return;
-            // Save to: progress/USER_ID/subject/index
-            set(ref(db, `progress/${currentUser.uid}/${subj}/${idx}`), !currentStatus);
+        function closeDash() {
+            stageDiv.classList.remove('active');
+            activeSub = null;
         }
-
     </script>
 </body>
 </html>
