@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BIGGAN CLASS App</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -14,263 +14,347 @@
 
     <style>
         :root {
-            --bg: #050508;
-            --panel: #121215;
-            --border: rgba(255,255,255,0.08);
-            --primary: #00f3ff;
-            --secondary: #bc13fe;
-            --gold: #ffd700;
-            --text: #ffffff;
-            --mute: #888;
-            --success: #00d26a;
+            --bg-deep: #050508;
+            --glass: rgba(20, 20, 28, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --neon-gold: #ffd700;
+            --text-main: #ffffff;
+            --text-mute: #8f90a0;
             --font-head: 'Rajdhani', sans-serif;
-            --font-body: 'Inter', sans-serif;
+            --font-body: 'Exo 2', sans-serif;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
 
         body {
-            margin: 0; background: var(--bg); color: var(--text);
+            margin: 0; background: var(--bg-deep); color: var(--text-main);
             font-family: var(--font-body); height: 100vh; overflow: hidden;
+            /* Animated Background */
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(0, 243, 255, 0.05), transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(188, 19, 254, 0.05), transparent 40%);
+            animation: pulseBg 10s ease-in-out infinite alternate;
         }
+        @keyframes pulseBg { 0% { background-size: 100% 100%; } 100% { background-size: 120% 120%; } }
 
         /* --- AUTH SCREEN --- */
-        #auth-view {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000;
-            background: var(--bg); display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.4s;
+        #auth-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5000;
+            background: #020203; display: flex; align-items: center; justify-content: center;
+            transition: 0.5s;
         }
-        .login-box {
-            width: 90%; max-width: 360px; padding: 30px; text-align: center;
-            background: var(--panel); border: 1px solid var(--border); border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        .login-card {
+            width: 85%; max-width: 350px; padding: 40px 30px; 
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+            border-radius: 24px; text-align: center; backdrop-filter: blur(20px);
+            box-shadow: 0 0 50px rgba(0, 243, 255, 0.1);
         }
         .inp {
-            width: 100%; padding: 14px; margin-bottom: 12px; background: #000;
-            border: 1px solid var(--border); color: white; border-radius: 10px;
-            font-family: var(--font-body);
+            width: 100%; padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.4);
+            border: 1px solid var(--glass-border); color: white; border-radius: 12px;
+            font-family: var(--font-head); letter-spacing: 1px; transition: 0.3s;
         }
+        .inp:focus { border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
         .btn-main {
-            width: 100%; padding: 14px; background: var(--primary); border: none;
-            color: #000; font-weight: bold; border-radius: 10px; cursor: pointer;
-            font-family: var(--font-head); letter-spacing: 1px; margin-top: 10px;
+            width: 100%; padding: 15px; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            border: none; color: black; font-weight: bold; border-radius: 12px; cursor: pointer;
+            font-family: var(--font-head); letter-spacing: 2px; font-size: 1rem;
+            transition: 0.3s; margin-top: 10px;
         }
-        .link-text { color: var(--secondary); font-size: 0.85rem; margin-top: 15px; cursor: pointer; }
+        .btn-main:active { transform: scale(0.95); }
 
-        /* --- APP STRUCTURE --- */
-        .app-header {
-            height: 60px; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px; background: rgba(18, 18, 21, 0.95); border-bottom: 1px solid var(--border);
-            position: fixed; top: 0; width: 100%; z-index: 100; backdrop-filter: blur(10px);
+        /* --- HEADER --- */
+        .header {
+            height: 70px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(5, 5, 8, 0.85); backdrop-filter: blur(15px); border-bottom: 1px solid var(--glass-border);
         }
-        .logo-area { display: flex; align-items: center; gap: 12px; font-family: var(--font-head); font-weight: 700; font-size: 1.2rem; }
-        .menu-toggle { font-size: 1.4rem; color: var(--primary); cursor: pointer; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-text { font-family: var(--font-head); font-weight: 700; font-size: 1.4rem; letter-spacing: 1px; }
+        .menu-btn { font-size: 1.6rem; color: var(--neon-blue); cursor: pointer; }
 
-        /* SIDEBAR DRAWER */
+        /* --- SIDEBAR --- */
         .sidebar {
-            position: fixed; top: 60px; left: 0; width: 260px; height: calc(100% - 60px);
-            background: var(--panel); border-right: 1px solid var(--border);
-            transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 150; display: flex; flex-direction: column; padding: 20px;
+            position: fixed; top: 0; left: 0; width: 280px; height: 100%;
+            background: rgba(10, 10, 15, 0.98); border-right: 1px solid var(--glass-border);
+            transform: translateX(-100%); transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            z-index: 2000; padding: 25px; display: flex; flex-direction: column;
         }
         .sidebar.open { transform: translateX(0); }
         .overlay {
-            position: fixed; top: 60px; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 140; opacity: 0; pointer-events: none; transition: 0.3s;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1500; opacity: 0; pointer-events: none; transition: 0.3s;
         }
         .overlay.active { opacity: 1; pointer-events: all; }
 
-        /* NAV ITEMS */
-        .nav-group { font-size: 0.75rem; color: var(--mute); font-weight: bold; margin: 15px 0 8px 5px; }
-        .nav-item {
-            padding: 12px 15px; border-radius: 10px; cursor: pointer; color: #ccc;
-            display: flex; align-items: center; gap: 12px; font-weight: 500; transition: 0.2s;
+        .profile-box { text-align: center; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); }
+        .side-item {
+            padding: 15px; margin-bottom: 10px; border-radius: 12px; cursor: pointer;
+            display: flex; align-items: center; gap: 15px; color: var(--text-mute);
+            transition: 0.3s; border: 1px solid transparent; font-weight: 500;
         }
-        .nav-item i { width: 22px; text-align: center; }
-        .nav-item.active { background: rgba(0, 243, 255, 0.1); color: var(--primary); }
-        .nav-item:hover { background: rgba(255,255,255,0.05); }
+        .side-item:hover { background: rgba(255,255,255,0.05); color: white; border-color: var(--glass-border); }
 
-        /* MAIN CONTENT */
-        .main-content {
-            margin-top: 60px; height: calc(100vh - 60px); width: 100%;
-            padding: 20px; overflow-y: auto;
-        }
-        .view-section { display: none; animation: fadeIn 0.4s ease; }
-        .view-section.active { display: block; }
-
-        /* FRB BANNER */
-        .banner {
-            background: linear-gradient(135deg, #0088cc, #8e44ad);
-            padding: 20px; border-radius: 16px; color: white; margin-bottom: 25px;
-            display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-        }
-        .btn-sm {
-            background: white; color: #0088cc; padding: 8px 18px; border-radius: 20px;
-            text-decoration: none; font-weight: bold; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        /* CARDS */
-        .card {
-            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-            padding: 16px; border-radius: 12px; margin-bottom: 10px;
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-        }
-        .card.done { border-left: 3px solid var(--success); background: rgba(0, 210, 106, 0.05); }
-        .contact-card { display: flex; align-items: center; gap: 15px; cursor: default; }
-        
-        /* FOOTER */
         .dev-footer {
-            margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border);
-            text-align: center; font-size: 0.75rem; color: var(--mute); line-height: 1.5;
+            margin-top: auto; padding-top: 20px; border-top: 1px solid var(--glass-border);
+            text-align: center; font-size: 0.75rem; color: var(--text-mute); line-height: 1.6;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Desktop Fix */
-        @media (min-width: 769px) {
-            .sidebar { transform: translateX(0); width: 280px; border-right: 1px solid var(--border); }
-            .menu-toggle { display: none; }
-            .main-content { margin-left: 280px; width: calc(100% - 280px); }
-            .overlay { display: none !important; }
+        /* --- CONTENT --- */
+        .container { margin-top: 70px; height: calc(100vh - 70px); overflow-y: auto; padding: 20px; padding-bottom: 80px; }
+        .view-page { display: none; animation: slideUp 0.4s ease-out; }
+        .view-page.active { display: block; }
+
+        /* HERO BANNER */
+        .promo-card {
+            background: linear-gradient(135deg, rgba(0, 136, 204, 0.2), rgba(188, 19, 254, 0.2));
+            border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 20px;
+            padding: 25px; margin-bottom: 25px; position: relative; overflow: hidden;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
         }
+        .promo-card::before {
+            content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: rotate 10s linear infinite; pointer-events: none;
+        }
+        .promo-btn {
+            padding: 10px 20px; background: white; color: black; border-radius: 30px;
+            font-weight: bold; text-decoration: none; font-size: 0.8rem; z-index: 2;
+            box-shadow: 0 0 15px rgba(255,255,255,0.3);
+        }
+
+        /* DASHBOARD GRID */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .stat-card {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            padding: 20px; border-radius: 20px; text-align: center; cursor: pointer;
+            transition: 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-5px); border-color: var(--neon-blue); }
+        .stat-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+        
+        .section-head { font-family: var(--font-head); color: var(--neon-blue); margin-bottom: 15px; font-size: 1.1rem; letter-spacing: 1px; }
+        
+        .subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .sub-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px;
+            text-align: center; cursor: pointer; transition: 0.3s;
+        }
+        .sub-card:hover { background: rgba(255,255,255,0.08); border-color: var(--neon-purple); transform: scale(1.02); }
+        .sub-icon { font-size: 1.8rem; margin-bottom: 10px; color: var(--neon-purple); }
+        
+        /* INNER PAGES */
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            border-radius: 30px; margin-bottom: 20px; cursor: pointer; color: var(--text-mute); transition: 0.3s;
+        }
+        .back-btn:hover { background: var(--neon-blue); color: black; }
+
+        .list-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.02); padding: 15px 20px; margin-bottom: 10px;
+            border-radius: 12px; border: 1px solid transparent; transition: 0.2s;
+        }
+        .list-item.done { border-left: 3px solid #00d26a; background: rgba(0, 210, 106, 0.05); }
+
+        /* CONTACT */
+        .contact-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; }
+        .c-icon { width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .c-btn { margin-left: auto; padding: 8px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; text-decoration: none; }
+
+        /* TIMER */
+        .timer-circle {
+            width: 220px; height: 220px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.1);
+            margin: 40px auto; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+        .timer-text { font-size: 3.5rem; font-family: var(--font-head); font-weight: 700; }
+
+        @keyframes rotate { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+        @keyframes slideUp { from{transform:translateY(30px); opacity:0;} to{transform:translateY(0); opacity:1;} }
     </style>
 </head>
 <body>
 
-    <div id="auth-view">
-        <div class="login-box" id="login-form">
-            <img src="logo.png" style="width:60px; margin-bottom:15px;" alt="Logo">
-            <h2 style="font-family:var(--font-head); color:var(--primary); margin:0 0 5px 0;">BIGGAN CLASS</h2>
-            <p style="color:var(--mute); font-size:0.9rem; margin-bottom:25px;">Student Access Portal</p>
+    <div id="auth-screen">
+        <div class="login-card">
+            <img src="logo.png" style="width:70px; margin-bottom:20px; filter: drop-shadow(0 0 10px #00f3ff);">
+            <h2 style="font-family:var(--font-head); color:white; letter-spacing:3px; margin:0;">BIGGAN CLASS</h2>
+            <p style="color:var(--text-mute); font-size:0.9rem; margin-bottom:30px;">Premium Learning Hub</p>
             
-            <input type="email" id="email" class="inp" placeholder="Email Address">
-            <input type="password" id="pass" class="inp" placeholder="Password">
-            <button class="btn-main" onclick="handleAuth('login')">LOGIN</button>
-            <div class="link-text" onclick="toggleForm()">New here? Create Account</div>
-        </div>
-        
-        <div class="login-box" id="reg-form" style="display:none;">
-            <h2 style="font-family:var(--font-head); color:var(--secondary);">REGISTER</h2>
-            <input type="text" id="reg-name" class="inp" placeholder="Your Name">
-            <input type="email" id="reg-email" class="inp" placeholder="Email">
-            <input type="password" id="reg-pass" class="inp" placeholder="Password">
-            <button class="btn-main" onclick="handleAuth('register')" style="background:var(--secondary); color:white;">REGISTER</button>
-            <div class="link-text" onclick="toggleForm()">Back to Login</div>
+            <div id="login-form">
+                <input type="email" id="email" class="inp" placeholder="Email">
+                <input type="password" id="pass" class="inp" placeholder="Password">
+                <button class="btn-main" onclick="handleAuth('login')">LOGIN</button>
+                <div style="margin-top:20px; font-size:0.8rem; cursor:pointer; color:var(--neon-blue);" onclick="toggleForm()">Create New Account</div>
+            </div>
+
+            <div id="reg-form" style="display:none;">
+                <input type="text" id="reg-name" class="inp" placeholder="Full Name">
+                <input type="email" id="reg-email" class="inp" placeholder="Email">
+                <input type="password" id="reg-pass" class="inp" placeholder="Password">
+                <button class="btn-main" style="background:linear-gradient(135deg, #bc13fe, #00f3ff);" onclick="handleAuth('register')">REGISTER</button>
+                <div style="margin-top:20px; font-size:0.8rem; cursor:pointer; color:var(--text-mute);" onclick="toggleForm()">Back to Login</div>
+            </div>
         </div>
     </div>
 
-    <div class="app-header">
+    <div class="header">
         <div class="logo-area">
-            <i class="fas fa-bars menu-toggle" onclick="toggleMenu()"></i>
-            <span>BIGGAN CLASS</span>
+            <img src="logo.png" style="width:30px;">
+            <div class="logo-text"><span style="color:var(--neon-blue)">BIGGAN</span> CLASS</div>
         </div>
-        <div id="user-display" style="font-size:0.8rem; color:var(--mute); font-weight:600;">Student</div>
+        <i class="fas fa-bars menu-btn" onclick="toggleMenu()"></i>
     </div>
 
     <div class="overlay" onclick="toggleMenu()"></div>
-
     <div class="sidebar" id="sidebar">
-        <div class="nav-menu">
-            <div class="nav-group">ACADEMIC</div>
-            <div class="nav-item active" onclick="nav('physics')"><i class="fas fa-atom"></i> Physics</div>
-            <div class="nav-item" onclick="nav('chemistry')"><i class="fas fa-flask"></i> Chemistry</div>
-            <div class="nav-item" onclick="nav('biology')"><i class="fas fa-dna"></i> Biology</div>
-            <div class="nav-item" onclick="nav('higherMath')"><i class="fas fa-calculator"></i> Higher Math</div>
+        <div class="profile-box">
+            <img src="logo.png" style="width:60px; margin-bottom:10px; border-radius:50%; box-shadow:0 0 20px rgba(0, 243, 255, 0.2);">
+            <div style="font-size:1.2rem; font-weight:bold; color:white;" id="user-name">Student</div>
+            <div style="font-size:0.8rem; color:var(--neon-gold);">Premium Member</div>
+        </div>
 
-            <div class="nav-group">TOOLS & SUPPORT</div>
-            <div class="nav-item" onclick="nav('leaderboard')"><i class="fas fa-trophy" style="color:var(--gold)"></i> Leaderboard</div>
-            <div class="nav-item" onclick="nav('pomodoro')"><i class="fas fa-clock"></i> Focus Timer</div>
-            <div class="nav-item" onclick="nav('contact')"><i class="fas fa-users" style="color:var(--primary)"></i> Community</div>
+        <div class="side-item" onclick="openPage('contact')">
+            <i class="fas fa-users" style="color:var(--neon-blue)"></i> Community & Help
+        </div>
+        
+        <div style="flex:1"></div>
+        
+        <div class="side-item" onclick="logout()" style="color:#ff4757; border:1px solid rgba(255,71,87,0.2);">
+            <i class="fas fa-sign-out-alt"></i> Logout
         </div>
 
         <div class="dev-footer">
-            Developed by <b style="color:var(--primary)">Masrur Muntasir</b><br>
+            Developed by <span style="color:var(--neon-blue); font-weight:bold;">Masrur Muntasir</span><br>
             Moderator Team Leader<br>BSc. in CSE, DIU
         </div>
     </div>
 
-    <div class="main-content">
-        
-        <div id="v-subject" class="view-section active">
-            <div class="banner">
-                <div>
-                    <div style="font-weight:700; font-size:1.1rem;"><i class="fas fa-rocket"></i> Free FRB Course</div>
-                    <div style="font-size:0.8rem; opacity:0.9; margin-top:3px;">Exclusive Telegram Channel</div>
+    <div class="container">
+
+        <div id="view-dashboard" class="view-page active">
+            <div class="promo-card">
+                <div style="z-index:2;">
+                    <div style="font-family:var(--font-head); font-size:1.5rem; font-weight:700; color:white;">FRB COURSE</div>
+                    <div style="font-size:0.8rem; color:rgba(255,255,255,0.8);">Exclusive Telegram Channel</div>
                 </div>
-                <a href="#" target="_blank" class="btn-sm" id="frb-link">JOIN</a>
+                <a href="#" target="_blank" class="promo-btn" id="frb-link">JOIN <i class="fas fa-arrow-right"></i></a>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 id="page-title" style="margin:0; color:var(--primary); font-family:var(--font-head);">PHYSICS</h3>
-                <span id="progress-text" style="font-size:0.8rem; color:var(--mute);">0% Done</span>
+            <div class="stats-grid">
+                <div class="stat-card" onclick="openPage('leaderboard')">
+                    <i class="fas fa-trophy stat-icon" style="color:var(--neon-gold)"></i>
+                    <div style="font-size:0.8rem; color:var(--text-mute); font-weight:bold;">RANKING</div>
+                    <div style="font-family:var(--font-head); font-size:1.2rem; margin-top:5px;">Top 20</div>
+                </div>
+                <div class="stat-card" onclick="openPage('pomodoro')">
+                    <i class="fas fa-bolt stat-icon" style="color:var(--neon-blue)"></i>
+                    <div style="font-size:0.8rem; color:var(--text-mute); font-weight:bold;">FOCUS</div>
+                    <div style="font-family:var(--font-head); font-size:1.2rem; margin-top:5px;">Timer</div>
+                </div>
             </div>
-            
+
+            <div class="section-head"><i class="fas fa-book"></i> MODULES</div>
+            <div class="subject-grid">
+                <div class="sub-card" onclick="openSubject('physics')">
+                    <i class="fas fa-atom sub-icon"></i>
+                    <div style="font-weight:bold;">PHYSICS</div>
+                    <div style="font-size:0.75rem; color:var(--text-mute);" id="prog-physics">0%</div>
+                </div>
+                <div class="sub-card" onclick="openSubject('chemistry')">
+                    <i class="fas fa-flask sub-icon" style="color:#ff0055"></i>
+                    <div style="font-weight:bold;">CHEMISTRY</div>
+                    <div style="font-size:0.75rem; color:var(--text-mute);" id="prog-chemistry">0%</div>
+                </div>
+                <div class="sub-card" onclick="openSubject('biology')">
+                    <i class="fas fa-dna sub-icon" style="color:#00d26a"></i>
+                    <div style="font-weight:bold;">BIOLOGY</div>
+                    <div style="font-size:0.75rem; color:var(--text-mute);" id="prog-biology">0%</div>
+                </div>
+                <div class="sub-card" onclick="openSubject('higherMath')">
+                    <i class="fas fa-calculator sub-icon" style="color:var(--neon-gold)"></i>
+                    <div style="font-weight:bold;">MATH</div>
+                    <div style="font-size:0.75rem; color:var(--text-mute);" id="prog-higherMath">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-subject" class="view-page">
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Back to Hub</div>
+            <h2 id="page-title" style="font-family:var(--font-head); color:var(--neon-blue); margin-bottom:20px;">MODULE</h2>
             <div id="chapter-list">Loading...</div>
         </div>
 
-        <div id="v-leaderboard" class="view-section">
-            <h3 style="color:var(--gold); font-family:var(--font-head);">GLOBAL RANKING</h3>
+        <div id="view-leaderboard" class="view-page">
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Back to Hub</div>
+            <h2 style="font-family:var(--font-head); color:var(--neon-gold); margin-bottom:20px;">TOP STUDENTS</h2>
             <div id="rank-list">Syncing...</div>
         </div>
 
-        <div id="v-pomodoro" class="view-section">
-            <div style="text-align:center; padding-top:60px;">
-                <div style="font-family:var(--font-head); font-size:5rem; font-weight:700;" id="timer">25:00</div>
-                <div style="color:var(--primary); letter-spacing:2px; margin-bottom:30px;">FOCUS MODE</div>
-                <button class="btn-main" onclick="startTimer()" style="width:150px; border-radius:30px;">START</button>
+        <div id="view-pomodoro" class="view-page">
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Back to Hub</div>
+            <div style="text-align:center; padding-top:40px;">
+                <div class="timer-circle">
+                    <div class="timer-text" id="timer">25:00</div>
+                </div>
+                <button class="btn-main" onclick="startTimer()" style="width:160px; border-radius:30px; margin-top:30px;">START FOCUS</button>
             </div>
         </div>
 
-        <div id="v-contact" class="view-section">
-            <h4 style="color:var(--mute);">OFFICIAL LINKS</h4>
+        <div id="view-contact" class="view-page">
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Back to Hub</div>
+            <h2 style="font-family:var(--font-head); color:var(--neon-purple); margin-bottom:20px;">COMMUNITY</h2>
             
-            <div class="card contact-card">
-                <i class="fab fa-telegram" style="font-size:2rem; color:#0088cc;"></i>
-                <div style="flex:1;">
-                    <div style="font-weight:bold;">Student Group</div>
-                    <div style="font-size:0.8rem; color:var(--mute);">Official Discussion</div>
+            <div class="contact-box">
+                <div class="c-icon" style="color:#0088cc"><i class="fab fa-telegram-plane"></i></div>
+                <div>
+                    <div style="font-weight:bold;">Official Group</div>
+                    <div style="font-size:0.75rem; color:#aaa;">Join Discussion</div>
                 </div>
-                <a href="#" target="_blank" class="btn-sm" id="group-link" style="background:#0088cc; color:white;">JOIN</a>
+                <a href="#" id="group-link" class="c-btn" style="background:#0088cc; color:white">JOIN</a>
             </div>
 
-            <h4 style="color:var(--mute); margin-top:25px;">CONTACT ADMINS</h4>
+            <div class="section-head" style="margin-top:25px; font-size:0.9rem;">ADMINISTRATION</div>
 
-            <div class="card contact-card">
-                <i class="fas fa-user-tie" style="font-size:1.8rem; color:var(--gold);"></i>
-                <div style="flex:1;">
+            <div class="contact-box">
+                <div class="c-icon" style="color:#ffd700"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div>
                     <div style="font-weight:bold;">Pial Hasan</div>
-                    <div style="font-size:0.75rem; color:var(--gold); background:rgba(255,215,0,0.1); display:inline-block; padding:2px 6px; border-radius:4px;">Instructor</div>
+                    <div style="font-size:0.75rem; color:#ffd700;">Instructor</div>
                 </div>
-                <a href="#" target="_blank" class="btn-sm" id="pial-wa" style="background:#25D366; color:black;"><i class="fab fa-whatsapp"></i></a>
+                <a href="#" id="pial-wa" class="c-btn" style="background:#25D366; color:black">MSG</a>
             </div>
 
-            <div class="card contact-card">
-                <i class="fas fa-laptop-code" style="font-size:1.8rem; color:var(--primary);"></i>
-                <div style="flex:1;">
+            <div class="contact-box">
+                <div class="c-icon" style="color:var(--neon-blue)"><i class="fas fa-laptop-code"></i></div>
+                <div>
                     <div style="font-weight:bold;">Masrur Muntasir</div>
-                    <div style="font-size:0.75rem; color:var(--primary); background:rgba(0,243,255,0.1); display:inline-block; padding:2px 6px; border-radius:4px;">Tech Support</div>
+                    <div style="font-size:0.75rem; color:var(--neon-blue);">Team Leader</div>
                 </div>
-                <a href="#" target="_blank" class="btn-sm" id="masrur-wa" style="background:#25D366; color:black;"><i class="fab fa-whatsapp"></i></a>
+                <a href="#" id="masrur-wa" class="c-btn" style="background:#25D366; color:black">MSG</a>
             </div>
         </div>
-
     </div>
 
     <audio id="alarm" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
     <script>
         // ==========================================
-        // 🔥 CONFIGURATION ZONE (EDIT HERE) 🔥
+        // ⚡ API & CONFIG SETTINGS (AUTO-FILLED)
         // ==========================================
         const appConfig = {
-            frbChannel: "https://t.me/biggan_class",       // FRB Channel Link
-            groupLink: "https://t.me/biggan_class_SSC",      // Student Group Link
-            pialNumber: "8801792595165",                    // Pial Hasan Number (No +)
-            masrurNumber: "8801706592005"                   // Your Number (No +)
+            frbChannel: "https://t.me/biggan_class",
+            groupLink: "https://t.me/biggan_class_SSC",
+            pialNumber: "8801792595165",
+            masrurNumber: "8801706592005"
         };
 
-        // Firebase Config (Already Set)
         const firebaseConfig = {
             apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ",
             authDomain: "masrur-app-dccc1.firebaseapp.com",
@@ -281,14 +365,14 @@
             appId: "1:54049170636:web:0d0fd5f530027e72688e69"
         };
 
-        // --- INIT SYSTEM ---
+        // --- INIT ---
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
         let currentUser = null;
         let timerInt = null;
 
-        // Apply Config Links
+        // Apply Links
         document.getElementById('frb-link').href = appConfig.frbChannel;
         document.getElementById('group-link').href = appConfig.groupLink;
         document.getElementById('pial-wa').href = `https://wa.me/${appConfig.pialNumber}`;
@@ -301,26 +385,63 @@
             higherMath: { title: "HIGHER MATH", chapters: ["সেট", "বীজগণিত", "জ্যামিতি", "সমীকরণ", "অসমতা", "ধারা", "ত্রিকোণমিতি", "সূচক"] }
         };
 
-        // --- AUTH LOGIC ---
+        // --- UI FUNCTIONS ---
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.querySelector('.overlay').classList.toggle('active');
+        }
+
+        function goHome() {
+            document.querySelectorAll('.view-page').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-dashboard').classList.add('active');
+            updateDashStats();
+        }
+
+        function openPage(pageId) {
+            document.getElementById('view-dashboard').classList.remove('active');
+            document.querySelectorAll('.view-page').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + pageId).classList.add('active');
+            
+            if(window.innerWidth <= 768 && document.getElementById('sidebar').classList.contains('open')) toggleMenu();
+            
+            if(pageId === 'leaderboard') loadRank();
+        }
+
+        function openSubject(key) {
+            openPage('subject');
+            document.getElementById('page-title').innerText = syllabus[key].title;
+            const list = document.getElementById('chapter-list');
+            list.innerHTML = '';
+            
+            db.ref(`progress/${currentUser.uid}/${key}`).on('value', snap => {
+                const prog = snap.val() || [];
+                list.innerHTML = '';
+                syllabus[key].chapters.forEach((chap, idx) => {
+                    const isDone = prog[idx] === true;
+                    const div = document.createElement('div');
+                    div.className = `list-item ${isDone?'done':''}`;
+                    div.innerHTML = `<div><b style="color:var(--text-mute); margin-right:10px;">${idx+1}</b> ${chap}</div><div>${isDone?'<i class="fas fa-check" style="color:#00d26a"></i>':''}</div>`;
+                    div.onclick = () => db.ref(`progress/${currentUser.uid}/${key}/${idx}`).set(!isDone);
+                    list.appendChild(div);
+                });
+            });
+        }
+
+        // --- AUTH ---
         function toggleForm() {
-            const login = document.getElementById('login-form');
-            const reg = document.getElementById('reg-form');
-            if(login.style.display === 'none') { login.style.display='block'; reg.style.display='none'; }
-            else { login.style.display='none'; reg.style.display='block'; }
+            const l = document.getElementById('login-form');
+            const r = document.getElementById('reg-form');
+            if(l.style.display==='none') {l.style.display='block'; r.style.display='none'} else {l.style.display='none'; r.style.display='block'}
         }
 
         function handleAuth(type) {
-            const prefix = type === 'login' ? '' : 'reg-';
+            const prefix = type==='login'?'':'reg-';
             const e = document.getElementById(prefix+'email').value;
             const p = document.getElementById(prefix+'pass').value;
-            
-            if(type === 'register') {
+            if(type==='register') {
                 const n = document.getElementById('reg-name').value;
-                if(!n) return alert("Name required");
-                auth.createUserWithEmailAndPassword(e, p).then(c => c.user.updateProfile({ displayName: n })).catch(err => alert(err.message));
-            } else {
-                auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
-            }
+                auth.createUserWithEmailAndPassword(e,p).then(c=>c.user.updateProfile({displayName:n})).catch(e=>alert(e.message));
+            } else auth.signInWithEmailAndPassword(e,p).catch(e=>alert(e.message));
         }
 
         function logout() { auth.signOut(); location.reload(); }
@@ -328,56 +449,22 @@
         auth.onAuthStateChanged(user => {
             if(user) {
                 currentUser = user;
-                document.getElementById('auth-view').style.opacity = '0';
-                setTimeout(() => document.getElementById('auth-view').style.display='none', 400);
-                document.getElementById('user-display').innerText = user.displayName || 'Student';
-                loadSubject('physics');
+                document.getElementById('auth-screen').style.opacity=0;
+                setTimeout(()=>document.getElementById('auth-screen').style.display='none',500);
+                document.getElementById('user-name').innerText = user.displayName || 'Student';
+                updateDashStats();
             }
         });
 
-        // --- UI LOGIC ---
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.querySelector('.overlay').classList.toggle('active');
-        }
-
-        function nav(key) {
-            if(window.innerWidth <= 768) toggleMenu(); // Auto close on mobile
-            
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            
-            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-
-            if(syllabus[key]) {
-                document.getElementById('v-subject').classList.add('active');
-                document.getElementById('page-title').innerText = syllabus[key].title;
-                loadSubject(key);
-            } else {
-                document.getElementById('v-'+key).classList.add('active');
-                if(key === 'leaderboard') loadRank();
-            }
-        }
-
-        // --- DATA LOGIC ---
-        function loadSubject(key) {
-            const list = document.getElementById('chapter-list');
-            list.innerHTML = '';
-            db.ref(`progress/${currentUser.uid}/${key}`).on('value', snap => {
-                const prog = snap.val() || [];
-                list.innerHTML = '';
-                let doneCount = 0;
-                syllabus[key].chapters.forEach((chap, idx) => {
-                    const isDone = prog[idx] === true;
-                    if(isDone) doneCount++;
-                    const div = document.createElement('div');
-                    div.className = `card ${isDone?'done':''}`;
-                    div.innerHTML = `<div><b>${idx+1}.</b> ${chap}</div><div>${isDone?'<i class="fas fa-check-circle" style="color:var(--success)"></i>':''}</div>`;
-                    div.onclick = () => db.ref(`progress/${currentUser.uid}/${key}/${idx}`).set(!isDone);
-                    list.appendChild(div);
+        // --- DATA ---
+        function updateDashStats() {
+            Object.keys(syllabus).forEach(key => {
+                db.ref(`progress/${currentUser.uid}/${key}`).on('value', snap => {
+                    const prog = snap.val() || [];
+                    const count = prog.filter(Boolean).length;
+                    const percent = Math.round((count / syllabus[key].chapters.length) * 100);
+                    document.getElementById(`prog-${key}`).innerText = `${percent}%`;
                 });
-                const percent = Math.round((doneCount / syllabus[key].chapters.length) * 100);
-                document.getElementById('progress-text').innerText = `${percent}% Completed`;
             });
         }
 
@@ -395,7 +482,7 @@
                 rank.sort((a,b) => b.score - a.score);
                 list.innerHTML = '';
                 rank.slice(0, 20).forEach((r, i) => {
-                    list.innerHTML += `<div class="card" style="${r.uid===currentUser.uid?'border-color:var(--primary)':''}"><div>#${i+1} ${r.uid===currentUser.uid?'YOU':r.uid.substr(0,4)}</div><div style="font-weight:bold">${r.score} XP</div></div>`;
+                    list.innerHTML += `<div class="list-item" style="${r.uid===currentUser.uid?'border:1px solid var(--neon-blue)':''}"><div><span style="color:var(--neon-gold); font-weight:bold; margin-right:15px;">#${i+1}</span> ${r.uid===currentUser.uid?'YOU':r.uid.substr(0,4)}</div><div style="font-weight:bold">${r.score} XP</div></div>`;
                 });
             });
         }
@@ -406,7 +493,7 @@
             timerInt = setInterval(() => {
                 time--;
                 document.getElementById('timer').innerText = `${Math.floor(time/60)}:${(time%60).toString().padStart(2,'0')}`;
-                if(time<=0) { clearInterval(timerInt); timerInt=null; document.getElementById('alarm').play(); alert("Done!"); }
+                if(time<=0) { clearInterval(timerInt); timerInt=null; document.getElementById('alarm').play(); alert("Focus Session Complete!"); }
             }, 1000);
         }
     </script>
