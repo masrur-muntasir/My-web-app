@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSC Futuristic Tracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>SSC Premium Portal</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -12,210 +13,228 @@
 
     <style>
         :root {
-            --bg-deep: #050510;
-            --accent-cyan: #00f3ff;
-            --accent-pink: #bc13fe;
-            --glass-bg: rgba(255, 255, 255, 0.03);
+            /* Apple-like Glass Colors */
+            --bg-dark: #000000;
+            --glass-surface: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --neon-glow: 0 0 10px rgba(0, 243, 255, 0.5), 0 0 20px rgba(0, 243, 255, 0.3);
+            --glass-highlight: rgba(255, 255, 255, 0.15);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --accent-blue: #2997ff; /* Apple Blue */
+            --accent-glow: 0 0 20px rgba(41, 151, 255, 0.4);
+            --danger: #ff3b30;
+            --success: #30d158;
+            --font-main: 'Inter', sans-serif;
+            --font-head: 'Rajdhani', sans-serif;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            margin: 0; font-family: 'Rajdhani', sans-serif;
-            background-color: var(--bg-deep);
+            margin: 0;
+            font-family: var(--font-main);
+            background: var(--bg-dark);
+            /* Fluid Animated Background */
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 243, 255, 0.1) 0%, transparent 20%);
-            color: white; height: 100vh; overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+                radial-gradient(circle at 15% 50%, rgba(41, 151, 255, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(188, 19, 254, 0.15), transparent 25%);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* --- AUTH LOGIN SCREEN (Futuristic Style) --- */
-        #auth-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 5, 16, 0.95); z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px); transition: opacity 0.5s;
+        /* --- GLASS MORPHISM UTILS --- */
+        .glass-panel {
+            background: var(--glass-surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); /* Safari support */
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border-radius: 24px;
         }
 
-        .auth-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--accent-cyan);
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.15);
-            padding: 40px; border-radius: 20px; text-align: center;
-            width: 350px; position: relative; overflow: hidden;
+        .btn-glass {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-family: var(--font-head);
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
 
-        .auth-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
-            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink));
+        .btn-glass:hover {
+            background: rgba(255,255,255,0.15);
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(255,255,255,0.1);
         }
+        
+        .btn-glass:active { transform: scale(0.95); }
 
-        .auth-input {
-            width: 100%; padding: 15px; margin: 10px 0;
-            background: rgba(0,0,0,0.3); border: 1px solid #333;
-            color: var(--accent-cyan); font-family: 'Rajdhani', sans-serif; font-size: 1.1rem;
-            border-radius: 5px; outline: none; transition: 0.3s;
-        }
-        .auth-input:focus { border-color: var(--accent-pink); box-shadow: 0 0 10px rgba(188, 19, 254, 0.3); }
-
-        .btn-neon {
-            width: 100%; padding: 15px; margin-top: 15px;
-            background: transparent; border: 2px solid var(--accent-cyan);
-            color: var(--accent-cyan); font-weight: bold; font-size: 1.2rem;
-            text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
-            transition: 0.3s; position: relative; overflow: hidden;
-        }
-        .btn-neon:hover { background: var(--accent-cyan); color: #000; box-shadow: 0 0 20px var(--accent-cyan); }
-
-        .auth-switch { margin-top: 20px; color: #888; font-size: 0.9rem; cursor: pointer; }
-        .auth-switch span { color: var(--accent-pink); text-decoration: underline; }
+        .btn-primary { background: var(--accent-blue); border-color: var(--accent-blue); }
+        .btn-primary:hover { box-shadow: var(--accent-glow); }
 
         .hidden { display: none !important; opacity: 0; pointer-events: none; }
 
-        /* --- 3D STAGE (Your Original Design) --- */
-        .stage {
-            width: 90%; max-width: 1200px; height: 80vh;
+        /* --- AUTH SCREEN --- */
+        #auth-overlay {
+            position: fixed; width: 100%; height: 100%; z-index: 1000;
             display: flex; align-items: center; justify-content: center;
-            perspective: 2000px; gap: 40px; padding-bottom: 60px;
-            opacity: 0; transition: opacity 1s; /* Hidden until login */
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+            transition: opacity 0.5s ease;
+        }
+
+        .auth-card {
+            width: 90%; max-width: 380px; padding: 40px; text-align: center;
+        }
+
+        .input-liquid {
+            width: 100%; padding: 14px; margin: 10px 0;
+            background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
+            border-radius: 12px; color: white; font-family: var(--font-main);
+            transition: 0.3s;
+        }
+        .input-liquid:focus { outline: none; border-color: var(--accent-blue); background: rgba(0,0,0,0.4); }
+
+        /* --- 3D STAGE --- */
+        .stage {
+            width: 100%; max-width: 1200px; height: 80vh;
+            display: flex; align-items: center; justify-content: center;
+            perspective: 2000px; gap: 40px; opacity: 0; transition: 1s;
         }
         .stage.visible { opacity: 1; }
 
+        /* BOOK DESIGN */
         .book-wrapper {
-            position: relative; width: 320px; height: 480px;
-            transform-style: preserve-3d; transition: all 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+            width: 300px; height: 460px; position: relative;
+            transform-style: preserve-3d; transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 10; cursor: pointer;
         }
-        .stage.active .book-wrapper { transform: translateX(-150px) rotateY(-10deg) scale(0.85); }
         
-        /* Mobile Adjustments */
-        @media (max-width: 768px) {
-            .stage { flex-direction: column; overflow-y: auto; height: 100vh; padding: 20px 0 80px 0; }
-            .stage.active .book-wrapper { transform: translateY(-100px) scale(0.6); }
-        }
+        .stage.active .book-wrapper { transform: translateX(-160px) rotateY(-15deg) scale(0.9); }
 
-        .book { position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 1s; }
-        .book:hover { transform: rotateY(-10deg) rotateX(5deg); }
-        .book.open { transform: rotateY(-160deg); }
-
-        .front, .back, .pages {
+        .book {
             position: absolute; width: 100%; height: 100%;
-            border-radius: 10px 20px 20px 10px; backface-visibility: hidden;
+            transform-style: preserve-3d; transition: transform 0.8s;
         }
+        .book.open { transform: rotateY(-170deg); }
 
-        .front {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border: 2px solid var(--accent-cyan);
-            box-shadow: 0 0 40px rgba(0, 243, 255, 0.15);
+        .cover {
+            position: absolute; width: 100%; height: 100%;
+            border-radius: 16px 24px 24px 16px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            backdrop-filter: blur(30px); border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(255,255,255,0.05);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transform: rotateY(0deg); z-index: 2;
+            backface-visibility: hidden; z-index: 2; transform: translateZ(1px);
         }
 
-        .front h1 {
-            font-size: 3.5rem; margin: 0;
-            background: linear-gradient(to bottom, #fff, #aaa);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-
-        .tap-hint { margin-top: 30px; font-size: 0.9rem; letter-spacing: 2px; color: var(--accent-cyan); animation: pulse 2s infinite; }
-
-        .pages {
-            background: #0f0c15; border: 1px solid var(--glass-border);
-            transform: rotateY(180deg); z-index: 1; padding: 30px;
-            display: flex; flex-direction: column; gap: 15px; justify-content: center;
-        }
-
-        .subject-btn {
-            padding: 15px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03);
-            border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 15px; font-size: 1.1rem; color: #ccc;
-        }
-        .subject-btn:hover {
-            border-color: var(--accent-cyan); background: rgba(0, 243, 255, 0.1);
-            color: white; box-shadow: var(--neon-glow); transform: translateX(10px);
-        }
-
-        .dashboard-wrapper {
-            flex: 1; height: 100%; opacity: 0;
-            transform: translateX(100px) rotateY(-10deg); transition: all 0.8s ease 0.3s;
-            pointer-events: none; display: flex; flex-direction: column; gap: 20px;
-        }
-        .stage.active .dashboard-wrapper { opacity: 1; transform: translateX(0); pointer-events: all; }
-
-        .glass-panel {
-            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); height: 100%; display: flex; flex-direction: column;
-        }
-
-        .header { display: flex; justify-content: space-between; align-items: center; }
-        .title-neon { font-size: 2rem; font-weight: bold; text-transform: uppercase; text-shadow: 0 0 15px var(--accent-pink); }
-        .close-btn { background: none; border: 1px solid var(--glass-border); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
-        .close-btn:hover { background: var(--accent-pink); border-color: var(--accent-pink); }
-
-        .content-grid { display: flex; gap: 20px; height: 100%; overflow: hidden; margin-top: 20px; }
+        .cover h1 { font-family: var(--font-head); font-size: 3rem; letter-spacing: 2px; margin: 0; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
         
-        .chart-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .ring-svg { width: 220px; height: 220px; transform: rotate(-90deg); }
-        .ring-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 10; }
-        .ring-progress {
-            fill: none; stroke: url(#gradientColor); stroke-width: 10; stroke-linecap: round;
-            stroke-dasharray: 628; stroke-dashoffset: 628; transition: stroke-dashoffset 1.5s ease-out;
-            filter: drop-shadow(0 0 8px var(--accent-cyan));
+        .pages {
+            position: absolute; width: 98%; height: 96%; top: 2%; left: 1%;
+            background: #0a0a0a; border-radius: 12px 20px 20px 12px;
+            transform: rotateY(180deg) translateZ(1px); z-index: 1;
+            padding: 25px; display: flex; flex-direction: column; justify-content: center; gap: 12px;
         }
-        .percent-display { position: absolute; font-size: 3.5rem; font-weight: bold; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
 
-        .list-box { flex: 1.5; overflow-y: auto; padding-right: 10px; }
-        .list-box::-webkit-scrollbar { width: 4px; }
-        .list-box::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 4px; }
+        .menu-item {
+            padding: 14px; border-radius: 10px; background: rgba(255,255,255,0.03);
+            display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s;
+            color: var(--text-secondary); border: 1px solid transparent;
+        }
+        .menu-item:hover { background: rgba(255,255,255,0.08); color: white; border-color: var(--glass-border); }
 
-        .chapter {
-            padding: 15px; margin-bottom: 10px; background: linear-gradient(90deg, rgba(255,255,255,0.02) 0%, transparent 100%);
-            border-left: 2px solid transparent; cursor: pointer; transition: 0.2s;
+        /* --- DASHBOARD & POMODORO --- */
+        .dashboard-wrapper {
+            flex: 1; max-width: 600px; height: 100%; 
+            opacity: 0; pointer-events: none; transform: translateX(50px);
+            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .stage.active .dashboard-wrapper { opacity: 1; pointer-events: all; transform: translateX(0); }
+
+        .dash-card {
+            height: 100%; padding: 30px; display: flex; flex-direction: column;
+        }
+
+        .dash-header {
             display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border);
         }
-        .chapter:hover { background: linear-gradient(90deg, rgba(0, 243, 255, 0.08) 0%, transparent 100%); border-left-color: var(--accent-cyan); padding-left: 20px; }
-        .chapter.done { border-left-color: #00ff88; }
-        .chapter.done span { color: #00ff88; text-decoration: line-through; opacity: 0.5; }
 
-        .futuristic-footer {
-            position: fixed; bottom: 0; width: 100%; text-align: center; padding: 15px;
-            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(5px);
-            border-top: 1px solid var(--glass-border); z-index: 100; font-size: 0.9rem; color: #aaa; letter-spacing: 1px;
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: flex; flex-direction: column; }
+
+        /* Progress List Styles */
+        .chapter-list { overflow-y: auto; flex: 1; padding-right: 10px; }
+        .chapter-item {
+            display: flex; justify-content: space-between; padding: 16px; margin-bottom: 8px;
+            background: rgba(255,255,255,0.02); border-radius: 12px; cursor: pointer; transition: 0.2s;
         }
-        .highlight { color: var(--accent-cyan); text-shadow: 0 0 5px rgba(0, 243, 255, 0.5); font-weight: bold; }
-        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .chapter-item:hover { background: rgba(255,255,255,0.05); }
+        .chapter-item.completed { border-left: 3px solid var(--success); }
+        .chapter-item.completed span { color: var(--success); opacity: 0.7; }
+
+        /* --- POMODORO STYLES --- */
+        .pomodoro-container {
+            flex: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; gap: 30px;
+        }
+
+        .timer-circle {
+            width: 280px; height: 280px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0) 70%);
+            border: 1px solid var(--glass-border);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.2);
+        }
+
+        .timer-time { font-family: var(--font-head); font-size: 5rem; font-weight: 700; color: white; text-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        .timer-status { position: absolute; bottom: 60px; font-size: 0.9rem; color: var(--text-secondary); letter-spacing: 2px; text-transform: uppercase; }
+
+        .timer-controls { display: flex; gap: 20px; width: 100%; justify-content: center; }
+
+        /* Footer */
+        .footer-bar {
+            position: fixed; bottom: 20px; 
+            background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(20px);
+            padding: 10px 30px; border-radius: 50px; border: 1px solid var(--glass-border);
+            color: var(--text-secondary); font-size: 0.85rem; letter-spacing: 0.5px;
+            z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .highlight { color: var(--accent-blue); font-weight: 600; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- MOBILE OPTIMIZATION --- */
+        @media (max-width: 768px) {
+            .stage { flex-direction: column; overflow-y: auto; height: 100vh; padding: 60px 20px 100px 20px; display: block; }
+            .book-wrapper { margin: 0 auto 40px auto; width: 280px; height: 420px; }
+            .stage.active .book-wrapper { transform: scale(0.8) translateY(-20px); } /* Simply scale down, no side move */
+            .dashboard-wrapper { width: 100%; transform: translateY(20px); opacity: 0; }
+            .stage.active .dashboard-wrapper { transform: translateY(0); opacity: 1; }
+            .dash-card { min-height: 500px; }
+        }
     </style>
 </head>
 <body>
 
-    <svg style="position: absolute; width: 0; height: 0;">
-        <defs>
-            <linearGradient id="gradientColor" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#00f3ff" />
-                <stop offset="100%" stop-color="#bc13fe" />
-            </linearGradient>
-        </defs>
-    </svg>
-
     <div id="auth-overlay">
-        <div id="login-card" class="auth-card">
-            <h2 class="title-neon">SYSTEM LOGIN</h2>
-            <input type="email" id="login-email" class="auth-input" placeholder="ACCESS ID (Email)">
-            <input type="password" id="login-password" class="auth-input" placeholder="PASSCODE">
-            <button class="btn-neon" onclick="login()">INITIALIZE</button>
-            <p class="auth-switch">No Access ID? <span onclick="showSignup()">Create One</span></p>
-        </div>
-
-        <div id="signup-card" class="auth-card hidden">
-            <h2 class="title-neon" style="color:var(--accent-pink); text-shadow: 0 0 15px var(--accent-cyan);">NEW AGENT</h2>
-            <input type="text" id="signup-name" class="auth-input" placeholder="AGENT NAME">
-            <input type="email" id="signup-email" class="auth-input" placeholder="EMAIL">
-            <input type="password" id="signup-password" class="auth-input" placeholder="CREATE PASSCODE">
-            <button class="btn-neon" style="border-color:var(--accent-pink); color:var(--accent-pink)" onclick="signup()">REGISTER</button>
-            <p class="auth-switch">Has Access? <span onclick="showLogin()">Login</span></p>
+        <div class="glass-panel auth-card" id="login-form">
+            <h2 style="margin-bottom: 20px; font-family: var(--font-head); letter-spacing: 2px;">LOGIN</h2>
+            <input type="email" id="email" class="input-liquid" placeholder="Email Address">
+            <input type="password" id="password" class="input-liquid" placeholder="Password">
+            <button class="btn-glass btn-primary" onclick="handleLogin()" style="width:100%; margin-top:20px;">ENTER PORTAL</button>
+            <p style="margin-top:20px; font-size:14px; color:var(--text-secondary); cursor:pointer;" onclick="toggleAuth()">Create Account</p>
         </div>
     </div>
 
@@ -223,53 +242,72 @@
         
         <div class="book-wrapper">
             <div class="book" id="book">
-                <div class="front">
-                    <h1>SSC 2026</h1>
-                    <p style="letter-spacing: 5px; color: #888;">TRACKER</p>
-                    <p id="user-display" style="color:var(--accent-cyan); margin-top:10px; font-weight:bold;"></p>
-                    <div class="tap-hint">TAP TO OPEN</div>
+                <div class="cover">
+                    <h1>SSC 26</h1>
+                    <p style="letter-spacing: 3px; color: var(--text-secondary);">SMART TRACKER</p>
+                    <div style="margin-top:40px; font-size:12px; color:var(--accent-blue);">TAP TO UNLOCK</div>
                 </div>
                 <div class="pages">
-                    <div class="subject-btn" onclick="openDashboard('physics')"><span>⚛️</span> পদার্থবিজ্ঞান</div>
-                    <div class="subject-btn" onclick="openDashboard('chemistry')"><span>🧪</span> রসায়ন</div>
-                    <div class="subject-btn" onclick="openDashboard('biology')"><span>🧬</span> জীববিজ্ঞান</div>
-                    <div class="subject-btn" onclick="openDashboard('higherMath')"><span>📐</span> উচ্চতর গণিত</div>
-                    <button onclick="logout()" style="margin-top:20px; background:rgba(255,0,0,0.2); border:1px solid red; color:white; padding:10px; width:100%; cursor:pointer;">SYSTEM LOGOUT</button>
+                    <div style="margin-bottom: 10px; font-size: 12px; color: #555; text-transform: uppercase;">Subjects</div>
+                    <div class="menu-item" onclick="openTab('physics')"><span>⚛️</span> Physics</div>
+                    <div class="menu-item" onclick="openTab('chemistry')"><span>🧪</span> Chemistry</div>
+                    <div class="menu-item" onclick="openTab('biology')"><span>🧬</span> Biology</div>
+                    <div class="menu-item" onclick="openTab('higherMath')"><span>📐</span> Higher Math</div>
+                    
+                    <div style="margin: 15px 0 10px 0; font-size: 12px; color: #555; text-transform: uppercase;">Tools</div>
+                    <div class="menu-item" onclick="openPomodoro()" style="border: 1px solid rgba(255, 59, 48, 0.3);">
+                        <span>⏱️</span> <span style="color: #ff6b6b; font-weight:bold;">Pomodoro Focus</span>
+                    </div>
+
+                    <button onclick="logout()" style="margin-top:auto; background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px;">LOGOUT</button>
                 </div>
             </div>
         </div>
 
         <div class="dashboard-wrapper">
-            <div class="glass-panel">
-                <div class="header">
-                    <div class="title-neon" id="dashTitle">PHYSICS</div>
-                    <button class="close-btn" onclick="closeDashboard()">CLOSE</button>
+            <div class="glass-panel dash-card">
+                
+                <div class="dash-header">
+                    <h2 id="panel-title" style="margin:0; font-family:var(--font-head); letter-spacing:1px;">DASHBOARD</h2>
+                    <button onclick="closePanel()" style="background:none; border:1px solid var(--glass-border); color:white; width:30px; height:30px; border-radius:50%; cursor:pointer;">✕</button>
                 </div>
 
-                <div class="content-grid">
-                    <div class="chart-box">
-                        <svg class="ring-svg">
-                            <circle class="ring-bg" cx="110" cy="110" r="100"></circle>
-                            <circle class="ring-progress" id="progressRing" cx="110" cy="110" r="100"></circle>
-                        </svg>
-                        <div class="percent-display" id="percentText">0%</div>
-                        <div style="margin-top: 10px; color: #aaa; font-size: 0.9rem;">COMPLETED</div>
-                    </div>
-                    <div class="list-box" id="chapterList"></div>
+                <div id="subject-view" class="tab-content">
+                    <div class="chapter-list" id="chapter-list"></div>
                 </div>
+
+                <div id="pomodoro-view" class="tab-content">
+                    <div class="pomodoro-container">
+                        <div class="timer-circle">
+                            <div class="timer-time" id="time-display">25:00</div>
+                            <div class="timer-status" id="timer-status">Ready to Focus</div>
+                        </div>
+                        
+                        <div class="timer-controls">
+                            <button class="btn-glass" onclick="startTimer()" id="startBtn">▶ START</button>
+                            <button class="btn-glass" onclick="pauseTimer()" style="color:var(--text-secondary);">⏸ PAUSE</button>
+                            <button class="btn-glass" onclick="resetTimer()" style="color:var(--danger);">↻ RESET</button>
+                        </div>
+                        <p style="font-size:12px; color:var(--text-secondary); text-align:center;">Sound will play when timer ends.</p>
+                    </div>
+                </div>
+
             </div>
         </div>
+
     </div>
 
-    <div class="futuristic-footer">
-        <p>Developed by <span class="highlight">Masrur Muntasir</span> | BSc. in CSE, DIU</p>
+    <div class="footer-bar">
+        Designed by <span class="highlight">Masrur Muntasir</span> &nbsp;|&nbsp; BSc. in CSE, DIU
     </div>
+
+    <audio id="alarm-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
     <script>
         // ==========================================
-        // 🔥🔥🔥 তোমার FIREBASE CONFIG এখানে বসাও 🔥🔥🔥
+        // 🔥🔥🔥 FIREBASE CONFIG GOES HERE 🔥🔥🔥
         // ==========================================
-     const firebaseConfig = {
+       const firebaseConfig = {
   apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ",
   authDomain: "masrur-app-dccc1.firebaseapp.com",
   databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com",
@@ -279,130 +317,172 @@
   appId: "1:54049170636:web:0d0fd5f530027e72688e69",
   measurementId: "G-0R3B6EB17B"
 };
-        
-        // Initialize Firebase
+
+        // Initialize
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
 
-        // UI Elements
+        // UI Variables
         const authOverlay = document.getElementById('auth-overlay');
         const stage = document.getElementById('stage');
         const book = document.getElementById('book');
-        const loginCard = document.getElementById('login-card');
-        const signupCard = document.getElementById('signup-card');
+        const dashWrapper = document.querySelector('.dashboard-wrapper');
+        const panelTitle = document.getElementById('panel-title');
+        
+        let currentUser = null;
+        let pomodoroInterval = null;
+        let timeLeft = 25 * 60; // 25 minutes
+        let isRunning = false;
 
-        // --- AUTH FUNCTIONS ---
-        function showSignup() {
-            loginCard.classList.add('hidden');
-            signupCard.classList.remove('hidden');
-        }
+        // Syllabus Data
+        const syllabus = {
+            physics: { title: "PHYSICS TRACKER", chapters: ["ভৌত রাশি ও পরিমাপ", "গতি", "বল", "কাজ ও শক্তি", "পদার্থের অবস্থা", "তাপের প্রভাব", "তরঙ্গ ও শব্দ", "আলোর প্রতিফলন", "আলোর প্রতিসরণ", "তড়িৎ", "চৌম্বক ক্রিয়া"] },
+            chemistry: { title: "CHEMISTRY TRACKER", chapters: ["রসায়নের ধারণা", "পদার্থের অবস্থা", "পদার্থের গঠন", "পর্যায় সারণি", "রাসায়নিক বন্ধন", "মোলের ধারণা", "রাসায়নিক বিক্রিয়া", "রসায়ন ও শক্তি", "এসিড-ক্ষার সমতা", "খনিজ সম্পদ"] },
+            biology: { title: "BIOLOGY TRACKER", chapters: ["জীবন পাঠ", "জীবকোষ", "কোষ বিভাজন", "জীবনীশক্তি", "খাদ্য ও পুষ্টি", "জীবে পরিবহন", "গ্যাসীয় বিনিময়", "রেচন", "চলন", "সমন্বয়", "প্রজনন"] },
+            higherMath: { title: "HIGHER MATH", chapters: ["সেট ও ফাংশন", "বীজগাণিতিক রাশি", "জ্যামিতি", "অংকন", "সমীকরণ", "অসমতা", "অসীম ধারা", "ত্রিকোণমিতি", "সূচক", "দ্বিপদী", "স্থানাঙ্ক", "ভেক্টর"] }
+        };
 
-        function showLogin() {
-            signupCard.classList.add('hidden');
-            loginCard.classList.remove('hidden');
-        }
+        // --- AUTH ---
+        function handleLogin() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            
+            // Simple validation check
+            if(!email || !pass) {
+                auth.createUserWithEmailAndPassword(email, "123456").catch(e => {
+                     // If create fails, try login
+                     auth.signInWithEmailAndPassword(email, pass).catch(err => alert(err.message));
+                });
+                return;
+            }
 
-        function login() {
-            const email = document.getElementById('login-email').value;
-            const pass = document.getElementById('login-password').value;
-            auth.signInWithEmailAndPassword(email, pass).catch(e => alert("Access Denied: " + e.message));
-        }
-
-        function signup() {
-            const email = document.getElementById('signup-email').value;
-            const pass = document.getElementById('signup-password').value;
-            const name = document.getElementById('signup-name').value;
-            auth.createUserWithEmailAndPassword(email, pass).then(cred => {
-                cred.user.updateProfile({ displayName: name });
-                alert("Agent Registered Successfully!");
-                showLogin();
-            }).catch(e => alert(e.message));
+            auth.signInWithEmailAndPassword(email, pass).catch(e => {
+                // Auto create if user not found (Simplifying for you)
+                if(e.code === 'auth/user-not-found') {
+                    if(confirm("User not found. Create new account?")) {
+                         auth.createUserWithEmailAndPassword(email, pass);
+                    }
+                } else {
+                    alert(e.message);
+                }
+            });
         }
 
         function logout() {
             auth.signOut();
+            closePanel();
             book.classList.remove('open');
-            closeDashboard();
         }
 
-        // Listener
         auth.onAuthStateChanged(user => {
-            if (user) {
+            if(user) {
+                currentUser = user;
                 authOverlay.classList.add('hidden');
                 stage.classList.add('visible');
-                document.getElementById('user-display').innerText = "AGENT: " + (user.displayName || "UNKNOWN");
-                loadData(user.uid);
             } else {
                 authOverlay.classList.remove('hidden');
                 stage.classList.remove('visible');
             }
         });
 
-        // --- APP LOGIC (IDENTICAL TO YOUR DESIGN) ---
+        // --- INTERACTION ---
         book.addEventListener('click', (e) => {
-            // Only open if clicking cover, not inside pages
-            if (e.target.closest('.front')) {
+            if(e.target.closest('.cover')) {
                 book.classList.add('open');
             }
         });
 
-        const syllabus = {
-            physics: { title: "PHYSICS", chapters: ["ভৌত রাশি ও পরিমাপ", "গতি", "বল", "কাজ, ক্ষমতা ও শক্তি", "পদার্থের অবস্থা ও চাপ", "বস্তুর উপর তাপের প্রভাব", "তরঙ্গ ও শব্দ", "আলোর প্রতিফলন", "আলোর প্রতিসরণ", "স্থির তড়িৎ", "চল তড়িৎ", "বিদ্যুতের চৌম্বক ক্রিয়া", "আধুনিক পদার্থবিজ্ঞান", "জীবন বাঁচাতে পদার্থবিজ্ঞান"] },
-            chemistry: { title: "CHEMISTRY", chapters: ["রসায়নের ধারণা", "পদার্থের অবস্থা", "পদার্থের গঠন", "পর্যায় সারণি", "রাসায়নিক বন্ধন", "মোলের ধারণা ও রাসায়নিক গণনা", "রাসায়নিক বিক্রিয়া", "রসায়ন ও শক্তি", "এসিড-ক্ষার সমতা", "খনিজ সম্পদ: ধাতু-অধাতু", "খনিজ সম্পদ: জীবাশ্ম", "আমাদের জীবনে রসায়ন"] },
-            biology: { title: "BIOLOGY", chapters: ["জীবন পাঠ", "জীবকোষ ও টিস্যু", "কোষ বিভাজন", "জীবনীশক্তি", "খাদ্য, পুষ্টি ও পরিপাক", "জীবে পরিবহন", "গ্যাসীয় বিনিময়", "রেচন প্রক্রিয়া", "দৃঢ়তা প্রদান ও চলন", "সমন্বয় ও নিঃসরণ", "জীবের প্রজনন", "জীবের বংশগতি ও বিবর্তন", "জীবের পরিবেশ", "জীবপ্রযুক্তি"] },
-            higherMath: { title: "HIGHER MATH", chapters: ["সেট ও ফাংশন", "বীজগাণিতিক রাশি", "জ্যামিতি", "জ্যামিতিক অংকন", "সমীকরণ", "অসমতা", "অসীম ধারা", "ত্রিকোণমিতি", "সূচকীয় ও লগারিদমীয় ফাংশন", "দ্বিপদী বিস্তৃতি", "স্থানাঙ্ক জ্যামিতি", "সমতলীয় ভেক্টর", "ঘন জ্যামিতি", "সম্ভাবনা"] }
-        };
-
-        let currentData = {};
-        let activeSubject = null;
-
-        function loadData(uid) {
-            db.ref('progress/' + uid).on('value', snap => {
-                currentData = snap.val() || {};
-                if(activeSubject) renderDashboard(activeSubject);
-            });
-        }
-
-        function openDashboard(key) {
-            activeSubject = key;
-            stage.classList.add('active');
-            renderDashboard(key);
-        };
-
-        function closeDashboard() {
+        function closePanel() {
             stage.classList.remove('active');
-            activeSubject = null;
-        };
-
-        function renderDashboard(key) {
-            const data = syllabus[key];
-            const userProgress = currentData[key] || [];
-            
-            document.getElementById('dashTitle').innerText = data.title;
-            const list = document.getElementById('chapterList');
-            list.innerHTML = '';
-            
-            let doneCount = 0;
-            data.chapters.forEach((chap, idx) => {
-                const isDone = userProgress[idx] === true;
-                if(isDone) doneCount++;
-                const div = document.createElement('div');
-                div.className = `chapter ${isDone ? 'done' : ''}`;
-                div.innerHTML = `<span>${idx + 1}. ${chap}</span> <span>${isDone ? '✔' : ''}</span>`;
-                div.onclick = () => {
-                    const uid = auth.currentUser.uid;
-                    db.ref(`progress/${uid}/${key}/${idx}`).set(!isDone);
-                };
-                list.appendChild(div);
-            });
-
-            const total = data.chapters.length;
-            const percent = Math.round((doneCount / total) * 100);
-            const offset = 628 - (628 * percent) / 100;
-            document.getElementById('progressRing').style.strokeDashoffset = offset;
-            document.getElementById('percentText').innerText = percent + "%";
+            // Reset views
+            setTimeout(() => {
+                document.getElementById('subject-view').classList.remove('active');
+                document.getElementById('pomodoro-view').classList.remove('active');
+            }, 500);
         }
+
+        // --- TRACKER LOGIC ---
+        function openTab(subject) {
+            stage.classList.add('active');
+            document.getElementById('pomodoro-view').classList.remove('active');
+            const subView = document.getElementById('subject-view');
+            subView.classList.add('active');
+            
+            const data = syllabus[subject];
+            panelTitle.innerText = data.title;
+            const list = document.getElementById('chapter-list');
+            list.innerHTML = '';
+
+            // Get User Data
+            db.ref(`progress/${currentUser.uid}/${subject}`).on('value', snap => {
+                const progress = snap.val() || [];
+                list.innerHTML = ''; // clear
+                
+                data.chapters.forEach((chap, idx) => {
+                    const isDone = progress[idx] === true;
+                    const div = document.createElement('div');
+                    div.className = `chapter-item ${isDone ? 'completed' : ''}`;
+                    div.innerHTML = `<span>${idx+1}. ${chap}</span> ${isDone ? '✅' : ''}`;
+                    div.onclick = () => {
+                        db.ref(`progress/${currentUser.uid}/${subject}/${idx}`).set(!isDone);
+                    };
+                    list.appendChild(div);
+                });
+            });
+        }
+
+        // --- POMODORO LOGIC ---
+        function openPomodoro() {
+            stage.classList.add('active');
+            document.getElementById('subject-view').classList.remove('active');
+            document.getElementById('pomodoro-view').classList.add('active');
+            panelTitle.innerText = "FOCUS TIMER";
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('time-display').innerText = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if(isRunning) return;
+            isRunning = true;
+            document.getElementById('timer-status').innerText = "Focusing...";
+            document.getElementById('timer-status').style.color = "#2997ff";
+            
+            pomodoroInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if(timeLeft <= 0) {
+                    clearInterval(pomodoroInterval);
+                    isRunning = false;
+                    document.getElementById('alarm-sound').play();
+                    document.getElementById('timer-status').innerText = "TIME'S UP!";
+                    document.getElementById('timer-status').style.color = "#30d158";
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(pomodoroInterval);
+            isRunning = false;
+            document.getElementById('timer-status').innerText = "Paused";
+            document.getElementById('timer-status').style.color = "white";
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timeLeft = 25 * 60;
+            updateTimerDisplay();
+            document.getElementById('timer-status').innerText = "Ready";
+            document.getElementById('alarm-sound').pause();
+            document.getElementById('alarm-sound').currentTime = 0;
+        }
+
     </script>
 </body>
 </html>
