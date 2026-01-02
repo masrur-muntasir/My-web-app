@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BIGGAN CLASS Premium</title>
+    <title>BIGGAN CLASS App</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -14,326 +14,263 @@
 
     <style>
         :root {
-            /* Premium Futuristic Palette */
-            --bg-deep: #020204;
-            --glass-panel: rgba(15, 15, 20, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-highlight: rgba(255, 255, 255, 0.15);
-            
-            --accent-blue: #00f3ff;
-            --accent-purple: #bc13fe;
-            --accent-gold: #ffd700;
-            
-            --whatsapp: #25D366;
-            --telegram: #0088cc;
-            
-            --text-main: #ffffff;
-            --text-mute: #999;
+            --bg: #050508;
+            --panel: #121215;
+            --border: rgba(255,255,255,0.08);
+            --primary: #00f3ff;
+            --secondary: #bc13fe;
+            --gold: #ffd700;
+            --text: #ffffff;
+            --mute: #888;
             --success: #00d26a;
-            
             --font-head: 'Rajdhani', sans-serif;
             --font-body: 'Inter', sans-serif;
-            
-            --smooth-ease: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
 
         body {
-            margin: 0; background: var(--bg-deep); color: var(--text-main);
+            margin: 0; background: var(--bg); color: var(--text);
             font-family: var(--font-body); height: 100vh; overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-            background-image: radial-gradient(circle at top right, rgba(0, 243, 255, 0.08), transparent 40%),
-                              radial-gradient(circle at bottom left, rgba(188, 19, 254, 0.08), transparent 40%);
-            background-size: cover;
         }
 
         /* --- AUTH SCREEN --- */
-        #auth-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999;
-            background: rgba(2, 2, 4, 0.98); backdrop-filter: blur(10px);
-            display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.6s var(--smooth-ease);
+        #auth-view {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000;
+            background: var(--bg); display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.4s;
         }
-        .login-card {
-            width: 340px; padding: 40px; 
-            background: var(--glass-panel); border: 1px solid var(--glass-border);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-            border-radius: 20px; text-align: center; position: relative; overflow: hidden;
-        }
-        .login-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+        .login-box {
+            width: 90%; max-width: 360px; padding: 30px; text-align: center;
+            background: var(--panel); border: 1px solid var(--border); border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
         .inp {
-            width: 100%; padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.3);
-            border: 1px solid var(--glass-border); color: white; border-radius: 10px;
-            transition: 0.3s; font-family: var(--font-body);
+            width: 100%; padding: 14px; margin-bottom: 12px; background: #000;
+            border: 1px solid var(--border); color: white; border-radius: 10px;
+            font-family: var(--font-body);
         }
-        .inp:focus { border-color: var(--accent-blue); }
-        .btn {
-            width: 100%; padding: 15px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer;
-            transition: 0.3s; font-family: var(--font-head); letter-spacing: 2px; font-size: 1rem;
+        .btn-main {
+            width: 100%; padding: 14px; background: var(--primary); border: none;
+            color: #000; font-weight: bold; border-radius: 10px; cursor: pointer;
+            font-family: var(--font-head); letter-spacing: 1px; margin-top: 10px;
         }
-        .btn:hover { box-shadow: 0 0 30px rgba(0, 243, 255, 0.4); transform: translateY(-2px); }
+        .link-text { color: var(--secondary); font-size: 0.85rem; margin-top: 15px; cursor: pointer; }
 
-        /* --- MAIN LAYOUT --- */
-        .app-container {
-            width: 95%; max-width: 1300px; height: 92vh;
-            display: flex; gap: 20px; opacity: 0; pointer-events: none;
-            transition: opacity 0.8s var(--smooth-ease);
+        /* --- APP STRUCTURE --- */
+        .app-header {
+            height: 60px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; background: rgba(18, 18, 21, 0.95); border-bottom: 1px solid var(--border);
+            position: fixed; top: 0; width: 100%; z-index: 100; backdrop-filter: blur(10px);
         }
-        .app-container.active { opacity: 1; pointer-events: all; }
+        .logo-area { display: flex; align-items: center; gap: 12px; font-family: var(--font-head); font-weight: 700; font-size: 1.2rem; }
+        .menu-toggle { font-size: 1.4rem; color: var(--primary); cursor: pointer; }
 
-        /* PANELS */
-        .glass-panel {
-            background: var(--glass-panel); border: 1px solid var(--glass-border);
-            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-            border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        /* SIDEBAR DRAWER */
+        .sidebar {
+            position: fixed; top: 60px; left: 0; width: 260px; height: calc(100% - 60px);
+            background: var(--panel); border-right: 1px solid var(--border);
+            transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 150; display: flex; flex-direction: column; padding: 20px;
         }
-
-        /* SIDEBAR */
-        .nav-panel { width: 300px; padding: 25px; display: flex; flex-direction: column; }
-
-        .brand-section {
-            padding-bottom: 20px; border-bottom: 1px solid var(--glass-border); margin-bottom: 20px;
-            display: flex; align-items: center; gap: 15px;
+        .sidebar.open { transform: translateX(0); }
+        .overlay {
+            position: fixed; top: 60px; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 140; opacity: 0; pointer-events: none; transition: 0.3s;
         }
-        .logo-img { width: 50px; height: auto; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
-        .brand-title { font-family: var(--font-head); font-size: 1.4rem; color: var(--accent-blue); font-weight: 700; letter-spacing: 1px; }
-        .brand-sub { font-size: 0.7rem; color: var(--text-mute); letter-spacing: 2px; margin-top: 2px;}
+        .overlay.active { opacity: 1; pointer-events: all; }
 
-        .nav-menu { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-        
+        /* NAV ITEMS */
+        .nav-group { font-size: 0.75rem; color: var(--mute); font-weight: bold; margin: 15px 0 8px 5px; }
         .nav-item {
-            padding: 14px; border-radius: 12px; cursor: pointer; color: var(--text-mute);
-            transition: 0.3s var(--smooth-ease); display: flex; align-items: center; gap: 12px; font-weight: 500;
-            border: 1px solid transparent;
+            padding: 12px 15px; border-radius: 10px; cursor: pointer; color: #ccc;
+            display: flex; align-items: center; gap: 12px; font-weight: 500; transition: 0.2s;
         }
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text-main); transform: translateX(5px); }
-        .nav-item.active { background: rgba(0, 243, 255, 0.1); color: var(--accent-blue); border-color: var(--accent-blue); }
+        .nav-item i { width: 22px; text-align: center; }
+        .nav-item.active { background: rgba(0, 243, 255, 0.1); color: var(--primary); }
+        .nav-item:hover { background: rgba(255,255,255,0.05); }
 
-        /* FRB PULSE BUTTON IN SIDEBAR */
-        .nav-item.promo-btn {
-            background: rgba(255, 215, 0, 0.05); color: var(--accent-gold); border: 1px solid rgba(255, 215, 0, 0.2);
-            animation: pulse-glow 2s infinite; font-weight: bold;
+        /* MAIN CONTENT */
+        .main-content {
+            margin-top: 60px; height: calc(100vh - 60px); width: 100%;
+            padding: 20px; overflow-y: auto;
         }
-        .nav-item.promo-btn:hover { background: var(--accent-gold); color: black; }
-        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.2); } 70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); } }
+        .view-section { display: none; animation: fadeIn 0.4s ease; }
+        .view-section.active { display: block; }
 
-        .dev-footer {
-            margin-top: auto; padding-top: 20px; border-top: 1px solid var(--glass-border);
-            text-align: center; font-size: 0.7rem; color: #666; line-height: 1.6;
-        }
-        .dev-name { color: var(--accent-blue); font-weight: 700; }
-
-        /* CONTENT */
-        .content-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-
-        .header-bar {
-            height: 70px; border-bottom: 1px solid var(--glass-border); display: flex;
-            align-items: center; justify-content: space-between; padding: 0 30px;
-            background: rgba(15, 15, 20, 0.5);
-        }
-        .user-profile { display: flex; align-items: center; gap: 10px; padding: 8px 15px; background: rgba(255,255,255,0.05); border-radius: 30px; border: 1px solid var(--glass-border); }
-
-        .view-area { flex: 1; padding: 30px; overflow-y: auto; }
-        .tab-view { display: none; animation: fadeIn 0.4s ease; }
-        .tab-view.active { display: block; }
-
-        /* HERO BANNER IN DASHBOARD */
-        .hero-banner {
-            background: linear-gradient(135deg, #0088cc 0%, #bc13fe 100%);
-            border-radius: 16px; padding: 25px; margin-bottom: 25px;
+        /* FRB BANNER */
+        .banner {
+            background: linear-gradient(135deg, #0088cc, #8e44ad);
+            padding: 20px; border-radius: 16px; color: white; margin-bottom: 25px;
             display: flex; align-items: center; justify-content: space-between;
-            color: white; box-shadow: 0 10px 30px rgba(0, 136, 204, 0.3);
-            position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
         }
-        .hero-banner::after {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
-            animation: rotate 15s linear infinite; pointer-events: none;
+        .btn-sm {
+            background: white; color: #0088cc; padding: 8px 18px; border-radius: 20px;
+            text-decoration: none; font-weight: bold; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
-        @keyframes rotate { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
 
-        .chapter-card {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 18px 25px; margin-bottom: 12px; background: rgba(255,255,255,0.02);
-            border: 1px solid var(--glass-border); border-radius: 12px; cursor: pointer;
-            transition: 0.3s var(--smooth-ease);
+        /* CARDS */
+        .card {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            padding: 16px; border-radius: 12px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
         }
-        .chapter-card:hover { background: rgba(255,255,255,0.05); border-color: var(--accent-blue); transform: translateX(5px); }
-        .chapter-card.done { border-left: 4px solid var(--success); background: rgba(0, 210, 106, 0.05); }
-
-        .contact-card {
-            display: flex; align-items: center; background: rgba(255,255,255,0.02);
-            border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px;
-            margin-bottom: 15px; transition: 0.3s;
-        }
-        .contact-card:hover { border-color: var(--accent-purple); transform: translateY(-3px); }
+        .card.done { border-left: 3px solid var(--success); background: rgba(0, 210, 106, 0.05); }
+        .contact-card { display: flex; align-items: center; gap: 15px; cursor: default; }
         
-        .action-btn {
-            margin-left: auto; padding: 10px 20px; border-radius: 30px; text-decoration: none;
-            font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
-            transition: 0.3s; font-family: var(--font-head); letter-spacing: 1px;
-            z-index: 2; cursor: pointer;
+        /* FOOTER */
+        .dev-footer {
+            margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border);
+            text-align: center; font-size: 0.75rem; color: var(--mute); line-height: 1.5;
         }
-        .btn-banner { background: white; color: #0088cc; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .btn-banner:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
-
-        .btn-wa { background: rgba(37, 211, 102, 0.1); color: var(--whatsapp); border: 1px solid var(--whatsapp); }
-        .btn-wa:hover { background: var(--whatsapp); color: black; }
-        .btn-tg { background: rgba(0, 136, 204, 0.1); color: var(--telegram); border: 1px solid var(--telegram); }
-        .btn-tg:hover { background: var(--telegram); color: white; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-
-        /* Mobile */
-        @media (max-width: 768px) {
-            .app-container { flex-direction: column; width: 100%; height: 100%; border-radius: 0; gap: 0; }
-            .nav-panel { width: 100%; height: auto; padding: 15px; flex-direction: row; border-radius: 0; overflow-x: auto; border-bottom: 1px solid var(--glass-border); align-items: center; }
-            .brand-section { border-bottom: none; margin-bottom: 0; padding-bottom: 0; margin-right: 15px; }
-            .logo-img { width: 35px; } .brand-title { font-size: 1.1rem; } .brand-sub, .dev-footer { display: none; }
-            .nav-menu { flex-direction: row; gap: 10px; }
-            .nav-item { white-space: nowrap; padding: 8px 12px; font-size: 0.8rem; }
-            .header-bar { height: 60px; padding: 0 20px; }
-            .hero-banner { flex-direction: column; text-align: center; gap: 15px; }
-            .hero-banner .action-btn { width: 100%; justify-content: center; }
+        
+        /* Desktop Fix */
+        @media (min-width: 769px) {
+            .sidebar { transform: translateX(0); width: 280px; border-right: 1px solid var(--border); }
+            .menu-toggle { display: none; }
+            .main-content { margin-left: 280px; width: calc(100% - 280px); }
+            .overlay { display: none !important; }
         }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
-        <div class="login-card">
-            <img src="logo.png" alt="Logo" style="width: 60px; margin-bottom: 15px;">
-            <h2 style="font-family:var(--font-head); color:var(--accent-blue); letter-spacing: 2px;">BIGGAN CLASS</h2>
-            <p style="font-size:0.9rem; color:var(--text-mute); margin-bottom:30px;">Premium Student Portal</p>
+    <div id="auth-view">
+        <div class="login-box" id="login-form">
+            <img src="logo.png" style="width:60px; margin-bottom:15px;" alt="Logo">
+            <h2 style="font-family:var(--font-head); color:var(--primary); margin:0 0 5px 0;">BIGGAN CLASS</h2>
+            <p style="color:var(--mute); font-size:0.9rem; margin-bottom:25px;">Student Access Portal</p>
+            
             <input type="email" id="email" class="inp" placeholder="Email Address">
             <input type="password" id="pass" class="inp" placeholder="Password">
-            <button class="btn" onclick="login()">INITIALIZE SYSTEM</button>
+            <button class="btn-main" onclick="handleAuth('login')">LOGIN</button>
+            <div class="link-text" onclick="toggleForm()">New here? Create Account</div>
+        </div>
+        
+        <div class="login-box" id="reg-form" style="display:none;">
+            <h2 style="font-family:var(--font-head); color:var(--secondary);">REGISTER</h2>
+            <input type="text" id="reg-name" class="inp" placeholder="Your Name">
+            <input type="email" id="reg-email" class="inp" placeholder="Email">
+            <input type="password" id="reg-pass" class="inp" placeholder="Password">
+            <button class="btn-main" onclick="handleAuth('register')" style="background:var(--secondary); color:white;">REGISTER</button>
+            <div class="link-text" onclick="toggleForm()">Back to Login</div>
         </div>
     </div>
 
-    <div class="app-container" id="app">
+    <div class="app-header">
+        <div class="logo-area">
+            <i class="fas fa-bars menu-toggle" onclick="toggleMenu()"></i>
+            <span>BIGGAN CLASS</span>
+        </div>
+        <div id="user-display" style="font-size:0.8rem; color:var(--mute); font-weight:600;">Student</div>
+    </div>
+
+    <div class="overlay" onclick="toggleMenu()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="nav-menu">
+            <div class="nav-group">ACADEMIC</div>
+            <div class="nav-item active" onclick="nav('physics')"><i class="fas fa-atom"></i> Physics</div>
+            <div class="nav-item" onclick="nav('chemistry')"><i class="fas fa-flask"></i> Chemistry</div>
+            <div class="nav-item" onclick="nav('biology')"><i class="fas fa-dna"></i> Biology</div>
+            <div class="nav-item" onclick="nav('higherMath')"><i class="fas fa-calculator"></i> Higher Math</div>
+
+            <div class="nav-group">TOOLS & SUPPORT</div>
+            <div class="nav-item" onclick="nav('leaderboard')"><i class="fas fa-trophy" style="color:var(--gold)"></i> Leaderboard</div>
+            <div class="nav-item" onclick="nav('pomodoro')"><i class="fas fa-clock"></i> Focus Timer</div>
+            <div class="nav-item" onclick="nav('contact')"><i class="fas fa-users" style="color:var(--primary)"></i> Community</div>
+        </div>
+
+        <div class="dev-footer">
+            Developed by <b style="color:var(--primary)">Masrur Muntasir</b><br>
+            Moderator Team Leader<br>BSc. in CSE, DIU
+        </div>
+    </div>
+
+    <div class="main-content">
         
-        <div class="glass-panel nav-panel">
-            <div class="brand-section">
-                <img src="logo.png" alt="Logo" class="logo-img">
+        <div id="v-subject" class="view-section active">
+            <div class="banner">
                 <div>
-                    <div class="brand-title">BIGGAN CLASS</div>
-                    <div class="brand-sub">CLASS 9 & 10</div>
+                    <div style="font-weight:700; font-size:1.1rem;"><i class="fas fa-rocket"></i> Free FRB Course</div>
+                    <div style="font-size:0.8rem; opacity:0.9; margin-top:3px;">Exclusive Telegram Channel</div>
                 </div>
+                <a href="#" target="_blank" class="btn-sm" id="frb-link">JOIN</a>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 id="page-title" style="margin:0; color:var(--primary); font-family:var(--font-head);">PHYSICS</h3>
+                <span id="progress-text" style="font-size:0.8rem; color:var(--mute);">0% Done</span>
             </div>
             
-            <div class="nav-menu">
-                <a href="https://t.me/biggan_class" target="_blank" style="text-decoration:none;">
-                    <div class="nav-item promo-btn">
-                        <i class="fas fa-rocket"></i> Free FRB Course
-                    </div>
-                </a>
+            <div id="chapter-list">Loading...</div>
+        </div>
 
-                <div style="font-size:0.7rem; color:#666; margin:15px 0 5px 0; font-weight:700;">MODULES</div>
-                <div class="nav-item active" onclick="loadTab('physics', this)"><i class="fas fa-atom"></i> Physics</div>
-                <div class="nav-item" onclick="loadTab('chemistry', this)"><i class="fas fa-flask"></i> Chemistry</div>
-                <div class="nav-item" onclick="loadTab('biology', this)"><i class="fas fa-dna"></i> Biology</div>
-                <div class="nav-item" onclick="loadTab('higherMath', this)"><i class="fas fa-calculator"></i> Higher Math</div>
-                
-                <div style="font-size:0.7rem; color:#666; margin:20px 0 5px 0; font-weight:700;">HUB</div>
-                <div class="nav-item" onclick="loadTab('leaderboard', this)"><i class="fas fa-trophy" style="color:var(--accent-gold);"></i> Ranking</div>
-                <div class="nav-item" onclick="loadTab('pomodoro', this)"><i class="fas fa-stopwatch"></i> Timer</div>
-                <div class="nav-item" onclick="loadTab('contact', this)" style="color:var(--accent-blue);"><i class="fas fa-headset"></i> Support</div>
-                
-                <div style="flex:1;"></div>
-                <button onclick="logout()" style="background:none; border:none; color:#ff4757; cursor:pointer; font-size:0.85rem; padding:10px 5px; text-align:left; display:flex; align-items:center; gap:10px; font-weight:600;"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </div>
+        <div id="v-leaderboard" class="view-section">
+            <h3 style="color:var(--gold); font-family:var(--font-head);">GLOBAL RANKING</h3>
+            <div id="rank-list">Syncing...</div>
+        </div>
 
-            <div class="dev-footer">
-                Engineered by <br> <span class="dev-name">Masrur Muntasir</span>
-                <br>Moderator Team Leader
-                <br>BSc. in CSE, DIU
+        <div id="v-pomodoro" class="view-section">
+            <div style="text-align:center; padding-top:60px;">
+                <div style="font-family:var(--font-head); font-size:5rem; font-weight:700;" id="timer">25:00</div>
+                <div style="color:var(--primary); letter-spacing:2px; margin-bottom:30px;">FOCUS MODE</div>
+                <button class="btn-main" onclick="startTimer()" style="width:150px; border-radius:30px;">START</button>
             </div>
         </div>
 
-        <div class="glass-panel content-panel">
-            <div class="header-bar">
-                <div id="page-title" style="font-family:var(--font-head); font-weight:700; font-size:1.5rem; letter-spacing:1px; color:var(--accent-blue);">PHYSICS</div>
-                <div class="user-profile">
-                    <i class="fas fa-user-circle" style="font-size:1.2rem; color:var(--accent-purple);"></i>
-                    <div id="user-display" style="font-size:0.9rem; font-weight:600;">Student</div>
+        <div id="v-contact" class="view-section">
+            <h4 style="color:var(--mute);">OFFICIAL LINKS</h4>
+            
+            <div class="card contact-card">
+                <i class="fab fa-telegram" style="font-size:2rem; color:#0088cc;"></i>
+                <div style="flex:1;">
+                    <div style="font-weight:bold;">Student Group</div>
+                    <div style="font-size:0.8rem; color:var(--mute);">Official Discussion</div>
                 </div>
+                <a href="#" target="_blank" class="btn-sm" id="group-link" style="background:#0088cc; color:white;">JOIN</a>
             </div>
 
-            <div class="view-area">
-                
-                <div id="view-subject" class="tab-view active">
-                    
-                    <div class="hero-banner">
-                        <div>
-                            <div style="font-weight:700; font-size:1.4rem; font-family:var(--font-head);"><i class="fas fa-star"></i> Free FRB Course</div>
-                            <div style="font-size:0.9rem; opacity:0.9; margin-top:5px;">Join the exclusive Telegram Channel now!</div>
-                        </div>
-                        <a href="https://t.me/biggan_class" target="_blank" class="action-btn btn-banner">
-                            <i class="fab fa-telegram-plane"></i> Join Now
-                        </a>
-                    </div>
+            <h4 style="color:var(--mute); margin-top:25px;">CONTACT ADMINS</h4>
 
-                    <div id="chapter-container">Loading Module...</div>
+            <div class="card contact-card">
+                <i class="fas fa-user-tie" style="font-size:1.8rem; color:var(--gold);"></i>
+                <div style="flex:1;">
+                    <div style="font-weight:bold;">Pial Hasan</div>
+                    <div style="font-size:0.75rem; color:var(--gold); background:rgba(255,215,0,0.1); display:inline-block; padding:2px 6px; border-radius:4px;">Instructor</div>
                 </div>
+                <a href="#" target="_blank" class="btn-sm" id="pial-wa" style="background:#25D366; color:black;"><i class="fab fa-whatsapp"></i></a>
+            </div>
 
-                <div id="view-leaderboard" class="tab-view"><div id="rank-list">Syncing Global Data...</div></div>
-
-                <div id="view-pomodoro" class="tab-view">
-                    <div style="text-align:center; padding-top:80px;">
-                        <div style="font-family:var(--font-head); font-size:5rem; font-weight:700; text-shadow:0 0 20px rgba(0,243,255,0.3);" id="time">25:00</div>
-                        <div style="color:var(--accent-blue); letter-spacing:2px; margin-bottom:30px;">FOCUS SESSION</div>
-                        <button class="btn" onclick="startTimer()" style="width:160px; border-radius:30px;">START FOCUS</button>
-                    </div>
+            <div class="card contact-card">
+                <i class="fas fa-laptop-code" style="font-size:1.8rem; color:var(--primary);"></i>
+                <div style="flex:1;">
+                    <div style="font-weight:bold;">Masrur Muntasir</div>
+                    <div style="font-size:0.75rem; color:var(--primary); background:rgba(0,243,255,0.1); display:inline-block; padding:2px 6px; border-radius:4px;">Tech Support</div>
                 </div>
-
-                <div id="view-contact" class="tab-view">
-                    <div style="color:var(--accent-blue); font-size:0.9rem; margin-bottom:15px; font-weight:bold;">OFFICIAL COMMUNITY</div>
-                    <div class="contact-card">
-                        <div style="font-size:24px; color:var(--telegram); margin-right:15px;"><i class="fab fa-telegram"></i></div>
-                        <div>
-                            <div style="font-weight:700;">BIGGAN CLASS 9&10</div>
-                            <div style="font-size:0.8rem; color:#aaa;">Official Student Group</div>
-                        </div>
-                        <a href="https://t.me/biggan_class_SSC" target="_blank" class="action-btn btn-tg">Join Group</a>
-                    </div>
-
-                    <div style="color:var(--accent-blue); font-size:0.9rem; margin:25px 0 15px 0; font-weight:bold;">SUPPORT TEAM</div>
-                    <div class="contact-card">
-                        <div style="font-size:24px; color:#ffd700; margin-right:15px;"><i class="fas fa-chalkboard-teacher"></i></div>
-                        <div>
-                            <div style="font-weight:700;">Pial Hasan</div>
-                            <div style="font-size:0.7rem; color:#ffd700;">Instructor</div>
-                        </div>
-                        <a href="https://wa.me/8801792595165" target="_blank" class="action-btn btn-wa"><i class="fab fa-whatsapp"></i> Message</a>
-                    </div>
-                    <div class="contact-card">
-                        <div style="font-size:24px; color:var(--accent-blue); margin-right:15px;"><i class="fas fa-code"></i></div>
-                        <div>
-                            <div style="font-weight:700;">Masrur Muntasir</div>
-                            <div style="font-size:0.7rem; color:var(--accent-blue);">Tech Support</div>
-                        </div>
-                        <a href="https://wa.me/8801706592005" target="_blank" class="action-btn btn-wa"><i class="fab fa-whatsapp"></i> Support</a>
-                    </div>
-                </div>
-
+                <a href="#" target="_blank" class="btn-sm" id="masrur-wa" style="background:#25D366; color:black;"><i class="fab fa-whatsapp"></i></a>
             </div>
         </div>
+
     </div>
 
     <audio id="alarm" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
     <script>
+        // ==========================================
+        // 🔥 CONFIGURATION ZONE (EDIT HERE) 🔥
+        // ==========================================
+        const appConfig = {
+            frbChannel: "https://t.me/biggan_class",       // FRB Channel Link
+            groupLink: "https://t.me/biggan_class_SSC",      // Student Group Link
+            pialNumber: "8801792595165",                    // Pial Hasan Number (No +)
+            masrurNumber: "8801706592005"                   // Your Number (No +)
+        };
+
+        // Firebase Config (Already Set)
         const firebaseConfig = {
             apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ",
             authDomain: "masrur-app-dccc1.firebaseapp.com",
@@ -341,17 +278,21 @@
             projectId: "masrur-app-dccc1",
             storageBucket: "masrur-app-dccc1.firebasestorage.app",
             messagingSenderId: "54049170636",
-            appId: "1:54049170636:web:0d0fd5f530027e72688e69",
-            measurementId: "G-0R3B6EB17B"
+            appId: "1:54049170636:web:0d0fd5f530027e72688e69"
         };
 
+        // --- INIT SYSTEM ---
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
-
         let currentUser = null;
         let timerInt = null;
-        let timeLeft = 1500;
+
+        // Apply Config Links
+        document.getElementById('frb-link').href = appConfig.frbChannel;
+        document.getElementById('group-link').href = appConfig.groupLink;
+        document.getElementById('pial-wa').href = `https://wa.me/${appConfig.pialNumber}`;
+        document.getElementById('masrur-wa').href = `https://wa.me/${appConfig.masrurNumber}`;
 
         const syllabus = {
             physics: { title: "PHYSICS", chapters: ["ভৌত রাশি", "গতি", "বল", "কাজ", "পদার্থের অবস্থা", "তাপ", "তরঙ্গ", "আলো", "তড়িৎ"] },
@@ -360,76 +301,89 @@
             higherMath: { title: "HIGHER MATH", chapters: ["সেট", "বীজগণিত", "জ্যামিতি", "সমীকরণ", "অসমতা", "ধারা", "ত্রিকোণমিতি", "সূচক"] }
         };
 
-        function login() {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('pass').value;
-            auth.signInWithEmailAndPassword(e, p).catch(err => {
-                if(err.code === 'auth/user-not-found') {
-                    auth.createUserWithEmailAndPassword(e, p).then(c => c.user.updateProfile({ displayName: e.split('@')[0] }));
-                } else alert(err.message);
-            });
+        // --- AUTH LOGIC ---
+        function toggleForm() {
+            const login = document.getElementById('login-form');
+            const reg = document.getElementById('reg-form');
+            if(login.style.display === 'none') { login.style.display='block'; reg.style.display='none'; }
+            else { login.style.display='none'; reg.style.display='block'; }
         }
+
+        function handleAuth(type) {
+            const prefix = type === 'login' ? '' : 'reg-';
+            const e = document.getElementById(prefix+'email').value;
+            const p = document.getElementById(prefix+'pass').value;
+            
+            if(type === 'register') {
+                const n = document.getElementById('reg-name').value;
+                if(!n) return alert("Name required");
+                auth.createUserWithEmailAndPassword(e, p).then(c => c.user.updateProfile({ displayName: n })).catch(err => alert(err.message));
+            } else {
+                auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
+            }
+        }
+
         function logout() { auth.signOut(); location.reload(); }
 
         auth.onAuthStateChanged(user => {
             if(user) {
                 currentUser = user;
-                document.getElementById('auth-screen').style.opacity = '0';
-                setTimeout(() => document.getElementById('auth-screen').style.display = 'none', 600);
-                document.getElementById('app').classList.add('active');
-                document.getElementById('user-display').innerText = user.displayName;
-                loadTab('physics', document.querySelector('.nav-item.active'));
+                document.getElementById('auth-view').style.opacity = '0';
+                setTimeout(() => document.getElementById('auth-view').style.display='none', 400);
+                document.getElementById('user-display').innerText = user.displayName || 'Student';
+                loadSubject('physics');
             }
         });
 
-        function loadTab(key, el) {
-            if(key === 'contact' || key === 'leaderboard' || key === 'pomodoro') {
-                // Keep active subject tab highlighted if switching to tool
-            } else {
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                if(el) el.classList.add('active');
-            }
+        // --- UI LOGIC ---
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.querySelector('.overlay').classList.toggle('active');
+        }
+
+        function nav(key) {
+            if(window.innerWidth <= 768) toggleMenu(); // Auto close on mobile
             
-            document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
 
             if(syllabus[key]) {
-                document.getElementById('view-subject').classList.add('active');
+                document.getElementById('v-subject').classList.add('active');
                 document.getElementById('page-title').innerText = syllabus[key].title;
                 loadSubject(key);
-            } else if (key === 'contact') {
-                document.getElementById('view-contact').classList.add('active');
-                document.getElementById('page-title').innerText = "COMMUNITY";
-            } else if (key === 'leaderboard') {
-                document.getElementById('view-leaderboard').classList.add('active');
-                document.getElementById('page-title').innerText = "RANKING";
-                loadRank();
-            } else if (key === 'pomodoro') {
-                document.getElementById('view-pomodoro').classList.add('active');
-                document.getElementById('page-title').innerText = "FOCUS TIMER";
+            } else {
+                document.getElementById('v-'+key).classList.add('active');
+                if(key === 'leaderboard') loadRank();
             }
         }
 
+        // --- DATA LOGIC ---
         function loadSubject(key) {
-            const list = document.getElementById('chapter-container');
+            const list = document.getElementById('chapter-list');
             list.innerHTML = '';
-            const sub = syllabus[key];
             db.ref(`progress/${currentUser.uid}/${key}`).on('value', snap => {
                 const prog = snap.val() || [];
                 list.innerHTML = '';
-                sub.chapters.forEach((chap, idx) => {
+                let doneCount = 0;
+                syllabus[key].chapters.forEach((chap, idx) => {
                     const isDone = prog[idx] === true;
+                    if(isDone) doneCount++;
                     const div = document.createElement('div');
-                    div.className = `chapter-card ${isDone?'done':''}`;
-                    div.innerHTML = `<div style="font-weight:600;"><span style="color:var(--text-mute); margin-right:10px;">${(idx+1).toString().padStart(2,'0')}</span> ${chap}</div><div>${isDone?'<i class="fas fa-check-circle" style="color:var(--success)"></i>':''}</div>`;
+                    div.className = `card ${isDone?'done':''}`;
+                    div.innerHTML = `<div><b>${idx+1}.</b> ${chap}</div><div>${isDone?'<i class="fas fa-check-circle" style="color:var(--success)"></i>':''}</div>`;
                     div.onclick = () => db.ref(`progress/${currentUser.uid}/${key}/${idx}`).set(!isDone);
                     list.appendChild(div);
                 });
+                const percent = Math.round((doneCount / syllabus[key].chapters.length) * 100);
+                document.getElementById('progress-text').innerText = `${percent}% Completed`;
             });
         }
 
         function loadRank() {
             const list = document.getElementById('rank-list');
-            list.innerHTML = "Loading data...";
+            list.innerHTML = "Loading...";
             db.ref('progress').once('value', snap => {
                 const users = snap.val() || {};
                 let rank = [];
@@ -440,18 +394,19 @@
                 });
                 rank.sort((a,b) => b.score - a.score);
                 list.innerHTML = '';
-                rank.slice(0, 15).forEach((r, i) => {
-                    list.innerHTML += `<div class="chapter-card" style="${r.uid===currentUser.uid?'border-color:var(--accent-blue); background:rgba(0,243,255,0.05);':''}"><div><span style="font-weight:bold; color:var(--accent-blue); margin-right:15px;">#${i+1}</span> ${r.uid===currentUser.uid?'YOU':r.uid.substr(0,4)}</div><div style="font-weight:bold;">${r.score} <span style="font-size:0.8rem; color:var(--text-mute);">XP</span></div></div>`;
+                rank.slice(0, 20).forEach((r, i) => {
+                    list.innerHTML += `<div class="card" style="${r.uid===currentUser.uid?'border-color:var(--primary)':''}"><div>#${i+1} ${r.uid===currentUser.uid?'YOU':r.uid.substr(0,4)}</div><div style="font-weight:bold">${r.score} XP</div></div>`;
                 });
             });
         }
 
         function startTimer() {
             if(timerInt) return;
+            let time = 1500;
             timerInt = setInterval(() => {
-                timeLeft--;
-                document.getElementById('time').innerText = `${Math.floor(timeLeft/60).toString().padStart(2,'0')}:${(timeLeft%60).toString().padStart(2,'0')}`;
-                if(timeLeft<=0) { clearInterval(timerInt); timerInt=null; timeLeft=1500; alert("Session Complete!"); }
+                time--;
+                document.getElementById('timer').innerText = `${Math.floor(time/60)}:${(time%60).toString().padStart(2,'0')}`;
+                if(time<=0) { clearInterval(timerInt); timerInt=null; document.getElementById('alarm').play(); alert("Done!"); }
             }, 1000);
         }
     </script>
