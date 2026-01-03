@@ -43,26 +43,20 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5000;
             background: #020203; display: flex; align-items: center; justify-content: center;
             transition: 0.5s;
-            overflow-y: auto; /* For scrolling on small screens if keyboard opens */
         }
         .login-card {
-            width: 85%; max-width: 380px; padding: 30px; 
+            width: 85%; max-width: 350px; padding: 30px; 
             background: rgba(25, 25, 35, 0.95); border: 1px solid var(--glass-border);
             border-radius: 24px; text-align: center; backdrop-filter: blur(20px);
             box-shadow: 0 0 50px rgba(0, 243, 255, 0.1);
             max-height: 90vh; overflow-y: auto;
         }
-        /* Custom Scrollbar for Card */
-        .login-card::-webkit-scrollbar { width: 4px; }
-        .login-card::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
-
         .inp {
             width: 100%; padding: 12px; margin-bottom: 10px; background: rgba(0,0,0,0.4);
             border: 1px solid var(--glass-border); color: white; border-radius: 10px;
             font-family: var(--font-head); letter-spacing: 0.5px; transition: 0.3s; font-size: 0.9rem;
         }
         .inp:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
-        
         .btn-main {
             width: 100%; padding: 12px; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
             border: none; color: black; font-weight: bold; border-radius: 10px; cursor: pointer;
@@ -111,8 +105,6 @@
 
         /* --- CONTAINER --- */
         .container { margin-top: 70px; height: calc(100vh - 70px); overflow-y: auto; padding: 20px; padding-bottom: 80px; }
-        
-        /* VIEWS */
         .view-page { display: none; animation: slideUp 0.3s ease-out; }
         .view-page.active { display: block; }
 
@@ -223,7 +215,7 @@
                 <input type="text" id="reg-phone" class="inp" placeholder="Your Phone Number">
                 <input type="text" id="reg-parent" class="inp" placeholder="Parents Phone Number">
                 <div style="display:flex; gap:10px;">
-                    <input type="text" id="reg-batch" class="inp" placeholder="SSC Batch (e.g. 2026)">
+                    <input type="text" id="reg-batch" class="inp" placeholder="Batch (e.g. 2026)">
                     <input type="text" id="reg-school" class="inp" placeholder="School Name">
                 </div>
                 <input type="email" id="reg-email" class="inp" placeholder="Email">
@@ -507,7 +499,7 @@
             const e = document.getElementById(prefix+'email').value;
             const p = document.getElementById(prefix+'pass').value;
             
-            // --- ADMIN BYPASS (TESTING ONLY) ---
+            // ADMIN LOGIN BYPASS (TESTING)
             if(type === 'login' && e === 'admin' && p === 'admin') {
                 currentUser = { uid: 'admin-test-uid', displayName: 'Admin Tester' };
                 document.getElementById('auth-screen').style.opacity=0;
@@ -528,15 +520,18 @@
 
                 auth.createUserWithEmailAndPassword(e,p).then(c => {
                     c.user.updateProfile({displayName:n});
-                    // SAVE USER DATA TO DB
+                    
+                    // SAVE USER DETAILS TO DATABASE
                     db.ref('users/' + c.user.uid).set({
                         name: n,
                         phone: ph,
                         parentPhone: pph,
                         batch: batch,
                         school: school,
+                        email: e,
                         joined: new Date().toISOString()
                     });
+
                 }).catch(e=>alert(e.message));
             } else auth.signInWithEmailAndPassword(e,p).catch(e=>alert(e.message));
         }
@@ -549,6 +544,14 @@
                 document.getElementById('auth-screen').style.opacity=0;
                 setTimeout(()=>document.getElementById('auth-screen').style.display='none',500);
                 document.getElementById('user-name').innerText = user.displayName || 'Student';
+                
+                // AUTO-FIX: IF OLD USER, SAVE NAME TO DB
+                db.ref('users/' + user.uid).once('value', snap => {
+                    if (!snap.exists()) {
+                        db.ref('users/' + user.uid).update({ name: user.displayName || "Student" });
+                    }
+                });
+
                 updateDashStats();
             }
         });
