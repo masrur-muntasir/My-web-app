@@ -14,14 +14,14 @@
 
     <style>
         :root {
-            --bg: #fff0f6; /* Soft Pink BG */
-            --glass: #ffffff;
-            --primary: #ff4081; /* Pink Main */
-            --primary-soft: #ff80ab;
-            --text: #333333;
-            --text-gray: #777777;
-            --border: #fce4ec;
-            --shadow: 0 10px 30px rgba(255, 64, 129, 0.15);
+            /* PINK PICNIC THEME COLORS */
+            --primary: #ff5e94;
+            --primary-dark: #d6336c;
+            --accent: #ff9dbf;
+            --white: #ffffff;
+            --text-main: #4a4a4a;
+            --text-light: #777;
+            --shadow-soft: 0 8px 25px rgba(255, 94, 148, 0.2);
             --font-head: 'Nunito', sans-serif;
             --font-body: 'Quicksand', sans-serif;
         }
@@ -29,277 +29,351 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
 
         body {
-            margin: 0; background: var(--bg); color: var(--text);
+            margin: 0; color: var(--text-main);
             font-family: var(--font-body); height: 100vh; overflow: hidden;
             position: relative;
+            
+            /* GINGHAM (PICNIC) PATTERN BACKGROUND */
+            background-color: #fff0f3;
+            background-image:
+                linear-gradient(90deg, rgba(255, 182, 193, 0.4) 50%, transparent 50%),
+                linear-gradient(rgba(255, 182, 193, 0.4) 50%, transparent 50%);
+            background-size: 60px 60px; /* Check size */
         }
 
-        /* BACKGROUND BLOBS */
-        .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; z-index: -1; animation: float 10s infinite alternate; }
-        .b1 { top: -10%; left: -10%; width: 300px; height: 300px; background: #ffc2d4; }
-        .b2 { bottom: -10%; right: -10%; width: 300px; height: 300px; background: #e0f7fa; animation-delay: -5s; }
-        @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(20px, 40px); } }
+        /* FLOATING ANIMATION FOR BUTTONS */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* JELLY CLICK EFFECT */
+        @keyframes jelly {
+            0%, 100% { transform: scale(1, 1); }
+            25% { transform: scale(0.95, 1.05); }
+            50% { transform: scale(1.05, 0.95); }
+            75% { transform: scale(0.98, 1.02); }
+        }
 
         /* AUTH SCREEN */
         #auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5000;
-            background: rgba(255, 240, 246, 0.95); backdrop-filter: blur(10px);
-            display: flex; align-items: center; justify-content: center; transition: 0.4s;
+            background: rgba(255, 240, 243, 0.95); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center; transition: 0.5s;
         }
         .login-card {
-            width: 85%; max-width: 380px; padding: 30px;
-            background: white; border-radius: 25px; 
-            text-align: center; box-shadow: var(--shadow);
+            width: 85%; max-width: 380px; padding: 40px 30px;
+            background: var(--white); border-radius: 30px; text-align: center;
+            box-shadow: 0 20px 60px rgba(255, 94, 148, 0.25);
+            border: 4px solid white;
         }
         .inp, .sel {
-            width: 100%; padding: 14px; margin-bottom: 12px; background: #fff5f8;
-            border: 2px solid transparent; color: var(--text); border-radius: 12px;
-            font-family: var(--font-head); font-weight: 700; transition: 0.3s;
+            width: 100%; padding: 16px; margin-bottom: 15px; background: #fff5f8;
+            border: 2px solid #ffdeeb; color: var(--text-main); border-radius: 18px;
+            font-family: var(--font-body); font-weight: 600; font-size: 1rem; transition: 0.3s;
         }
-        .inp:focus, .sel:focus { border-color: var(--primary-soft); background: white; }
+        .inp:focus, .sel:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255, 94, 148, 0.1); }
         
         .btn-main {
-            width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), #ff80ab);
-            border: none; color: white; font-weight: bold; border-radius: 12px; cursor: pointer;
+            width: 100%; padding: 16px; background: linear-gradient(135deg, #ff5e94, #ff8fa3);
+            border: none; color: white; font-weight: 800; border-radius: 18px; cursor: pointer;
             font-family: var(--font-head); letter-spacing: 1px; font-size: 1rem;
-            margin-top: 10px; box-shadow: 0 5px 15px rgba(255, 64, 129, 0.3);
+            box-shadow: 0 10px 20px rgba(255, 94, 148, 0.3); transition: 0.2s;
         }
-        .btn-main:active { transform: scale(0.97); }
+        .btn-main:active { animation: jelly 0.4s ease; }
 
-        /* AVATAR SELECTOR */
-        .avatar-grid { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
-        .av-opt {
-            width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            background: #f0f0f0; cursor: pointer; border: 3px solid transparent; transition: 0.3s; font-size: 1.2rem;
-        }
-        .av-opt.selected { border-color: var(--primary); background: #fff0f6; transform: scale(1.1); }
-
-        /* LAYOUT */
+        /* HEADER & SIDEBAR */
         .header {
-            height: 70px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
+            height: 75px; padding: 0 25px; display: flex; align-items: center; justify-content: space-between;
             position: fixed; top: 0; width: 100%; z-index: 1000;
-            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); 
+            box-shadow: 0 5px 25px rgba(255, 94, 148, 0.1); border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;
         }
-        .logo-text { font-family: var(--font-head); font-weight: 800; font-size: 1.5rem; color: var(--primary); }
+        .logo-text { font-family: var(--font-head); font-weight: 800; font-size: 1.6rem; color: var(--primary); letter-spacing: -0.5px; }
         
         .sidebar {
             position: fixed; top: 0; left: 0; width: 280px; height: 100%;
-            background: white; transform: translateX(-100%); transition: 0.3s cubic-bezier(0.2,0.8,0.2,1);
-            z-index: 2000; padding: 25px; display: flex; flex-direction: column; box-shadow: 5px 0 30px rgba(0,0,0,0.05);
+            background: white; transform: translateX(-100%); transition: 0.4s cubic-bezier(0.2,0.8,0.2,1);
+            z-index: 2000; padding: 30px; display: flex; flex-direction: column;
+            box-shadow: 10px 0 40px rgba(0,0,0,0.05); border-top-right-radius: 30px; border-bottom-right-radius: 30px;
         }
         .sidebar.open { transform: translateX(0); }
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.3); z-index: 1500; opacity: 0; pointer-events: none; transition: 0.3s;
+            background: rgba(255, 182, 193, 0.4); backdrop-filter: blur(3px); z-index: 1500; opacity: 0; pointer-events: none; transition: 0.3s;
         }
         .overlay.active { opacity: 1; pointer-events: all; }
 
-        .container { margin-top: 70px; height: calc(100vh - 70px); overflow-y: auto; padding: 20px; padding-bottom: 100px; scroll-behavior: smooth; }
-        .view-page { display: none; animation: fadeIn 0.4s ease-out; }
+        /* MAIN CONTAINER */
+        .container { margin-top: 85px; height: calc(100vh - 85px); overflow-y: auto; padding: 20px; padding-bottom: 100px; scroll-behavior: smooth; }
+        .view-page { display: none; animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .view-page.active { display: block; }
-        @keyframes fadeIn { from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:translateY(0);} }
+        @keyframes slideUp { from{opacity:0; transform:translateY(30px);} to{opacity:1; transform:translateY(0);} }
 
-        /* CARDS */
-        .card {
-            background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px;
-            box-shadow: var(--shadow); border: 1px solid white;
-        }
-        .frb-card {
-            background: linear-gradient(135deg, #ff80ab, #ff4081); color: white; text-align: center;
-        }
-        .btn-sm {
-            padding: 8px 18px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;
-            display: inline-flex; align-items: center; gap: 5px; cursor: pointer; text-decoration: none; border: none;
+        /* CARDS (GLASS STYLE) */
+        .card-main {
+            background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 28px;
+            margin-bottom: 20px; box-shadow: var(--shadow-soft);
+            border: 2px solid white; transition: 0.2s; position: relative; overflow: hidden;
         }
         
-        .big-btn {
-            width: 100%; padding: 20px; margin-bottom: 15px;
-            background: white; border-radius: 18px; display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); cursor: pointer; transition: 0.2s;
+        .frb-card {
+            background: linear-gradient(135deg, #ff7eb3 0%, #ff758c 100%);
+            color: white; text-align: center; border: none;
+            box-shadow: 0 15px 35px rgba(255, 117, 140, 0.4);
         }
-        .big-btn:active { transform: scale(0.98); }
+        .btn-sm {
+            padding: 10px 20px; border-radius: 30px; font-size: 0.85rem; font-weight: bold;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: 0.2s;
+        }
+        .btn-sm:active { animation: jelly 0.3s ease; }
+        .btn-white { background: white; color: var(--primary); }
+        .btn-trans { background: rgba(255,255,255,0.25); color: white; border: 1px solid rgba(255,255,255,0.4); }
 
-        /* VIDEO CARDS */
-        .vid-card { background: white; border-radius: 15px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .vid-thumb { width: 100%; height: 180px; object-fit: cover; }
-        .vid-info { padding: 15px; }
-        .vid-btn { 
-            width: 100%; padding: 10px; background: var(--primary); color: white; 
-            border: none; border-radius: 10px; font-weight: bold; cursor: pointer; 
+        /* ANIMATED MENU BUTTONS */
+        .menu-btn {
+            background: white; padding: 22px; border-radius: 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 18px; box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+            border: 2px solid white; transition: 0.2s; cursor: pointer;
+            animation: float 4s ease-in-out infinite; /* Moving Animation */
+        }
+        .menu-btn:nth-child(2) { animation-delay: 0.5s; }
+        .menu-btn:nth-child(3) { animation-delay: 1s; }
+        .menu-btn:nth-child(4) { animation-delay: 1.5s; }
+
+        .menu-btn:active { animation: none; transform: scale(0.96); } /* Stop floating on click */
+        
+        .icon-box { 
+            width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; 
+            font-size: 1.6rem; margin-right: 18px; color: white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
 
-        /* TRACKER LIST */
-        .list-item {
+        /* GRID SYSTEM */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-card { 
+            background: white; padding: 20px; border-radius: 22px; 
+            text-align: center; cursor: pointer; box-shadow: var(--shadow-soft); 
+            border: 2px solid white; transition: 0.2s;
+        }
+        .grid-card:active { animation: jelly 0.3s ease; border-color: var(--primary); }
+
+        /* LIST ITEMS */
+        .list-row {
             display: flex; justify-content: space-between; align-items: center;
-            background: white; padding: 15px; margin-bottom: 10px; border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.03); transition: 0.2s; border-left: 4px solid transparent;
+            background: white; padding: 18px 20px; margin-bottom: 12px;
+            border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            transition: 0.2s; border: 2px solid transparent;
         }
-        .list-item.done { border-left-color: #00d26a; background: #e8f5e9; }
-
-        /* FIND ME FAB */
-        .find-me {
-            position: fixed; bottom: 30px; right: 20px; background: var(--primary); color: white;
-            padding: 12px 20px; border-radius: 30px; font-weight: bold; box-shadow: 0 5px 20px rgba(255,64,129,0.4);
-            display: none; align-items: center; gap: 5px; cursor: pointer; z-index: 100;
+        .list-row:active { transform: scale(0.98); }
+        .list-row.active-me { border-color: var(--primary); background: #fff0f5; }
+        
+        /* VIDEO CARDS */
+        .vid-card { margin-bottom: 20px; background: white; border-radius: 22px; padding: 12px; box-shadow: var(--shadow-soft); border: 2px solid white; }
+        .vid-thumb { width: 100%; border-radius: 16px; display: block; }
+        .vid-title { font-weight: bold; margin: 12px 5px; font-size: 1rem; color: #444; }
+        .vid-btn { 
+            width: 100%; padding: 12px; background: #ff5e94; color: white; border-radius: 14px; 
+            border: none; font-weight: bold; cursor: pointer; margin-top: 5px;
         }
+        .vid-btn:active { animation: jelly 0.3s ease; }
 
+        /* BACK BUTTON */
         .back-btn {
-            display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
-            background: white; border-radius: 30px; margin-bottom: 20px;
-            color: var(--text-gray); cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px;
+            background: white; border-radius: 30px; margin-bottom: 25px;
+            color: var(--text-light); cursor: pointer; border: 1px solid white; 
+            box-shadow: var(--shadow-soft); font-weight: bold;
         }
+        .back-btn:active { transform: scale(0.95); }
+
     </style>
 </head>
 <body>
 
-    <div class="blob b1"></div>
-    <div class="blob b2"></div>
-
     <div id="auth-screen">
         <div class="login-card">
-            <h2 style="font-family:var(--font-head); color:var(--primary); margin:0;">BIGGAN CLASS</h2>
-            <p style="color:var(--text-gray); font-size:0.9rem; margin-bottom:20px;">Welcome Back!</p>
+            <h1 style="font-family:var(--font-head); color:var(--primary); margin:0; font-size:2.2rem;">BIGGAN CLASS</h1>
+            <p style="color:var(--text-light); font-size:0.95rem; margin-bottom:30px;">🌸 Learning is Beautiful 🌸</p>
             
             <div id="login-form">
                 <input type="email" id="email" class="inp" placeholder="Email Address">
                 <input type="password" id="pass" class="inp" placeholder="Password">
                 <button class="btn-main" onclick="handleAuth('login')">LOGIN</button>
-                <div style="margin-top:20px; font-size:0.85rem; color:var(--primary); cursor:pointer;" onclick="toggleForm()">Create Account</div>
+                <div style="margin-top:25px; font-size:0.9rem; color:var(--primary); cursor:pointer; font-weight:bold;" onclick="toggleForm()">Create Free Account</div>
             </div>
 
             <div id="reg-form" style="display:none;">
-                <div class="avatar-grid">
-                    <div class="av-opt selected" onclick="selAv(0)">🎓</div>
-                    <div class="av-opt" onclick="selAv(1)">🚀</div>
-                    <div class="av-opt" onclick="selAv(2)">🐱</div>
-                    <div class="av-opt" onclick="selAv(3)">🦁</div>
-                    <div class="av-opt" onclick="selAv(4)">⚡</div>
-                </div>
                 <input type="text" id="reg-name" class="inp" placeholder="Full Name">
                 <input type="email" id="reg-email" class="inp" placeholder="Email Address">
                 <input type="text" id="reg-school" class="inp" placeholder="School Name">
                 <select id="reg-batch" class="sel">
+                    <option value="" disabled selected>Select Batch</option>
                     <option value="2025">SSC 2025</option>
                     <option value="2026">SSC 2026</option>
                 </select>
                 <input type="password" id="reg-pass" class="inp" placeholder="Password (Min 6)">
-                <button class="btn-main" id="btn-reg" onclick="handleAuth('register')">REGISTER</button>
-                <div style="margin-top:20px; font-size:0.85rem; color:var(--text-gray); cursor:pointer;" onclick="toggleForm()">Back to Login</div>
+                <button class="btn-main" id="btn-reg" onclick="handleAuth('register')">REGISTER NOW</button>
+                <div style="margin-top:25px; font-size:0.9rem; color:var(--text-light); cursor:pointer;" onclick="toggleForm()">Back to Login</div>
             </div>
         </div>
     </div>
 
     <div class="header">
-        <div style="font-family:var(--font-head); font-weight:800; font-size:1.4rem; color:var(--primary);">BIGGAN <span style="color:#333">CLASS</span></div>
-        <i class="fas fa-bars" style="font-size:1.5rem; color:var(--primary); cursor:pointer;" onclick="toggleMenu()"></i>
+        <div class="logo-text">BIGGAN <span style="color:#444">CLASS</span></div>
+        <i class="fas fa-bars" style="font-size:1.6rem; color:var(--primary); cursor:pointer;" onclick="toggleMenu()"></i>
     </div>
 
     <div class="overlay" onclick="toggleMenu()"></div>
     <div class="sidebar" id="sidebar">
-        <div style="text-align:center; padding-bottom:20px; border-bottom:1px solid #eee; margin-bottom:20px;">
-            <div id="u-av" style="font-size:3rem; margin-bottom:10px;">🎓</div>
-            <div id="u-name" style="font-weight:bold; font-size:1.2rem;">Student</div>
-            <div id="u-school" style="font-size:0.8rem; color:var(--text-gray);">School</div>
+        <div style="text-align:center; padding-bottom:30px; border-bottom:2px dashed #ffe0eb; margin-bottom:25px;">
+            <div style="width:70px; height:70px; border-radius:50%; background:#ffe0eb; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:1.8rem;"><i class="fas fa-user"></i></div>
+            <div id="user-name" style="font-weight:800; font-size:1.3rem;">Student</div>
+            <div id="user-school" style="font-size:0.9rem; color:var(--text-light); margin-top:5px;">School Info</div>
         </div>
-        <div class="list-item" onclick="openPage('contact')" style="cursor:pointer;">Community</div>
+        <div class="list-row" onclick="openPage('contact')" style="cursor:pointer; padding:15px; border-radius:15px;"><i class="fas fa-users" style="color:var(--primary); font-size:1.2rem;"></i> <span style="font-weight:bold;">Community</span></div>
         <div style="flex:1"></div>
-        <div class="list-item" onclick="auth.signOut(); location.reload();" style="color:#ff4757; cursor:pointer;">Logout</div>
+        <div class="list-row" onclick="logout()" style="cursor:pointer; color:#ff4757; padding:15px; border-radius:15px;"><i class="fas fa-sign-out-alt"></i> <span style="font-weight:bold;">Logout</span></div>
     </div>
 
     <div class="container">
 
         <div id="view-dashboard" class="view-page active">
-            <div class="card frb-card">
-                <h2 style="margin:0;">FREE FRB COURSE</h2>
-                <p style="margin:5px 0 15px; opacity:0.9;">Premium Revision Batch</p>
-                <div style="display:flex; justify-content:center; gap:10px;">
-                    <a href="https://t.me/biggan_class" target="_blank" class="btn-sm" style="background:white; color:var(--primary);">TELEGRAM</a>
-                    <a href="https://youtu.be/JVy4eAVhMGg" target="_blank" class="btn-sm" style="background:rgba(255,255,255,0.3); color:white;">INTRO</a>
+            
+            <div class="card-main frb-card">
+                <h2 style="margin:0 0 8px 0; font-family:var(--font-head); font-size:1.8rem;">FREE FRB COURSE</h2>
+                <p style="margin:0 0 20px 0; opacity:0.9; font-size:0.95rem;">Premium Revision Batch for SSC</p>
+                <div style="display:flex; justify-content:center; gap:12px;">
+                    <a href="https://t.me/biggan_class" target="_blank" class="btn-sm btn-white"><i class="fab fa-telegram-plane"></i> JOIN TG</a>
+                    <a href="https://youtu.be/JVy4eAVhMGg" target="_blank" class="btn-sm btn-trans"><i class="fas fa-play"></i> DEMO</a>
                 </div>
             </div>
 
-            <div class="big-btn" onclick="openPage('modules')">
-                <div><b style="color:var(--primary); font-size:1.1rem;">SYLLABUS TRACKER</b><br><small style="color:var(--text-gray)">Check Progress</small></div>
-                <i class="fas fa-chevron-right" style="color:#ddd"></i>
+            <div class="menu-btn" onclick="openPage('tracker_hub')">
+                <div style="display:flex; align-items:center;">
+                    <div class="icon-box" style="background:linear-gradient(135deg, #4facfe, #00f2fe);"><i class="fas fa-tasks"></i></div>
+                    <div>
+                        <div style="font-weight:800; font-size:1.1rem; color:#444;">SYLLABUS TRACKER</div>
+                        <div style="font-size:0.8rem; color:var(--text-light);">Track Chapter Progress</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:#ddd;"></i>
             </div>
-            <div class="big-btn" onclick="openPage('leaderboard')">
-                <div><b style="color:#ff9f43; font-size:1.1rem;">LEADERBOARD</b><br><small style="color:var(--text-gray)">Global Ranking</small></div>
-                <i class="fas fa-chevron-right" style="color:#ddd"></i>
+
+            <div class="menu-btn" onclick="openPage('exam_hub')">
+                <div style="display:flex; align-items:center;">
+                    <div class="icon-box" style="background:linear-gradient(135deg, #a18cd1, #fbc2eb);"><i class="fas fa-pen-nib"></i></div>
+                    <div>
+                        <div style="font-weight:800; font-size:1.1rem; color:#444;">EXAM CENTER</div>
+                        <div style="font-size:0.8rem; color:var(--text-light);">Test Your Skills</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:#ddd;"></i>
             </div>
-            <div class="big-btn" onclick="openPage('classes')">
-                <div><b style="color:#9c88ff; font-size:1.1rem;">CLASSROOM</b><br><small style="color:var(--text-gray)">Exclusive Videos</small></div>
-                <i class="fas fa-chevron-right" style="color:#ddd"></i>
+
+            <div class="menu-btn" onclick="openPage('leaderboard')">
+                <div style="display:flex; align-items:center;">
+                    <div class="icon-box" style="background:linear-gradient(135deg, #ff9a9e, #fecfef);"><i class="fas fa-trophy"></i></div>
+                    <div>
+                        <div style="font-weight:800; font-size:1.1rem; color:#444;">LEADERBOARD</div>
+                        <div style="font-size:0.8rem; color:var(--text-light);">See Global Ranking</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:#ddd;"></i>
+            </div>
+            
+            <div class="menu-btn" onclick="openPage('classes')">
+                <div style="display:flex; align-items:center;">
+                    <div class="icon-box" style="background:linear-gradient(135deg, #84fab0, #8fd3f4);"><i class="fas fa-video"></i></div>
+                    <div>
+                        <div style="font-weight:800; font-size:1.1rem; color:#444;">CLASSROOM</div>
+                        <div style="font-size:0.8rem; color:var(--text-light);">Exclusive Videos</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:#ddd;"></i>
             </div>
         </div>
 
-        <div id="view-modules" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                <div class="card" onclick="openSubject('physics')" style="text-align:center; cursor:pointer;">
-                    <i class="fas fa-atom" style="font-size:2rem; color:#4facfe;"></i><br><br><b>PHYSICS</b><br><small id="prog-physics">0%</small>
-                </div>
-                <div class="card" onclick="openSubject('chemistry')" style="text-align:center; cursor:pointer;">
-                    <i class="fas fa-flask" style="font-size:2rem; color:#ff4757;"></i><br><br><b>CHEMISTRY</b><br><small id="prog-chemistry">0%</small>
-                </div>
-                <div class="card" onclick="openSubject('biology')" style="text-align:center; cursor:pointer;">
-                    <i class="fas fa-dna" style="font-size:2rem; color:#00d26a;"></i><br><br><b>BIOLOGY</b><br><small id="prog-biology">0%</small>
-                </div>
-                <div class="card" onclick="openSubject('higherMath')" style="text-align:center; cursor:pointer;">
-                    <i class="fas fa-calculator" style="font-size:2rem; color:#f39c12;"></i><br><br><b>MATH</b><br><small id="prog-higherMath">0%</small>
-                </div>
+        <div id="view-tracker_hub" class="view-page">
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Dashboard</div>
+            <h2 style="color:var(--primary); margin-bottom:20px; font-family:var(--font-head);">Select Subject</h2>
+            <div class="grid-2">
+                <div class="grid-card" onclick="openTrackerChapters('physics')"><i class="fas fa-atom" style="font-size:2.5rem; color:#4facfe;"></i><br><br><b>PHYSICS</b><br><small id="prog-physics" style="color:var(--text-light);">Loading...</small></div>
+                <div class="grid-card" onclick="openTrackerChapters('chemistry')"><i class="fas fa-flask" style="font-size:2.5rem; color:#ff5e94;"></i><br><br><b>CHEMISTRY</b><br><small id="prog-chemistry" style="color:var(--text-light);">Loading...</small></div>
+                <div class="grid-card" onclick="openTrackerChapters('biology')"><i class="fas fa-dna" style="font-size:2.5rem; color:#20bf6b;"></i><br><br><b>BIOLOGY</b><br><small id="prog-biology" style="color:var(--text-light);">Loading...</small></div>
+                <div class="grid-card" onclick="openTrackerChapters('math')"><i class="fas fa-calculator" style="font-size:2.5rem; color:#fbc2eb;"></i><br><br><b>MATH</b><br><small id="prog-math" style="color:var(--text-light);">Loading...</small></div>
             </div>
         </div>
 
-        <div id="view-subject" class="view-page">
-            <div class="back-btn" onclick="openPage('modules')"><i class="fas fa-arrow-left"></i> Subjects</div>
-            <h2 id="page-title" style="color:var(--primary);">CHAPTERS</h2>
-            <div id="chapter-list">Loading...</div>
+        <div id="view-tracker_chapters" class="view-page">
+            <div class="back-btn" onclick="openPage('tracker_hub')"><i class="fas fa-arrow-left"></i> Subjects</div>
+            <h2 id="tracker-title" style="color:var(--primary); margin-bottom:20px; font-family:var(--font-head);">CHAPTERS</h2>
+            <div id="tracker-list"></div>
+        </div>
+
+        <div id="view-exam_hub" class="view-page">
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Dashboard</div>
+            <h2 style="color:var(--primary); margin-bottom:20px; font-family:var(--font-head);">Select Exam</h2>
+            <div class="grid-2">
+                <div class="grid-card" onclick="openExamChapters('biology')" style="border:2px solid #20bf6b;"><i class="fas fa-dna" style="font-size:2.5rem; color:#20bf6b;"></i><br><br><b>BIOLOGY</b><br><small style="color:#20bf6b; font-weight:bold;">Active</small></div>
+            </div>
+        </div>
+
+        <div id="view-exam_chapters" class="view-page">
+            <div class="back-btn" onclick="openPage('exam_hub')"><i class="fas fa-arrow-left"></i> Subjects</div>
+            <h2 id="exam-title" style="color:var(--primary); margin-bottom:20px; font-family:var(--font-head);">TESTS</h2>
+            <div id="exam-list"></div>
         </div>
 
         <div id="view-leaderboard" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
-            <h2 style="color:#ff9f43;">RANKING</h2>
-            <div id="rank-list" style="padding-bottom:60px;">Syncing...</div>
-            <div class="find-me" onclick="findMe()"><i class="fas fa-crosshairs"></i> FIND ME</div>
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Dashboard</div>
+            <h2 style="color:var(--primary); margin-bottom:20px; font-family:var(--font-head);">GLOBAL RANKING</h2>
+            <div id="rank-list" style="padding-bottom:80px;">
+                <div style="text-align:center; padding:40px; color:#aaa;">Loading Champions...</div>
+            </div>
         </div>
 
         <div id="view-classes" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Dashboard</div>
+            <h2 style="color:var(--primary); font-family:var(--font-head);">Classroom</h2>
             
             <div class="vid-card">
                 <img src="https://img.youtube.com/vi/PCV3YtF1Lh4/maxresdefault.jpg" class="vid-thumb">
-                <div class="vid-info">
-                    <div style="font-weight:bold; margin-bottom:10px;">🎯 Physics মনে রাখার কৌশল</div>
-                    <a href="https://youtu.be/PCV3YtF1Lh4" target="_blank"><button class="vid-btn">WATCH</button></a>
-                </div>
+                <div class="vid-title">🎯 Physics মনে রাখতে সমস্যা? ৫টি কার্যকর কৌশল!</div>
+                <a href="https://youtu.be/PCV3YtF1Lh4" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
             </div>
-            
             <div class="vid-card">
                 <img src="https://img.youtube.com/vi/qFM2g7dfiBY/maxresdefault.jpg" class="vid-thumb">
-                <div class="vid-info">
-                    <div style="font-weight:bold; margin-bottom:10px;">🔥 Chemistry A+ গ্যারান্টি</div>
-                    <a href="https://youtu.be/qFM2g7dfiBY" target="_blank"><button class="vid-btn">WATCH</button></a>
-                </div>
+                <div class="vid-title">🔥 রসায়ন টেস্টে ৯৮+ পাওয়ার গ্যারান্টি!</div>
+                <a href="https://youtu.be/qFM2g7dfiBY" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
             </div>
-
             <div class="vid-card">
                 <img src="https://img.youtube.com/vi/G-meXsmaE2Y/maxresdefault.jpg" class="vid-thumb">
-                <div class="vid-info">
-                    <div style="font-weight:bold; margin-bottom:10px;">🧬 Biology 100/100 Tips</div>
-                    <a href="https://youtu.be/G-meXsmaE2Y" target="_blank"><button class="vid-btn">WATCH</button></a>
-                </div>
+                <div class="vid-title">🔥 বায়োলজিতে ১০০/১০০ পাওয়ার টিপস</div>
+                <a href="https://youtu.be/G-meXsmaE2Y" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
             </div>
         </div>
 
         <div id="view-contact" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
-            <div class="card">
-                <h3>Community</h3>
-                <a href="https://t.me/biggan_class_SSC" target="_blank" class="btn-sm" style="background:#0088cc; color:white; display:block; text-align:center; margin-bottom:10px;">Telegram Group</a>
-                <a href="https://wa.me/8801792595165" target="_blank" class="btn-sm" style="background:#25D366; color:white; display:block; text-align:center;">Instructor (Pial)</a>
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Dashboard</div>
+            <div class="card-main" style="text-align:center;">
+                <h2 style="color:var(--primary);">Community</h2>
+                <a href="https://t.me/biggan_class_SSC" target="_blank" class="btn-sm" style="background:#0088cc; color:white; width:100%; justify-content:center; margin-bottom:15px;"><i class="fab fa-telegram"></i> Telegram Group</a>
+                <a href="https://wa.me/8801792595165" target="_blank" class="btn-sm" style="background:#25D366; color:white; width:100%; justify-content:center; margin-bottom:15px;"><i class="fab fa-whatsapp"></i> Instructor Pial</a>
             </div>
         </div>
 
+    </div>
+
+    <div id="quiz-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#fff0f3; z-index:6000; flex-direction:column;">
+        <div class="header" style="background:white;">
+            <div style="font-weight:800; color:var(--primary); font-size:1.2rem;">MCQ TEST</div>
+            <i class="fas fa-times" onclick="closeQuiz()" style="font-size:1.8rem; cursor:pointer; color:#777;"></i>
+        </div>
+        <div class="container" id="quiz-content" style="margin-top:75px; display:flex; flex-direction:column; justify-content:center;"></div>
     </div>
 
     <script>
@@ -318,26 +392,22 @@
         const db = firebase.database();
         let currentUser = null;
 
-        // DATA
-        const avatars = ["🎓", "🚀", "🐱", "🦁", "⚡"];
-        let selAvatarIdx = 0;
-        
+        // SYLLABUS DATA
         const syllabus = {
+            biology: { title: "BIOLOGY", chapters: ["জীবন পাঠ", "জীবকোষ ও টিস্যু", "কোষ বিভাজন", "জীবনীশক্তি", "খাদ্য ও পুষ্টি", "জীবে পরিবহন", "গ্যাসীয় বিনিময়", "রেচন", "দৃঢ়তা ও চলন", "সমন্বয়", "জীবের প্রজনন", "বংশগতি ও বিবর্তন", "জীবের পরিবেশ", "জীবপ্রযুক্তি"] },
             physics: { title: "PHYSICS", chapters: ["ভৌত রাশি ও পরিমাপ", "গতি", "বল", "কাজ, ক্ষমতা ও শক্তি", "পদার্থের অবস্থা ও চাপ", "বস্তুর উপর তাপের প্রভাব", "তরঙ্গ ও শব্দ", "আলোর প্রতিফলন", "আলোর প্রতিসরণ", "স্থির তড়িৎ", "চল তড়িৎ", "তড়িৎ এর চৌম্বক ক্রিয়া", "আধুনিক পদার্থবিজ্ঞান", "জীবন বাঁচাতে পদার্থবিজ্ঞান"] },
             chemistry: { title: "CHEMISTRY", chapters: ["রসায়নের ধারণা", "পদার্থের অবস্থা", "পদার্থের গঠন", "পর্যায় সারণি", "রাসায়নিক বন্ধন", "মোল ও রাসায়নিক গণনা", "রাসায়নিক বিক্রিয়া", "রসায়ন ও শক্তি", "এসিড-ক্ষার সমতা", "খনিজ সম্পদ: ধাতু-অধাতু", "খনিজ সম্পদ: জীবাশ্ম", "আমাদের জীবনে রসায়ন"] },
-            biology: { title: "BIOLOGY", chapters: ["জীবন পাঠ", "জীবকোষ ও টিস্যু", "কোষ বিভাজন", "জীবনীশক্তি", "খাদ্য ও পুষ্টি", "জীবে পরিবহন", "গ্যাসীয় বিনিময়", "রেচন", "দৃঢ়তা ও চলন", "সমন্বয়", "জীবের প্রজনন", "বংশগতি ও বিবর্তন", "জীবের পরিবেশ", "জীবপ্রযুক্তি"] },
-            higherMath: { title: "HIGHER MATH", chapters: ["সেট ও ফাংশন", "বীজগাণিতিক রাশি", "জ্যামিতি", "অঙ্কন", "সমীকরণ", "অসমতা", "অসীম ধারা", "ত্রিকোণমিতি", "সূচক ও লগারিদম", "দ্বিপদী বিস্তৃতি", "স্থানাঙ্ক জ্যামিতি", "সমতলীয় ভেক্টর", "ঘন জ্যামিতি", "সম্ভাবনা"] }
+            math: { title: "MATH", chapters: ["বাস্তব সংখ্যা", "সেট ও ফাংশন", "বীজগাণিতিক রাশি", "সূচক ও লগারিদম", "এক চলক বিশিষ্ট সমীকরণ", "রেখা, কোণ ও ত্রিভুজ", "ব্যবহারিক জ্যামিতি", "বৃত্ত", "ত্রিকোণমিতিক অনুপাত", "দূরত্ব ও উচ্চতা", "বীজগাণিতিক অনুপাত", "দুই চলক বিশিষ্ট সমীকরণ", "সসীম ধারা", "অনুপাত, সদৃশতা ও প্রতিসমতা", "ক্ষেত্রফল সম্পর্কিত উপপাদ্য", "পরিমিতি", "পরিসংখ্যান"] }
         };
 
-        // UI LOGIC
-        function selAv(i) {
-            selAvatarIdx = i;
-            document.querySelectorAll('.av-opt').forEach((el, idx) => {
-                if(idx===i) el.classList.add('selected');
-                else el.classList.remove('selected');
-            });
-        }
+        const quizData = {
+            biology: {
+                0: [ { q: "কোনটি ভৌত বিজ্ঞানের অর্ন্তভুক্ত?", o: ["Morphology", "Batamology", "Plaeontology", "Biochemistry"], a: 0 }, { q: "কোনটির সাথে এন্ডোক্রাইনোলজি সম্পর্কিত?", o: ["হরমোন", "এনজাইম", "টিস্যু", "কোষ"], a: 0 } ],
+                // Add more questions here later
+            }
+        };
 
+        // NAV
         history.replaceState({view: 'dashboard'}, null, '');
         function openPage(id) { history.pushState({view: id}, null, ''); _render(id); }
         function goHome() { history.back(); }
@@ -345,7 +415,7 @@
         function _render(id) {
             document.querySelectorAll('.view-page').forEach(p => p.classList.remove('active'));
             document.getElementById('view-' + id).classList.add('active');
-            if(id==='leaderboard') loadRank();
+            if(id === 'leaderboard') loadLeaderboard();
             if(window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('open');
                 document.querySelector('.overlay').classList.remove('active');
@@ -353,28 +423,31 @@
         }
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.overlay').classList.toggle('active'); }
         function toggleForm() {
-            const l=document.getElementById('login-form'), r=document.getElementById('reg-form');
-            if(l.style.display==='none'){l.style.display='block';r.style.display='none'}else{l.style.display='none';r.style.display='block'}
+            const l = document.getElementById('login-form'), r = document.getElementById('reg-form');
+            if(l.style.display==='none'){ l.style.display='block'; r.style.display='none'; } else { l.style.display='none'; r.style.display='block'; }
         }
 
         // AUTH
         function handleAuth(type) {
-            const btn = document.getElementById(type==='register'?'btn-reg':'btn-login');
-            btn.innerText = "Wait..."; btn.disabled = true;
+            const btn = document.getElementById(type === 'register' ? 'btn-reg' : 'btn-login');
+            btn.innerText = "Please Wait..."; btn.disabled = true;
 
             if(type === 'register') {
-                const n=document.getElementById('reg-name').value, e=document.getElementById('reg-email').value;
-                const s=document.getElementById('reg-school').value, b=document.getElementById('reg-batch').value;
-                const p=document.getElementById('reg-pass').value;
-                if(!n||!e||!s||!p) { alert("Fill all fields"); btn.disabled=false; return; }
+                const n = document.getElementById('reg-name').value.trim();
+                const e = document.getElementById('reg-email').value.trim();
+                const s = document.getElementById('reg-school').value.trim();
+                const b = document.getElementById('reg-batch').value;
+                const pass = document.getElementById('reg-pass').value.trim();
 
-                auth.createUserWithEmailAndPassword(e, p).then(c => {
+                if(!n || !e || !s || !b || !pass) { alert("Please fill all fields!"); btn.disabled=false; btn.innerText="REGISTER"; return; }
+
+                auth.createUserWithEmailAndPassword(e, pass).then(c => {
                     c.user.updateProfile({displayName: n});
-                    db.ref('users/'+c.user.uid).set({name:n, school:s, batch:b, email:e, avatar:selAvatarIdx});
-                }).catch(er => { alert(er.message); btn.disabled=false; });
+                    db.ref('users/'+c.user.uid).set({name:n, school:s, batch:b, email:e});
+                }).catch(err => { alert(err.message); btn.disabled=false; btn.innerText="REGISTER"; });
             } else {
-                const e=document.getElementById('email').value, p=document.getElementById('pass').value;
-                auth.signInWithEmailAndPassword(e, p).catch(er => { alert(er.message); btn.disabled=false; });
+                const e = document.getElementById('email').value, p = document.getElementById('pass').value;
+                auth.signInWithEmailAndPassword(e, p).catch(err => { alert(err.message); btn.disabled=false; btn.innerText="LOGIN"; });
             }
         }
 
@@ -384,98 +457,152 @@
                 document.getElementById('auth-screen').style.display = 'none';
                 db.ref('users/'+user.uid).once('value', s => {
                     const d = s.val() || {};
-                    document.getElementById('u-name').innerText = d.name || user.displayName;
-                    document.getElementById('u-school').innerText = d.school || 'Student';
-                    document.getElementById('u-av').innerText = avatars[d.avatar || 0];
+                    document.getElementById('user-name').innerText = d.name || user.displayName;
+                    document.getElementById('user-school').innerText = d.school || 'Unknown School';
                 });
-                updateStats();
+                updateTrackerStats();
             }
         });
 
-        // TRACKER
-        function openSubject(key) {
-            openPage('subject');
-            document.getElementById('page-title').innerText = syllabus[key].title;
-            const list = document.getElementById('chapter-list');
-            list.innerHTML = 'Loading...';
+        // TRACKER SYSTEM
+        function openTrackerChapters(sub) {
+            openPage('tracker_chapters');
+            document.getElementById('tracker-title').innerText = syllabus[sub].title;
+            const list = document.getElementById('tracker-list');
+            list.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Loading...</div>';
             
-            db.ref(`progress/${currentUser.uid}/${key}`).on('value', snap => {
+            db.ref(`tracker/${currentUser.uid}/${sub}`).on('value', snap => {
                 const prog = snap.val() || [];
                 list.innerHTML = '';
-                syllabus[key].chapters.forEach((chap, i) => {
+                syllabus[sub].chapters.forEach((chap, i) => {
                     const done = prog[i] ? true : false;
                     const div = document.createElement('div');
-                    div.className = `list-item ${done?'done':''}`;
-                    div.innerHTML = `<div><b style="color:#aaa; margin-right:10px;">${i+1}</b> ${chap}</div>${done?'<i class="fas fa-check" style="color:#00d26a"></i>':''}`;
-                    div.onclick = () => db.ref(`progress/${currentUser.uid}/${key}/${i}`).set(!done);
+                    div.className = `list-row ${done?'list-item done':'list-item'}`;
+                    div.innerHTML = `
+                        <div style="font-weight:600;"><span style="color:#bbb; margin-right:12px;">${i+1}</span> ${chap}</div>
+                        <i class="fas ${done?'fa-check-circle':'fa-circle'}" style="color:${done?'#00d26a':'#eee'}; font-size:1.4rem;"></i>
+                    `;
+                    div.onclick = () => db.ref(`tracker/${currentUser.uid}/${sub}/${i}`).set(!done);
                     list.appendChild(div);
                 });
             });
         }
 
-        function updateStats() {
-            Object.keys(syllabus).forEach(k => {
-                db.ref(`progress/${currentUser.uid}/${k}`).on('value', s => {
+        function updateTrackerStats() {
+            Object.keys(syllabus).forEach(sub => {
+                db.ref(`tracker/${currentUser.uid}/${sub}`).on('value', s => {
                     const c = (s.val()||[]).filter(Boolean).length;
-                    document.getElementById('prog-'+k).innerText = Math.round((c/syllabus[k].chapters.length)*100) + "%";
+                    const el = document.getElementById(`prog-${sub}`);
+                    if(el) el.innerText = Math.round((c/syllabus[sub].chapters.length)*100) + "% Done";
                 });
             });
         }
 
-        // LEADERBOARD (SHOW ALL)
-        function loadRank() {
+        // LEADERBOARD (FIXED)
+        function loadLeaderboard() {
             const list = document.getElementById('rank-list');
-            list.innerHTML = "Syncing...";
-            document.querySelector('.find-me').style.display = 'none';
+            list.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">Syncing...</div>';
 
             db.ref('users').once('value').then(uSnap => {
                 const users = uSnap.val() || {};
-                db.ref('progress').once('value', pSnap => {
-                    const prog = pSnap.val() || {};
+                
+                db.ref('scores').once('value', sSnap => {
+                    const scores = sSnap.val() || {};
                     let rank = [];
 
-                    // Loop through ALL users
                     Object.keys(users).forEach(uid => {
-                        let score = 0;
-                        if(prog[uid]) {
-                            Object.values(prog[uid]).forEach(sub => {
-                                if(Array.isArray(sub)) score += sub.filter(Boolean).length;
+                        let totalXP = 0;
+                        if(scores[uid]) {
+                            Object.values(scores[uid]).forEach(sub => {
+                                Object.values(sub).forEach(s => totalXP += s);
                             });
                         }
-                        rank.push({
-                            name: users[uid].name || "Unknown",
-                            school: users[uid].school || "",
-                            avatar: users[uid].avatar || 0,
-                            xp: score,
-                            uid: uid
+                        
+                        rank.push({ 
+                            name: users[uid].name || "Unknown", 
+                            school: users[uid].school || "No School", 
+                            xp: totalXP, 
+                            uid: uid 
                         });
                     });
 
                     rank.sort((a,b) => b.xp - a.xp);
 
-                    list.innerHTML = rank.map((r, i) => `
-                        <div id="rank-${r.uid}" class="list-item" style="${r.uid===currentUser.uid?'border:2px solid var(--primary); background:#fff0f6':''}">
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <b style="color:#ffa502; width:25px;">#${i+1}</b>
-                                <span style="font-size:1.2rem;">${avatars[r.avatar]}</span>
+                    list.innerHTML = rank.map((r, i) => {
+                        const isMe = r.uid === currentUser.uid;
+                        return `
+                        <div id="rank-${r.uid}" class="list-row ${isMe?'active-me':''}">
+                            <div style="display:flex; align-items:center; gap:15px;">
+                                <b style="color:#ff9f43; font-size:1.1rem; width:30px;">#${i+1}</b>
                                 <div>
-                                    <div style="font-weight:bold;">${r.name}</div>
-                                    <div style="font-size:0.75rem; color:#888;">${r.school}</div>
+                                    <div style="font-weight:bold; color:#444; font-size:0.95rem;">${r.name}</div>
+                                    <div style="font-size:0.75rem; color:#777;">${r.school}</div>
                                 </div>
                             </div>
-                            <b style="color:var(--primary);">${r.xp} XP</b>
+                            <b style="color:#ff5e94;">${r.xp} XP</b>
                         </div>
-                    `).join('');
-                    document.querySelector('.find-me').style.display = 'flex';
+                    `}).join('');
                 });
             });
         }
 
-        function findMe() {
-            const el = document.getElementById('rank-'+currentUser.uid);
-            if(el) el.scrollIntoView({behavior: "smooth", block: "center"});
-            else alert("You are not on the list yet!");
+        // EXAMS (Logic remains same)
+        function openExamChapters(sub) {
+            openPage('exam_chapters');
+            document.getElementById('exam-title').innerText = syllabus[sub].title;
+            const list = document.getElementById('exam-list');
+            const q = quizData[sub];
+            if(!q) { list.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">No exams available.</div>'; return; }
+            
+            list.innerHTML = '';
+            syllabus[sub].chapters.forEach((chap, i) => {
+                if(q[i]) {
+                    const div = document.createElement('div');
+                    div.className = 'list-row';
+                    div.innerHTML = `
+                        <div><b style="color:#bbb; margin-right:10px;">${i+1}</b> ${chap}</div>
+                        <button class="btn-sm" style="background:#ff9dbf; color:white;">START</button>
+                    `;
+                    div.onclick = () => startQuiz(sub, i);
+                    list.appendChild(div);
+                }
+            });
         }
+        
+        let curQuiz=[], score=0, qIdx=0, subKey='', chIdx=0;
+        function startQuiz(sub, ch) {
+            subKey=sub; chIdx=ch; curQuiz=quizData[sub][ch]; score=0; qIdx=0;
+            document.getElementById('quiz-modal').style.display='flex';
+            showQ();
+        }
+        function showQ() {
+            if(qIdx>=curQuiz.length) {
+                db.ref(`scores/${currentUser.uid}/${subKey}/${chIdx}`).set(score);
+                const perc = Math.round((score/curQuiz.length)*100);
+                document.getElementById('quiz-content').innerHTML = `
+                    <div class="card-main" style="text-align:center; margin:20px; border:4px solid white;">
+                        <div style="font-size:3.5rem; font-weight:800; color:${perc>70?'#00b894':'#ff5e94'}; margin-bottom:10px;">${perc}%</div>
+                        <h2 style="color:#777; margin:0;">Score: ${score} / ${curQuiz.length}</h2>
+                        <button class="btn-main" onclick="closeQuiz()" style="margin-top:30px; width:100%;">FINISH</button>
+                    </div>`;
+                return;
+            }
+            const q = curQuiz[qIdx];
+            document.getElementById('quiz-content').innerHTML = `
+                <div class="card-main" style="text-align:left; margin:20px; border:4px solid white;">
+                    <b style="color:#ff9dbf; letter-spacing:1px; font-size:0.9rem;">QUESTION ${qIdx+1}</b>
+                    <h3 style="margin:10px 0 20px; font-size:1.2rem; line-height:1.5;">${q.q}</h3>
+                    ${q.o.map((o,i)=>`<button class="btn-sm" style="display:block; width:100%; text-align:left; margin-top:10px; background:white; color:#444; border:1px solid #eee; padding:15px;" onclick="chk(${i}, this)">${o}</button>`).join('')}
+                </div>`;
+        }
+        function chk(i, btn) {
+            const cor = curQuiz[qIdx].a;
+            if(i===cor) { score++; btn.style.background="#d1fae5"; btn.style.borderColor="#00b894"; }
+            else { btn.style.background="#ffe4e6"; btn.style.borderColor="#ff7675"; }
+            setTimeout(()=>{qIdx++; showQ();},800);
+        }
+        function closeQuiz() { document.getElementById('quiz-modal').style.display='none'; }
+        function logout() { auth.signOut(); location.reload(); }
 
     </script>
 </body>
