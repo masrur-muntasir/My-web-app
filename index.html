@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BIGGAN CLASS Future</title>
+    <title>BIGGAN CLASS Ultimate</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,16 +14,19 @@
 
     <style>
         :root {
-            --bg: #030305;
-            --glass: rgba(30, 30, 40, 0.6);
-            --border: rgba(255, 255, 255, 0.1);
+            --bg: #050508;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-card: rgba(30, 30, 45, 0.75);
+            --border: rgba(255, 255, 255, 0.08);
             --blue: #00f3ff;
             --purple: #bc13fe;
             --gold: #ffd700;
             --text: #ffffff;
-            --text-gray: #b0b0b0;
+            --text-gray: #a0a0a0;
             --font-head: 'Rajdhani', sans-serif;
             --font-body: 'Exo 2', sans-serif;
+            --correct: #00d26a;
+            --wrong: #ff4757;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
@@ -34,148 +37,210 @@
             position: relative;
         }
 
-        /* LIQUID BACKGROUND ANIMATION */
-        .orb {
-            position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.35; z-index: -1;
-            animation: float 12s infinite ease-in-out alternate;
-        }
-        .orb-1 { top: -15%; left: -15%; width: 350px; height: 350px; background: var(--blue); }
-        .orb-2 { bottom: -15%; right: -15%; width: 300px; height: 300px; background: var(--purple); animation-delay: -6s; }
-        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(40px, 60px) scale(1.1); } }
+        /* BACKGROUND ORBS */
+        .orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.25; z-index: -1; animation: float 15s infinite alternate ease-in-out; }
+        .orb-1 { top: -10%; left: -10%; width: 350px; height: 350px; background: var(--blue); }
+        .orb-2 { bottom: -10%; right: -10%; width: 300px; height: 300px; background: var(--purple); animation-delay: -5s; }
+        @keyframes float { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(40px, 60px) scale(1.1); } }
 
-        /* --- AUTH SCREEN --- */
+        /* PULL TO REFRESH LOADER */
+        #pull-loader {
+            position: fixed; top: 70px; left: 0; width: 100%; height: 50px;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 900; transform: translateY(-50px); transition: 0.3s;
+        }
+        .spinner {
+            width: 25px; height: 25px; border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid var(--blue); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* AUTH SCREEN */
         #auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5000;
-            background: rgba(3, 3, 5, 0.9); backdrop-filter: blur(30px);
-            display: flex; align-items: center; justify-content: center; transition: 0.5s;
+            background: rgba(5,5,8,0.95); backdrop-filter: blur(25px);
+            display: flex; align-items: center; justify-content: center; transition: 0.5s ease-in-out;
         }
         .login-card {
-            width: 85%; max-width: 360px; padding: 40px 30px;
-            background: rgba(25, 25, 35, 0.7); border: 1px solid var(--border);
-            border-radius: 24px; text-align: center; box-shadow: 0 0 50px rgba(0, 243, 255, 0.08);
+            width: 85%; max-width: 380px; padding: 40px 30px;
+            background: var(--glass-card); border: 1px solid var(--border);
+            border-radius: 28px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
         .inp, .sel {
-            width: 100%; padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.4);
-            border: 1px solid var(--border); color: white; border-radius: 12px;
-            font-family: var(--font-head); letter-spacing: 1px; transition: 0.3s; font-size: 0.95rem;
+            width: 100%; padding: 16px; margin-bottom: 15px; background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border); color: white; border-radius: 14px;
+            font-family: var(--font-head); letter-spacing: 1px; font-size: 1rem;
+            transition: 0.3s;
         }
+        .inp:focus, .sel:focus { border-color: var(--blue); background: rgba(0,0,0,0.5); }
         .sel option { background: #111; }
-        .inp:focus, .sel:focus { border-color: var(--blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.15); }
         
         .btn-main {
-            width: 100%; padding: 15px; background: linear-gradient(90deg, var(--blue), var(--purple));
-            border: none; color: #000; font-weight: bold; border-radius: 12px; cursor: pointer;
-            font-family: var(--font-head); letter-spacing: 1.5px; font-size: 1rem;
-            transition: transform 0.2s, opacity 0.2s; margin-top: 10px;
+            width: 100%; padding: 16px; background: linear-gradient(135deg, var(--blue), var(--purple));
+            border: none; color: #000; font-weight: 700; border-radius: 14px; cursor: pointer;
+            font-family: var(--font-head); letter-spacing: 2px; font-size: 1rem;
+            margin-top: 10px; transition: transform 0.2s, box-shadow 0.2s;
         }
-        .btn-main:active { transform: scale(0.97); }
-        .btn-main:disabled { opacity: 0.7; cursor: not-allowed; }
+        .btn-main:active { transform: scale(0.96); box-shadow: 0 0 15px rgba(0,243,255,0.4); }
 
-        /* --- LAYOUT --- */
+        /* HEADER & SIDEBAR */
         .header {
             height: 70px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
             position: fixed; top: 0; width: 100%; z-index: 1000;
-            background: rgba(3, 3, 5, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
+            background: rgba(5,5,8,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
         }
         .logo-text { font-family: var(--font-head); font-weight: 700; font-size: 1.5rem; letter-spacing: 1px; }
-        
+
         .sidebar {
             position: fixed; top: 0; left: 0; width: 280px; height: 100%;
-            background: rgba(15, 15, 20, 0.98); border-right: 1px solid var(--border);
-            transform: translateX(-100%); transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            z-index: 2000; padding: 25px; display: flex; flex-direction: column; backdrop-filter: blur(15px);
+            background: rgba(12,12,18,0.98); border-right: 1px solid var(--border);
+            transform: translateX(-100%); transition: 0.4s cubic-bezier(0.2,0.8,0.2,1);
+            z-index: 2000; padding: 30px 25px; display: flex; flex-direction: column;
         }
         .sidebar.open { transform: translateX(0); }
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 1500; opacity: 0; pointer-events: none; transition: 0.3s;
+            background: rgba(0,0,0,0.8); z-index: 1500; opacity: 0; pointer-events: none; transition: 0.3s;
         }
         .overlay.active { opacity: 1; pointer-events: all; }
 
-        .container { margin-top: 70px; height: calc(100vh - 70px); overflow-y: auto; padding: 20px; padding-bottom: 100px; scroll-behavior: smooth; }
-        .view-page { display: none; animation: fadeInUp 0.4s ease-out; }
+        /* CONTAINER & ANIMATIONS */
+        .container { 
+            margin-top: 70px; height: calc(100vh - 70px); overflow-y: auto; 
+            padding: 20px; padding-bottom: 100px; scroll-behavior: smooth;
+            overscroll-behavior-y: contain; /* Prevents whole page bounce */
+        }
+        
+        .view-page { display: none; }
         .view-page.active { display: block; }
 
-        /* --- UI ELEMENTS --- */
+        /* Staggered Animation for List Items */
+        .anim-item { opacity: 0; animation: slideUp 0.5s forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* CARDS */
         .frb-card {
-            background: linear-gradient(135deg, rgba(0, 243, 255, 0.08), rgba(188, 19, 254, 0.08));
-            border: 1px solid rgba(255, 255, 255, 0.1); padding: 25px; border-radius: 24px;
-            margin-bottom: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, rgba(0,243,255,0.1), rgba(188,19,254,0.1));
+            border: 1px solid rgba(255,255,255,0.15); padding: 30px 25px; border-radius: 26px;
+            margin-bottom: 25px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            position: relative; overflow: hidden;
         }
-        .frb-actions { display: flex; gap: 15px; margin-top: 20px; justify-content: center; }
+        .frb-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05), transparent);
+            animation: rotate 10s linear infinite; z-index: 0;
+        }
+        .frb-content { position: relative; z-index: 1; }
+        @keyframes rotate { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
         .btn-sm {
-            padding: 10px 24px; border-radius: 30px; font-size: 0.85rem; font-weight: bold;
-            text-decoration: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border: none; transition: 0.2s;
+            padding: 10px 22px; border-radius: 30px; font-size: 0.85rem; font-weight: bold;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; border: none;
+            transition: 0.2s;
         }
         .btn-join { background: white; color: black; }
-        .btn-watch { background: rgba(0,0,0,0.4); color: white; border: 1px solid rgba(255,255,255,0.2); }
-        .btn-sm:active { transform: scale(0.95); }
+        .btn-watch { background: rgba(0,0,0,0.5); color: white; border: 1px solid rgba(255,255,255,0.3); }
+        .btn-sm:active { transform: scale(0.92); }
 
         .big-btn {
-            width: 100%; padding: 22px; margin-bottom: 15px;
-            background: var(--glass); border: 1px solid var(--border); border-radius: 20px;
-            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; padding: 25px; margin-bottom: 18px;
+            background: var(--glass); border: 1px solid var(--border); border-radius: 22px;
+            display: flex; align-items: center; justify-content: space-between; 
             cursor: pointer; transition: 0.3s;
         }
-        .big-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--blue); transform: translateY(-3px); }
+        .big-btn:active { transform: scale(0.97); border-color: var(--blue); background: rgba(255,255,255,0.08); }
 
-        /* VIDEO CARDS */
-        .vid-card {
-            background: var(--glass); border-radius: 18px; overflow: hidden;
-            margin-bottom: 20px; border: 1px solid var(--border); transition: 0.3s;
+        /* EXAM & LISTS */
+        .chapter-row {
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(255,255,255,0.03); padding: 18px; margin-bottom: 12px;
+            border-radius: 16px; border: 1px solid transparent; transition: 0.2s;
         }
-        .vid-card:hover { border-color: var(--purple); }
-        .vid-thumb { width: 100%; height: 180px; object-fit: cover; display: block; opacity: 0.9; }
-        .vid-info { padding: 18px; }
-        .vid-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 12px; line-height: 1.5; color: #fff; }
-        .vid-btn { 
-            width: 100%; padding: 12px; background: rgba(255,71,87,0.1); 
-            color: #ff4757; border: 1px solid rgba(255,71,87,0.3); 
-            border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s;
-        }
-        .vid-btn:active { background: rgba(255,71,87,0.2); transform: scale(0.98); }
-
-        /* STATS & LISTS */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-        .stat-box { 
-            background: var(--glass); border: 1px solid var(--border); 
-            padding: 20px; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.3s;
-        }
-        .stat-box:active { transform: scale(0.96); border-color: var(--blue); }
+        .chapter-row.done { border-left: 4px solid var(--correct); background: rgba(0, 210, 106, 0.08); }
         
-        .list-item {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.03); padding: 16px; margin-bottom: 10px;
-            border-radius: 14px; border-left: 3px solid transparent; transition: 0.2s;
+        .test-btn {
+            padding: 8px 16px; background: rgba(188, 19, 254, 0.15); color: var(--purple);
+            border: 1px solid rgba(188, 19, 254, 0.4); border-radius: 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer;
         }
-        .list-item.done { border-left-color: #00d26a; background: rgba(0, 210, 106, 0.08); }
+        .test-btn:active { transform: scale(0.9); background: rgba(188, 19, 254, 0.3); }
 
-        @keyframes fadeInUp { from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:translateY(0);} }
-        
         .back-btn {
-            display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px;
-            background: rgba(255,255,255,0.05); border-radius: 30px; margin-bottom: 20px;
-            color: var(--text-gray); border: 1px solid var(--border); cursor: pointer; font-size: 0.9rem;
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;
+            background: rgba(255,255,255,0.05); border-radius: 30px; margin-bottom: 25px;
+            color: var(--text-gray); cursor: pointer; border: 1px solid var(--border); font-size: 0.9rem;
         }
         .back-btn:active { background: rgba(255,255,255,0.1); }
+
+        /* QUIZ MODAL */
+        #quiz-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 8, 0.98); z-index: 6000; display: none; flex-direction: column;
+            backdrop-filter: blur(15px);
+        }
+        .quiz-header { padding: 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .quiz-body { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
+        
+        .question-box { background: var(--glass-card); padding: 30px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .q-text { font-size: 1.2rem; font-weight: bold; margin-bottom: 25px; line-height: 1.5; color: white; }
+        
+        .opt-btn { 
+            display: block; width: 100%; padding: 16px; margin-top: 12px; text-align: left;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 14px; color: #ddd; cursor: pointer; transition: 0.2s;
+        }
+        .opt-btn:active { transform: scale(0.98); }
+        .opt-btn.correct { background: rgba(0, 210, 106, 0.2); border-color: var(--correct); color: white; }
+        .opt-btn.wrong { background: rgba(255, 71, 87, 0.2); border-color: var(--wrong); color: white; }
+
+        .score-circle { 
+            width: 160px; height: 160px; border: 6px solid var(--blue); border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; font-size: 3rem; 
+            font-weight: bold; margin: 0 auto 25px; box-shadow: 0 0 35px rgba(0, 243, 255, 0.25);
+        }
+
+        /* STATS & VIDEO */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .stat-box { 
+            background: var(--glass); border: 1px solid var(--border); padding: 25px; 
+            border-radius: 22px; text-align: center; cursor: pointer; transition: 0.2s; 
+        }
+        .stat-box:active { transform: scale(0.95); border-color: var(--blue); }
+
+        .vid-card { 
+            background: var(--glass); border-radius: 18px; overflow: hidden; 
+            margin-bottom: 20px; border: 1px solid var(--border); transition: 0.3s;
+        }
+        .vid-card:active { transform: scale(0.98); border-color: var(--purple); }
+        .vid-thumb { width: 100%; height: 180px; object-fit: cover; display: block; }
+        .vid-info { padding: 20px; }
+        .vid-btn { 
+            width: 100%; padding: 12px; background: rgba(255,71,87,0.1); 
+            color: #ff4757; border: 1px solid rgba(255,71,87,0.3); border-radius: 10px; font-weight: bold; cursor: pointer; 
+        }
+
     </style>
 </head>
 <body>
+
+    <div id="pull-loader"><div class="spinner"></div></div>
 
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
 
     <div id="auth-screen">
         <div class="login-card">
-            <img src="logo.png" style="width:70px; margin-bottom:15px; filter: drop-shadow(0 0 15px var(--blue));">
-            <h2 style="font-family:var(--font-head); color:white; letter-spacing:3px; margin:0;">BIGGAN CLASS</h2>
-            <p style="color:var(--text-gray); font-size:0.85rem; margin-bottom:30px;">Future Learning Hub</p>
+            <img src="logo.png" style="width:80px; margin-bottom:20px; filter: drop-shadow(0 0 20px var(--blue));">
+            <h2 style="font-family:var(--font-head); letter-spacing:4px; margin:0 0 10px; font-size:2rem;">BIGGAN CLASS</h2>
+            <p style="color:var(--text-gray); font-size:0.95rem; margin-bottom:30px;">Future Learning Hub</p>
             
             <div id="login-form">
                 <input type="email" id="email" class="inp" placeholder="Email Address">
                 <input type="password" id="pass" class="inp" placeholder="Password">
                 <button class="btn-main" id="btn-login" onclick="handleAuth('login')">ENTER HUB</button>
-                <div style="margin-top:20px; font-size:0.85rem; color:var(--blue); cursor:pointer;" onclick="toggleForm()">New Student? Register</div>
+                <div style="margin-top:25px; font-size:0.9rem; color:var(--blue); cursor:pointer;" onclick="toggleForm()">New Student? Register</div>
             </div>
 
             <div id="reg-form" style="display:none;">
@@ -186,114 +251,81 @@
                     <option value="" disabled selected>Select Batch</option>
                     <option value="2025">SSC 2025</option>
                     <option value="2026">SSC 2026</option>
-                    <option value="2027">SSC 2027</option>
                 </select>
                 <input type="number" id="reg-phone" class="inp" placeholder="WhatsApp Number">
                 <input type="password" id="reg-pass" class="inp" placeholder="Password (Min 6)">
                 <button class="btn-main" id="btn-reg" onclick="handleAuth('register')">CREATE ID</button>
-                <div style="margin-top:20px; font-size:0.85rem; color:var(--text-gray); cursor:pointer;" onclick="toggleForm()">Back to Login</div>
+                <div style="margin-top:25px; font-size:0.9rem; color:var(--text-gray); cursor:pointer;" onclick="toggleForm()">Back to Login</div>
             </div>
         </div>
     </div>
 
     <div class="header">
-        <div style="display:flex; align-items:center; gap:10px;">
-            <img src="logo.png" style="width:32px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <img src="logo.png" style="width:35px;">
             <div class="logo-text"><span style="color:var(--blue)">BIGGAN</span> CLASS</div>
         </div>
-        <i class="fas fa-bars" style="font-size:1.5rem; color:var(--blue); cursor:pointer;" onclick="toggleMenu()"></i>
+        <i class="fas fa-bars" style="font-size:1.6rem; color:var(--blue); cursor:pointer;" onclick="toggleMenu()"></i>
     </div>
 
     <div class="overlay" onclick="toggleMenu()"></div>
     <div class="sidebar" id="sidebar">
-        <div style="text-align:center; padding-bottom:25px; border-bottom:1px solid var(--border); margin-bottom:20px;">
-            <img src="logo.png" style="width:65px; border-radius:50%; box-shadow:0 0 25px rgba(0,243,255,0.15); margin-bottom:12px;">
-            <div id="user-name" style="font-weight:bold; font-size:1.2rem; color:white;">Student</div>
-            <div id="user-school" style="font-size:0.8rem; color:var(--gold);">School Info</div>
+        <div style="text-align:center; padding-bottom:30px; border-bottom:1px solid var(--border); margin-bottom:25px;">
+            <img src="logo.png" style="width:70px; border-radius:50%; box-shadow:0 0 30px rgba(0,243,255,0.15); margin-bottom:15px;">
+            <div id="user-name" style="font-weight:bold; font-size:1.3rem;">Student</div>
+            <div id="user-school" style="font-size:0.85rem; color:var(--gold);">School Info</div>
         </div>
-        <div class="list-item" onclick="openPage('contact')" style="cursor:pointer;"><i class="fas fa-users" style="color:var(--blue)"></i> Community</div>
+        <div class="chapter-row" style="background:transparent; border:none; padding:12px 0; color:var(--text-gray); cursor:pointer;" onclick="openPage('contact')"><i class="fas fa-users" style="color:var(--blue); margin-right:15px; font-size:1.2rem;"></i> Community</div>
         <div style="flex:1"></div>
-        <div class="list-item" onclick="logout()" style="cursor:pointer; color:#ff4757; border-color:rgba(255,71,87,0.2);"><i class="fas fa-sign-out-alt"></i> Logout</div>
-        <div style="text-align:center; font-size:0.75rem; color:var(--text-gray); margin-top:20px; opacity:0.6;">Dev by <b>Masrur Muntasir</b></div>
+        <div class="chapter-row" style="background:transparent; border:none; padding:12px 0; color:#ff4757; cursor:pointer;" onclick="logout()"><i class="fas fa-sign-out-alt" style="margin-right:15px; font-size:1.2rem;"></i> Logout</div>
     </div>
 
-    <div class="container">
+    <div class="container" id="main-container">
 
         <div id="view-dashboard" class="view-page active">
-            
-            <div class="frb-card">
-                <div style="font-family:var(--font-head); font-size:1.8rem; font-weight:700; color:white;">FREE FRB COURSE</div>
-                <div style="font-size:0.9rem; color:rgba(255,255,255,0.7); margin-top:5px;">Premium Revision Batch</div>
-                <div class="frb-actions">
-                    <a href="https://t.me/biggan_class" target="_blank" class="btn-sm btn-join"><i class="fab fa-telegram"></i> JOIN TG</a>
-                    <a href="https://youtu.be/JVy4eAVhMGg?si=wKr0aZuykc2m7U49" target="_blank" class="btn-sm btn-watch"><i class="fas fa-play"></i> INTRO</a>
+            <div class="frb-card anim-item" style="animation-delay: 0.1s;">
+                <div class="frb-content">
+                    <div style="font-family:var(--font-head); font-size:1.9rem; font-weight:700;">FREE FRB COURSE</div>
+                    <div style="font-size:0.95rem; color:rgba(255,255,255,0.7); margin-top:5px;">Premium Revision Batch</div>
+                    <div class="frb-actions">
+                        <a href="https://t.me/biggan_class" target="_blank" class="btn-sm btn-join"><i class="fab fa-telegram"></i> JOIN TG</a>
+                        <a href="https://youtu.be/JVy4eAVhMGg?si=wKr0aZuykc2m7U49" target="_blank" class="btn-sm btn-watch"><i class="fas fa-play"></i> INTRO</a>
+                    </div>
                 </div>
             </div>
 
-            <div class="stats-grid">
+            <div class="stats-grid anim-item" style="animation-delay: 0.2s;">
                 <div class="stat-box" onclick="openPage('leaderboard')">
-                    <i class="fas fa-trophy" style="font-size:2rem; color:var(--gold); margin-bottom:10px;"></i>
+                    <i class="fas fa-trophy" style="font-size:2.2rem; color:var(--gold); margin-bottom:12px;"></i>
                     <div style="font-weight:bold;">RANKING</div>
                 </div>
                 <div class="stat-box" onclick="openPage('pomodoro')">
-                    <i class="fas fa-bolt" style="font-size:2rem; color:var(--blue); margin-bottom:10px;"></i>
+                    <i class="fas fa-bolt" style="font-size:2.2rem; color:var(--blue); margin-bottom:12px;"></i>
                     <div style="font-weight:bold;">FOCUS</div>
                 </div>
             </div>
 
-            <div class="big-btn" onclick="openPage('modules')">
+            <div class="big-btn anim-item" style="animation-delay: 0.3s;" onclick="openPage('modules')">
                 <div>
-                    <div style="font-family:var(--font-head); font-size:1.4rem; font-weight:bold; color:var(--blue);"><i class="fas fa-layer-group" style="margin-right:8px;"></i> MODULES</div>
-                    <div style="font-size:0.8rem; color:var(--text-gray); margin-top:4px;">Subject Wise Chapters</div>
+                    <div style="font-family:var(--font-head); font-size:1.5rem; font-weight:bold; color:var(--blue);"><i class="fas fa-layer-group"></i> MODULES</div>
+                    <div style="font-size:0.85rem; color:var(--text-gray); margin-top:5px;">Subject Wise Chapters</div>
                 </div>
                 <i class="fas fa-chevron-right" style="color:rgba(255,255,255,0.3);"></i>
             </div>
 
-            <div class="big-btn" onclick="openPage('classes')">
+            <div class="big-btn anim-item" style="animation-delay: 0.4s;" onclick="openPage('classes')">
                 <div>
-                    <div style="font-family:var(--font-head); font-size:1.4rem; font-weight:bold; color:var(--purple);"><i class="fas fa-play-circle" style="margin-right:8px;"></i> ALL CLASSES</div>
-                    <div style="font-size:0.8rem; color:var(--text-gray); margin-top:4px;">Guideline & Tricks</div>
+                    <div style="font-family:var(--font-head); font-size:1.5rem; font-weight:bold; color:var(--purple);"><i class="fas fa-play-circle"></i> ALL CLASSES</div>
+                    <div style="font-size:0.85rem; color:var(--text-gray); margin-top:5px;">Guideline & Tricks</div>
                 </div>
                 <i class="fas fa-chevron-right" style="color:rgba(255,255,255,0.3);"></i>
-            </div>
-        </div>
-
-        <div id="view-classes" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Back to Hub</div>
-            <h2 style="font-family:var(--font-head); color:var(--purple); margin-bottom:20px; font-size:1.8rem;">EXCLUSIVE VIDEOS</h2>
-            
-            <div class="vid-card">
-                <img src="https://img.youtube.com/vi/PCV3YtF1Lh4/maxresdefault.jpg" class="vid-thumb">
-                <div class="vid-info">
-                    <div class="vid-title">🎯 Physics মনে রাখতে সমস্যা❓ এসএসসি ২০২৬ এর জন্য ৫টি কার্যকর কৌশল❗</div>
-                    <a href="https://youtu.be/PCV3YtF1Lh4?si=TSqEgFJr6TbReo47" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
-                </div>
-            </div>
-
-            <div class="vid-card">
-                <img src="https://img.youtube.com/vi/qFM2g7dfiBY/maxresdefault.jpg" class="vid-thumb">
-                <div class="vid-info">
-                    <div class="vid-title">🔥 SSC 2026/27 রসায়ন টেস্টে ৯৮+ পাওয়ার গ্যারান্টি❗ সিক্রেট কৌশল❗</div>
-                    <a href="https://youtu.be/qFM2g7dfiBY?si=3tBUMMXFon37bxIi" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
-                </div>
-            </div>
-
-            <div class="vid-card">
-                <img src="https://img.youtube.com/vi/G-meXsmaE2Y/maxresdefault.jpg" class="vid-thumb">
-                <div class="vid-info">
-                    <div class="vid-title">🔥 SSC 2026 টেস্টে বায়োলজিতে 100/100 পেতে 6 সেরা টিপস</div>
-                    <a href="https://youtu.be/G-meXsmaE2Y?si=qmPOd-cw326tfuwe" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
-                </div>
             </div>
         </div>
 
         <div id="view-modules" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Back to Hub</div>
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Hub</div>
             <div class="stats-grid">
-                <div class="stat-box" onclick="openSubject('physics')"><i class="fas fa-atom" style="font-size:1.6rem; color:var(--blue)"></i><div style="margin-top:8px; font-weight:bold;">PHYSICS</div><small id="prog-physics" style="color:var(--text-gray)">0%</small></div>
-                <div class="stat-box" onclick="openSubject('chemistry')"><i class="fas fa-flask" style="font-size:1.6rem; color:#ff0055"></i><div style="margin-top:8px; font-weight:bold;">CHEMISTRY</div><small id="prog-chemistry" style="color:var(--text-gray)">0%</small></div>
-                <div class="stat-box" onclick="openSubject('biology')"><i class="fas fa-dna" style="font-size:1.6rem; color:#00d26a"></i><div style="margin-top:8px; font-weight:bold;">BIOLOGY</div><small id="prog-biology" style="color:var(--text-gray)">0%</small></div>
-                <div class="stat-box" onclick="openSubject('higherMath')"><i class="fas fa-calculator" style="font-size:1.6rem; color:var(--gold)"></i><div style="margin-top:8px; font-weight:bold;">MATH</div><small id="prog-higherMath" style="color:var(--text-gray)">0%</small></div>
+                <div class="stat-box anim-item" style="animation-delay:0.1s;" onclick="openSubject('biology')"><i class="fas fa-dna" style="font-size:1.8rem; color:#00d26a"></i><div style="margin-top:10px; font-weight:bold;">BIOLOGY</div><small id="prog-biology" style="color:var(--text-gray)">0%</small></div>
             </div>
         </div>
 
@@ -303,48 +335,110 @@
             <div id="chapter-list">Loading...</div>
         </div>
 
+        <div id="view-classes" class="view-page">
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Hub</div>
+            <h2 style="font-family:var(--font-head); color:var(--purple); margin-bottom:25px;">EXCLUSIVE VIDEOS</h2>
+            <div class="vid-card anim-item" style="animation-delay:0.1s;">
+                <img src="https://img.youtube.com/vi/PCV3YtF1Lh4/maxresdefault.jpg" class="vid-thumb">
+                <div class="vid-info">
+                    <div style="font-weight:bold; margin-bottom:12px;">🎯 Physics মনে রাখতে সমস্যা❓ ৫টি কার্যকর কৌশল❗</div>
+                    <a href="https://youtu.be/PCV3YtF1Lh4?si=TSqEgFJr6TbReo47" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
+                </div>
+            </div>
+            <div class="vid-card anim-item" style="animation-delay:0.2s;">
+                <img src="https://img.youtube.com/vi/qFM2g7dfiBY/maxresdefault.jpg" class="vid-thumb">
+                <div class="vid-info">
+                    <div style="font-weight:bold; margin-bottom:12px;">🔥 SSC 2026/27 রসায়ন টেস্টে ৯৮+ পাওয়ার গ্যারান্টি❗</div>
+                    <a href="https://youtu.be/qFM2g7dfiBY?si=3tBUMMXFon37bxIi" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
+                </div>
+            </div>
+            <div class="vid-card anim-item" style="animation-delay:0.3s;">
+                <img src="https://img.youtube.com/vi/G-meXsmaE2Y/maxresdefault.jpg" class="vid-thumb">
+                <div class="vid-info">
+                    <div style="font-weight:bold; margin-bottom:12px;">🔥 বায়োলজিতে 100/100 পেতে 6 সেরা টিপস</div>
+                    <a href="https://youtu.be/G-meXsmaE2Y?si=qmPOd-cw326tfuwe" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
+                </div>
+            </div>
+        </div>
+
         <div id="view-leaderboard" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Back to Hub</div>
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Hub</div>
             <h2 style="font-family:var(--font-head); color:var(--gold); font-size:1.8rem;">LEADERBOARD</h2>
             <div id="rank-list" style="margin-top:20px;">Syncing...</div>
         </div>
 
-        <div id="view-pomodoro" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Back to Hub</div>
-            <div style="text-align:center; margin-top:40px;">
-                <div style="width:240px; height:240px; border-radius:50%; border:4px solid var(--blue); display:flex; align-items:center; justify-content:center; margin:0 auto; box-shadow:0 0 50px rgba(0,243,255,0.15); background:rgba(0,0,0,0.2);">
-                    <div id="timer" style="font-size:4rem; font-family:var(--font-head); font-weight:700;">25:00</div>
-                </div>
-                <div style="margin-top:40px; display:flex; gap:15px; justify-content:center;">
-                    <button class="btn-main" style="width:100px; margin-top:0;" onclick="startTimer()">START</button>
-                    <button class="btn-main" style="width:100px; margin-top:0; background:rgba(255,255,255,0.1); color:white;" onclick="pauseTimer()">PAUSE</button>
-                    <button class="btn-main" style="width:100px; margin-top:0; background:#ff4757; color:white;" onclick="resetTimer()">RESET</button>
-                </div>
+        <div id="view-contact" class="view-page">
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Hub</div>
+            <div class="frb-card anim-item">
+                <div style="font-weight:bold; font-size:1.2rem;">Telegram Group</div>
+                <div style="color:var(--text-gray); margin-bottom:15px;">Official Discussion & Notes</div>
+                <a href="https://t.me/biggan_class_SSC" target="_blank" class="btn-sm btn-join" style="width:100%; justify-content:center; background:#0088cc; color:white;">JOIN NOW</a>
+            </div>
+            <div class="frb-card anim-item" style="animation-delay:0.1s;">
+                <div style="font-weight:bold; font-size:1.2rem;">Pial Hasan</div>
+                <div style="color:var(--gold); margin-bottom:15px;">Instructor</div>
+                <a href="https://wa.me/8801792595165" target="_blank" class="btn-sm btn-join" style="width:100%; justify-content:center; background:#25D366; color:black;">WHATSAPP</a>
+            </div>
+            <div class="frb-card anim-item" style="animation-delay:0.2s;">
+                <div style="font-weight:bold; font-size:1.2rem;">Masrur Muntasir</div>
+                <div style="color:var(--blue); margin-bottom:15px;">App Developer</div>
+                <a href="https://wa.me/8801706592005" target="_blank" class="btn-sm btn-join" style="width:100%; justify-content:center; background:#25D366; color:black;">WHATSAPP</a>
             </div>
         </div>
-
-        <div id="view-contact" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Back to Hub</div>
-            <div class="list-item">
-                <div><div style="font-weight:bold;">Telegram Group</div><small style="color:var(--text-gray)">Official Discussion</small></div>
-                <a href="https://t.me/biggan_class_SSC" target="_blank" class="btn-sm" style="background:#0088cc; color:white; text-decoration:none; padding:8px 18px; border-radius:20px;">JOIN</a>
-            </div>
-            <div class="list-item">
-                <div><div style="font-weight:bold;">Pial Hasan</div><small style="color:var(--gold)">Instructor</small></div>
-                <a href="https://wa.me/8801792595165" target="_blank" class="btn-sm" style="background:#25D366; color:black; text-decoration:none; padding:8px 18px; border-radius:20px;">CHAT</a>
-            </div>
-            <div class="list-item">
-                <div><div style="font-weight:bold;">Masrur Muntasir</div><small style="color:var(--blue)">App Developer</small></div>
-                <a href="https://wa.me/8801706592005" target="_blank" class="btn-sm" style="background:#25D366; color:black; text-decoration:none; padding:8px 18px; border-radius:20px;">CHAT</a>
+        
+        <div id="view-pomodoro" class="view-page">
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Hub</div>
+            <div style="text-align:center; margin-top:60px;">
+                <div class="score-circle"><span id="timer">25:00</span></div>
+                <div style="display:flex; gap:15px; justify-content:center;">
+                    <button class="btn-main" onclick="startTimer()" style="width:120px;">START</button>
+                    <button class="btn-main" onclick="resetTimer()" style="width:120px; background:#ff4757; color:white;">RESET</button>
+                </div>
             </div>
         </div>
 
     </div>
 
+    <div id="quiz-modal">
+        <div class="quiz-header">
+            <div style="font-weight:bold; font-size:1.2rem; color:var(--blue);">MCQ TEST</div>
+            <i class="fas fa-times" onclick="closeQuiz()" style="font-size:1.6rem; cursor:pointer; color:var(--text-gray);"></i>
+        </div>
+        <div class="quiz-body" id="quiz-content">
+            </div>
+    </div>
+
     <audio id="alarm" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
     <script>
-        // FIREBASE CONFIG
+        // --- PULL TO REFRESH LOGIC ---
+        let pStart = {x:0, y:0};
+        let pCurrent = {x:0, y:0};
+        const main = document.getElementById('main-container');
+        const loader = document.getElementById('pull-loader');
+        let isLoading = false;
+
+        main.addEventListener('touchstart', e => { pStart.x = e.touches[0].screenX; pStart.y = e.touches[0].screenY; });
+        main.addEventListener('touchmove', e => {
+            pCurrent.x = e.touches[0].screenX; pCurrent.y = e.touches[0].screenY;
+            let changeY = pCurrent.y - pStart.y;
+            if (main.scrollTop === 0 && changeY > 0) {
+                if(changeY > 70) changeY = 70;
+                loader.style.transform = `translateY(${changeY - 50}px)`;
+            }
+        });
+        main.addEventListener('touchend', e => {
+            let changeY = pCurrent.y - pStart.y;
+            if (main.scrollTop === 0 && changeY > 60 && !isLoading) {
+                isLoading = true;
+                loader.style.transform = `translateY(10px)`; // Hold spinner
+                setTimeout(() => { location.reload(); }, 800);
+            } else {
+                loader.style.transform = `translateY(-50px)`; // Hide
+            }
+        });
+
+        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ",
             authDomain: "masrur-app-dccc1.firebaseapp.com",
@@ -354,20 +448,99 @@
             messagingSenderId: "54049170636",
             appId: "1:54049170636:web:0d0fd5f530027e72688e69"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
         let currentUser = null, timerInt = null, timeLeft = 1500;
 
-        const syllabus = {
-            physics: { title: "PHYSICS", chapters: ["ভৌত রাশি", "গতি", "বল", "কাজ", "পদার্থের অবস্থা", "তাপ", "তরঙ্গ", "আলো", "তড়িৎ"] },
-            chemistry: { title: "CHEMISTRY", chapters: ["ধারণা", "অবস্থা", "গঠন", "পর্যায় সারণি", "বন্ধন", "মোল", "বিক্রিয়", "শক্তি"] },
-            biology: { title: "BIOLOGY", chapters: ["জীবন পাঠ", "কোষ", "বিভাজন", "জীবনীশক্তি", "খাদ্য", "পরিবহন", "রেচন", "সমন্বয়"] },
-            higherMath: { title: "HIGHER MATH", chapters: ["সেট", "বীজগণিত", "জ্যামিতি", "সমীকরণ", "অসমতা", "ধারা", "ত্রিকোণমিতি", "সূচক"] }
+        // --- DATA ---
+        const syllabus = { biology: { title: "BIOLOGY", chapters: ["জীবন পাঠ", "জীবকোষ ও টিস্যু", "কোষ বিভাজন", "জীবনীশক্তি", "খাদ্য ও পুষ্টি", "জীবে পরিবহন", "গ্যাসীয় বিনিময়", "রেচন", "দৃঢ়তা ও চলন", "সমন্বয়", "জীবের প্রজনন", "বংশগতি ও বিবর্তন", "জীবের পরিবেশ", "জীবপ্রযুক্তি"] } };
+
+        const biologyQuestions = {
+            0: [
+                { q: "কোনটি ভৌত বিজ্ঞানের অর্ন্তভুক্ত?", o: ["Morphology", "Batamology", "Plaeontology", "Biochemistry"], a: 0 },
+                { q: "কোনটির সাথে এন্ডোক্রাইনোলজি সম্পর্কিত?", o: ["হরমোন", "এনজাইম", "টিস্যু", "কোষ"], a: 0 },
+                { q: "নিচের কোনটি ফলিত জীববিজ্ঞানের শাখা?", o: ["হিস্টোলজি", "প্রাণিবিদ্যা", "সমুদ্রবিজ্ঞান", "বংশগতিবিদ্যা"], a: 2 },
+                { q: "নিচের কোনটি প্রোক্যারিওটিক জীব?", o: ["নীলাভ সবুজ শৈবাল", "মাশরুম", "ডায়াটম", "অ্যামিবা"], a: 0 },
+                { q: "নীলাভ সবুজ শৈবাল কোন রাজ্যের অর্ন্তভুক্ত?", o: ["মনেরা", "প্রোটিস্টা", "ফানজাই", "অ্যানিমেলিয়া"], a: 0 },
+                { q: "প্রোটিস্টা রাজ্যের অর্ন্তভুক্ত জীব কোনটি?", o: ["ব্যাকটেরিয়া", "ইস্ট", "প্যারামেসিয়াম", "পেনিসিলিয়াম"], a: 2 },
+                { q: "হ্যাপ্লয়েড রেণু উৎপন্ন হয় কোনটিতে?", o: ["প্যারামেসিয়াম", "অ্যামিবা", "মাশরুম", "ডায়াটম"], a: 2 },
+                { q: "কোন রাজ্যের জীবের দেহে জটিল টিস্যুতন্ত্র থাকে?", o: ["প্রোটিস্টা", "ফানজাই", "মনেরা", "অ্যানিমেলিয়া"], a: 3 },
+                { q: "দোয়েল পাখির বৈজ্ঞানিক নাম কী?", o: ["Copsychus saularis", "Nymphaea nouchali", "Apis indica", "Tenualosa ilisha"], a: 0 },
+                { q: "পেঁয়াজের বৈজ্ঞানিক নাম কী?", o: ["Allium cepa", "Alluim cepa", "Alleum cepa", "Aleum cepa"], a: 0 }
+            ],
+            1: [
+                { q: "মাশরুমের কোষপ্রাচীর কী দ্বারা গঠিত?", o: ["লিপিড", "লিগনিন", "পেকটিন", "কাইটিন"], a: 3 },
+                { q: "কোষের কোন অঙ্গাণুতে অক্সিজোম থাকে?", o: ["প্লাস্টিড", "নিউক্লিয়াস", "গলজি বস্তু", "মাইটোকন্ড্রিয়া"], a: 3 },
+                { q: "নিচের কোনটি ঝিল্লিবিহীন সাইটোপ্লাজমীয় অঙ্গাণু?", o: ["লাইসোসোম", "রাইবোসোম", "মাইটোকন্ড্রিয়া", "প্লাস্টিড"], a: 1 },
+                { q: "কোনটি প্রোটিন সংশ্লেষণে সাহায্য করে?", o: ["লাইসোসোম", "রাইবোসোম", "সেন্ট্রিওল", "মাইটোকন্ড্রিয়া"], a: 1 },
+                { q: "প্রাণিকোষের কোন অঙ্গাণু প্রোটিন সংশ্লেষণের স্থান নির্ধারণ করে?", o: ["গলজি বস্তু", "লাইসোসোম", "এন্ডোপ্লাজমিক রেটিকুলাম", "রাইবোসোম"], a: 3 },
+                { q: "নিচের কোনটিতে সালোকসংশ্লেষণ ঘটে?", o: ["জাইলেম", "ফ্লোয়েম", "প্যারেনকাইমা", "স্ক্লেরেনকাইমা"], a: 2 },
+                { q: "কোন উদ্ভিদের বীজত্বকে স্ক্লেরাইড টিস্যু দেখা যায়?", o: ["ধান", "গম", "যব", "ছোলা"], a: 3 },
+                { q: "পার্শ্বীয় জোড়াকূপ এর সাহায্যে পানি চলাচল করে কোন কোষে?", o: ["ট্রাকিড", "ভেসেল", "সিভকোষ", "সঙ্গী কোষ"], a: 0 },
+                { q: "ট্রানজিশনাল টিস্যু কোনটি?", o: ["মেরুদণ্ডী প্রাণীর শ্বাসনালী", "হাইড্রার এন্ডোডার্ম", "মেরুদণ্ডী প্রাণীর ত্বক", "বৃক্কের সংগ্রহক নালী"], a: 2 }
+            ],
+            2: [
+                { q: "অ্যাস্টারের বিচ্ছুরিত স্তর কোন ধাপে দেখা যায়?", o: ["প্রোফেজ", "মেটাফেজ", "প্রো-মেটাফেজ", "অ্যানাফেজ"], a: 2 },
+                { q: "কোন পর্যায়ে ক্রোমোজোমগুলো সর্বাধিক খাটো ও মোটা হয়?", o: ["প্রোফেজ", "প্রো-মেটাফেজ", "মেটাফেজ", "অ্যানাফেজ"], a: 2 },
+                { q: "মাইটোসিসের কোন ধাপে সেন্ট্রিয়োলগুলোর বিভাজন শুরু হয়?", o: ["প্রোফেজ", "প্রো-মেটাফেজ", "মেটাফেজ", "অ্যানাফেজ"], a: 2 },
+                { q: "অ্যাক্রোসেন্ট্রিক ক্রোমোজোমের আকৃতি কোনটি?", o: ["V", "L", "J", "I"], a: 2 },
+                { q: "মাইটোসিসের ফলে কোনটি ঘটে?", o: ["বহুকোষী জীবের দৈহিক বৃদ্ধি", "জনন কোষ সৃষ্টি", "হ্রাসমূলক বিভাজন", "নিউক্লিয়াস বিভাজন"], a: 0 }
+            ],
+            3: [
+                { q: "চিত্রে P চিহ্নিত অংশটির নাম কী (তিনটি ফসফেট)?", o: ["ATP", "ADP", "ট্রাইফসফেট", "ডাইফসফেট"], a: 2 },
+                { q: "হ্যাট ও ম্যাক চক্রে প্রথম স্থায়ী পদার্থ কোনটি?", o: ["ফসফোগ্লিসেরিক এসিড", "অক্সালো অ্যাসিটিক এসিড", "ম্যালিক এসিড", "সাইট্রিক এসিড"], a: 1 },
+                { q: "কোন আলোতে সালোকসংশ্লেষণ ভালো হয়?", o: ["লাল ও নীল", "সাদা ও হলুদ", "নীল ও সবুজ", "হলুদ ও সবুজ"], a: 0 },
+                { q: "কত তরঙ্গদৈর্ঘ্যের আলোতে সালোকসংশ্লেষণ ভালো হয়?", o: ["৪০০–৪৫০ nm", "৫০০–৫৫০ nm", "৬০০–৮০০ nm", "৮০০–৮৫০ nm"], a: 2 },
+                { q: "কোন তাপমাত্রায় সালোকসংশ্লেষণ সর্বাধিক হয়?", o: ["২৫°–৩০° C", "৩০°–৩৫° C", "২০°–২৫° C", "৩৫°–৪০° C"], a: 0 },
+                { q: "ক্রেবসচক্রে কত অণু ATP উৎপন্ন হয়?", o: ["২৪", "১৮", "১২", "৮"], a: 0 },
+                { q: "কোনটির শ্বসনে ইথাইল অ্যালকোহল উৎপন্ন হয়?", o: ["আখ", "ধান", "সজনে শেকড়", "ইস্ট"], a: 3 }
+            ],
+            4: [
+                { q: "উদ্ভিদের স্বাভাবিক বৃদ্ধির জন্য প্রয়োজনীয় উপাদান কতটি?", o: ["৬০", "১০", "১৬", "৬"], a: 2 },
+                { q: "উদ্ভিদের বৃদ্ধির জন্য ম্যাক্রো উপাদান কোনগুলো?", o: ["Mn, B, Cl", "N, Cu, Mo", "N, Ca, Mg", "C, B, N"], a: 2 },
+                { q: "সুক্রাবিট এর মূল ও কাণ্ডের বৃদ্ধির জন্য কোন উপাদানটি প্রয়োজনীয়?", o: ["ক্লোরিন", "কপার", "বোরন", "আয়রন"], a: 2 },
+                { q: "উদ্ভিদের প্রোটিনের গাঠনিক উপাদান কোনটি?", o: ["B", "Mg", "S", "K"], a: 2 },
+                { q: "নিচের কোনটি এক শর্করা?", o: ["গ্লাইকোজেন", "ল্যাকটোজ", "গ্লুকোজ", "সুক্রোজ"], a: 2 },
+                { q: "আমাদের দৈনিক খাদ্য তালিকায় কত গ্রাম চর্বি থাকা উচিত?", o: ["২০–৩০ গ্রাম", "৩০–৫০ গ্রাম", "৫০–৭০ গ্রাম", "১০–২০ গ্রাম"], a: 1 },
+                { q: "কোনটির ক্ষতিসাধন হলে রাতকানা রোগ হয়?", o: ["কোন কোষ", "লেন্স", "কর্নিয়া", "রড কোষ"], a: 2 },
+                { q: "১০০ গ্রাম মুড়িতে কত কিলোক্যালরি শক্তি পাওয়া যায়?", o: ["১০০", "২০০", "৩০০", "৪০০"], a: 3 },
+                { q: "BMI ২৯.৯ হলে কী বোঝায়?", o: ["সুস্থ", "মোটা হওয়ার ১ম স্তর", "অতিরিক্ত ওজন", "মোটা হওয়ার ২য় স্তর"], a: 2 }
+            ],
+            10: [
+                { q: "কোনটি অবৃন্তক ফুল?", o: ["জবা", "ধুতুরা", "হাতিশুঁড়", "লাউ"], a: 2 },
+                { q: "কোন ফুলে দ্বিগ্গুচ্ছ পরাগদণ্ড থাকে?", o: ["জবা", "শিমুল", "মটর", "সূর্যমুখী"], a: 2 },
+                { q: "পুংকেশর দলমন্ডলের সাথে যুক্ত থাকে কোন ফুলে?", o: ["ধুতুরা", "জবা", "শিমুল", "কদম"], a: 0 },
+                { q: "স্ব-পরাগায়ন ঘটে কোন ফুলে?", o: ["পেঁপে", "শিমুল", "ধুতুরা", "কুমড়া"], a: 2 },
+                { q: "কোনটি পতঙ্গপরাগী ফুল?", o: ["জবা", "কদম", "শিমুল", "কচু"], a: 0 },
+                { q: "ভ্রূণস্থলীর কেন্দ্রের দিকের কোষটিকে কী বলে?", o: ["এপিক্যাল কোষ", "ভিত্তি কোষ", "শস্য কোষ", "প্রতিপাদ কোষ"], a: 0 },
+                { q: "নিষিক্ত ডিম্বাণুর কত সপ্তাহের মধ্যে অমরা গঠিত হয়?", o: ["১০", "১২", "১৪", "১৬"], a: 1 },
+                { q: "প্রায় কত ঘণ্টা পর নিষিক্ত ডিম্বাণুর কোষ বিভাজন শুরু হয়?", o: ["১৮", "২৪", "৩৬", "৭২"], a: 2 }
+            ],
+            11: [
+                { q: "একটি ক্রোমোজোমের দৈর্ঘ্য সাধারণত কত?", o: ["০.৩–৩.০ মাইক্রন", "৩.০–৩০ মাইক্রন", "৩.৫–৩০ মাইক্রন", "৩.০–৩৫ মাইক্রন"], a: 2 },
+                { q: "কোনটি DNA-তে অনুপস্থিত?", o: ["অ্যাডেনিন", "গুয়ানিন", "ইউরাসিল", "সাইটোসিন"], a: 2 },
+                { q: "কোনটি পিউরিন?", o: ["A ও T", "C ও G", "C ও T", "A ও G"], a: 3 },
+                { q: "DNA ডাবল হেলিক্সের ১০০টি পূর্ণ ঘূর্ণনের দৈর্ঘ্য কত?", o: ["৩৪০০ Å", "২০০০ Å", "৩২০০ Å", "৪৮০০ Å"], a: 0 },
+                { q: "নিচের কোনটি কেবলমাত্র RNA-তে পাওয়া যায়?", o: ["ইউরাসিল", "অ্যাডেনিন", "গুয়ানিন", "সাইটোসিন"], a: 0 },
+                { q: "RNA-তে অনুপস্থিত নিউক্লিওটাইড কোনটি?", o: ["গুয়ানিন", "থাইমিন", "সাইটোসিন", "ইউরাসিল"], a: 1 },
+                { q: "মেন্ডেলের পরীক্ষায় F₁ ধাপে প্রকাশিত বৈশিষ্ট্য নিচের কোনটি?", o: ["প্রভাবিত", "আবৃত", "ফ্যাক্টর", "জিন"], a: 0 },
+                { q: "ওয়াটসন ও ক্রিক কত সালে DNA অনুলিপন মডেল দেন?", o: ["১৯৫৩", "১৯৬১", "১৮৬৯", "১৯৩৬"], a: 0 },
+                { q: "কোন রোগটি বংশগত ব্যাধির মধ্যে পড়ে?", o: ["থ্যালাসেমিয়া", "হাম", "বসন্ত", "যক্ষা"], a: 0 }
+            ],
+            12: [
+                { q: "নিচের কোনটি উৎপাদক?", o: ["জুপ্ল্যাংক্টন", "টোপাপানা", "মশার শূককীট", "ব্যাকটেরিয়া"], a: 1 },
+                { q: "পুকুরের প্রথম স্তরের খাদক কোনটি?", o: ["ব্যাঙ", "বোয়াল", "রুই", "শোল"], a: 2 },
+                { q: "নিচের কোনটি পরজীবী খাদ্য শৃঙ্খল?", o: ["মৃতদেহ → ছত্রাক", "ঘাস → হরিণ", "শৈবাল → ছোট মাছ", "মানুষ → মশা → ডেঙ্গু"], a: 3 },
+                { q: "কোন খাদ্য শিকলে সর্বাধিক শক্তি ব্যয় হয়?", o: ["ঘাস-গরু", "ফাইটোপ্ল্যাংক্টন-ছোটমাছ-বড়মাছ-চিল", "ঘাস-ব্যাঙ", "শৈবাল-মাছ"], a: 1 },
+                { q: "সালোকসংশ্লেষণ প্রক্রিয়ায় সবুজ উদ্ভিদ সর্বোচ্চ কতভাগ সৌরশক্তি ব্যবহার করে?", o: ["১%", "২%", "৩%", "৪%"], a: 1 },
+                { q: "নিচের কোনটি ধনাত্মক আন্তঃক্রিয়া?", o: ["মিউচুয়ালিজম", "শোষণ", "প্রতিযোগিতা", "অ্যান্টিবায়োসিস"], a: 0 },
+                { q: "কোনটি শিমজাতীয় উদ্ভিদের শিকড়ে গুটি তৈরি করে?", o: ["Penicillium", "Rhizobium", "Bacillus", "Pseudomonas"], a: 1 },
+                { q: "সুপারি গাছে পান গাছ আরোহণ করা কোন ধরনের আন্তঃক্রিয়া?", o: ["মিউচুয়ালিজম", "কমেনসেলিজম", "প্রতিযোগিতা", "শোষণ"], a: 1 }
+            ]
         };
 
-        // --- NAVIGATION LOGIC (SOLID) ---
+        // --- NAVIGATION & FLUIDITY ---
         history.replaceState({view: 'dashboard'}, null, '');
         function openPage(id) { 
             history.pushState({view: id}, null, ''); 
@@ -378,12 +551,17 @@
 
         function _render(id) {
             document.querySelectorAll('.view-page').forEach(p => p.classList.remove('active'));
-            document.getElementById('view-' + id).classList.add('active');
+            const page = document.getElementById('view-' + id);
+            page.classList.add('active');
             
-            // Fix Scroll
-            document.querySelector('.container').scrollTop = 0;
-            
-            if(id === 'leaderboard') loadRank();
+            // Re-trigger staggered animation
+            const items = page.querySelectorAll('.anim-item');
+            items.forEach((item, i) => {
+                item.style.animation = 'none';
+                item.offsetHeight; /* trigger reflow */
+                item.style.animation = `slideUp 0.5s forwards ${i*0.1}s`;
+            });
+
             if(window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('open');
                 document.querySelector('.overlay').classList.remove('active');
@@ -401,133 +579,148 @@
             else { login.style.display='none'; reg.style.display='block'; }
         }
 
-        // --- AUTH LOGIC (SOLID) ---
+        // --- AUTH & LOGIC ---
         function handleAuth(type) {
             const btn = document.getElementById(type === 'register' ? 'btn-reg' : 'btn-login');
-            const originalText = btn.innerText;
-            btn.innerText = "Processing...";
-            btn.disabled = true;
+            btn.innerText = "Processing..."; btn.disabled = true;
 
             if(type === 'register') {
-                const n = document.getElementById('reg-name').value.trim();
-                const e = document.getElementById('reg-email').value.trim();
-                const s = document.getElementById('reg-school').value.trim();
+                const n = document.getElementById('reg-name').value.trim(), e = document.getElementById('reg-email').value.trim();
+                const pass = document.getElementById('reg-pass').value.trim(), s = document.getElementById('reg-school').value.trim();
                 const b = document.getElementById('reg-batch').value;
-                const p = document.getElementById('reg-phone').value.trim();
-                const pass = document.getElementById('reg-pass').value.trim();
-
-                if(!n || !e || !s || !b || !p || !pass) {
-                    resetBtn(btn, originalText);
-                    return alert("⚠️ সব তথ্য পূরণ করুন!");
-                }
-                if(pass.length < 6) {
-                    resetBtn(btn, originalText);
-                    return alert("⚠️ পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে!");
-                }
-
+                if(!n || !e || !pass || !s || !b) { btn.innerText = "TRY AGAIN"; btn.disabled = false; return alert("সব তথ্য দিন"); }
+                
                 auth.createUserWithEmailAndPassword(e, pass).then(c => {
                     c.user.updateProfile({displayName: n});
-                    db.ref('users/' + c.user.uid).set({ name: n, school: s, batch: b, phone: p, email: e });
-                }).catch(err => {
-                    alert(err.message);
-                    resetBtn(btn, originalText);
-                });
+                    db.ref('users/'+c.user.uid).set({name:n, school:s, batch:b, email:e});
+                }).catch(err => { alert(err.message); btn.innerText = "CREATE ID"; btn.disabled = false; });
             } else {
                 const e = document.getElementById('email').value, p = document.getElementById('pass').value;
-                if(!e || !p) {
-                    resetBtn(btn, originalText);
-                    return alert("⚠️ তথ্য দিন!");
-                }
-                auth.signInWithEmailAndPassword(e, p).catch(err => {
-                    alert(err.message);
-                    resetBtn(btn, originalText);
-                });
+                auth.signInWithEmailAndPassword(e, p).catch(err => { alert(err.message); btn.innerText = "ENTER HUB"; btn.disabled = false; });
             }
-        }
-
-        function resetBtn(btn, text) {
-            btn.innerText = text;
-            btn.disabled = false;
         }
 
         auth.onAuthStateChanged(user => {
             if(user) {
                 currentUser = user;
-                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('auth-screen').style.opacity = '0';
+                setTimeout(() => { document.getElementById('auth-screen').style.display = 'none'; }, 500);
+                
                 document.getElementById('user-name').innerText = user.displayName || 'Student';
-                db.ref('users/' + user.uid).once('value', s => {
-                    const data = s.val() || {};
-                    document.getElementById('user-school').innerText = (data.school || "School") + " (" + (data.batch || "Batch") + ")";
+                db.ref('users/'+user.uid).once('value', s => {
+                    if(s.val()) document.getElementById('user-school').innerText = s.val().school;
                 });
                 updateDashStats();
+                _render('dashboard'); // Trigger anims
             }
         });
 
-        // --- CORE FUNCTIONS ---
+        // CHAPTERS & QUIZ
         function openSubject(key) {
             openPage('subject');
-            document.getElementById('page-title').innerText = syllabus[key].title;
+            const sub = syllabus[key];
+            document.getElementById('page-title').innerText = sub.title;
             const list = document.getElementById('chapter-list');
-            list.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Loading Chapters...</div>';
-            
+            list.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Loading...</div>';
+
             db.ref(`progress/${currentUser.uid}/${key}`).on('value', snap => {
                 const prog = snap.val() || [];
                 list.innerHTML = '';
-                syllabus[key].chapters.forEach((chap, idx) => {
+                sub.chapters.forEach((chap, idx) => {
+                    const hasQuiz = biologyQuestions[idx] ? true : false;
                     const div = document.createElement('div');
-                    div.className = `list-item ${prog[idx]?'done':''}`;
-                    div.innerHTML = `<div><b style="color:var(--text-gray); margin-right:12px;">${idx+1}</b> ${chap}</div><div>${prog[idx]?'<i class="fas fa-check" style="color:#00d26a"></i>':''}</div>`;
-                    div.onclick = () => db.ref(`progress/${currentUser.uid}/${key}/${idx}`).set(!prog[idx]);
+                    div.className = `chapter-row anim-item ${prog[idx] ? 'done' : ''}`;
+                    div.style.animationDelay = `${idx*0.05}s`;
+                    div.innerHTML = `
+                        <div><b style="color:var(--text-gray); margin-right:12px;">${idx+1}</b> ${chap}</div>
+                        ${hasQuiz ? `<button class="test-btn" onclick="startQuiz(${idx})"><i class="fas fa-pen-nib"></i> TEST</button>` : ''}
+                    `;
+                    div.onclick = (e) => {
+                        if(!e.target.closest('.test-btn')) db.ref(`progress/${currentUser.uid}/${key}/${idx}`).set(!prog[idx]);
+                    };
                     list.appendChild(div);
                 });
             });
         }
 
+        let currentQuiz = [], quizIdx = 0, score = 0, currentChapIdx = 0;
+
+        function startQuiz(chapIdx) {
+            currentChapIdx = chapIdx; currentQuiz = biologyQuestions[chapIdx]; quizIdx = 0; score = 0;
+            document.getElementById('quiz-modal').style.display = 'flex';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if(quizIdx >= currentQuiz.length) {
+                const percentage = Math.round((score / currentQuiz.length) * 100);
+                let content = `
+                    <div class="score-box" style="text-align:center; animation:popIn 0.4s;">
+                        <div class="score-circle" style="border-color:${percentage>=80?'#00d26a':(percentage>=50?'#ffd700':'#ff4757')}">${percentage}%</div>
+                        <h2 style="color:white; margin-bottom:10px;">Score: ${score} / ${currentQuiz.length}</h2>
+                        <p style="color:#aaa; margin-bottom:30px;">${percentage>=80 ? 'Outstanding Performance!' : 'Keep Practicing! You can do better.'}</p>
+                        <button class="btn-main" onclick="closeQuiz()">FINISH</button>
+                    </div>`;
+                document.getElementById('quiz-content').innerHTML = content;
+                db.ref(`scores/${currentUser.uid}/${currentChapIdx}`).set(score);
+                return;
+            }
+            const q = currentQuiz[quizIdx];
+            let html = `
+                <div class="question-box" style="animation:slideUp 0.3s;">
+                    <div style="color:var(--blue); font-size:0.85rem; margin-bottom:15px; text-transform:uppercase; letter-spacing:1px;">Question ${quizIdx+1} / ${currentQuiz.length}</div>
+                    <div class="q-text">${q.q}</div>
+                    ${q.o.map((opt, i) => `<button class="opt-btn" onclick="checkAnswer(${i}, this)">${opt}</button>`).join('')}
+                </div>`;
+            document.getElementById('quiz-content').innerHTML = html;
+        }
+
+        function checkAnswer(selected, btn) {
+            const correct = currentQuiz[quizIdx].a;
+            const buttons = document.querySelectorAll('.opt-btn');
+            buttons.forEach((b, i) => {
+                b.disabled = true;
+                if(i === correct) b.classList.add('correct');
+                if(i === selected && i !== correct) b.classList.add('wrong');
+            });
+            if(selected === correct) score++;
+            setTimeout(() => { quizIdx++; showQuestion(); }, 1200);
+        }
+
+        function closeQuiz() { document.getElementById('quiz-modal').style.display = 'none'; }
+
+        // OTHER
         function loadRank() {
-            const list = document.getElementById('rank-list');
-            list.innerHTML = "Syncing...";
-            db.ref('users').once('value').then(uSnap => {
-                const names = uSnap.val() || {};
-                db.ref('progress').once('value', snap => {
+            document.getElementById('rank-list').innerHTML = "Syncing...";
+            db.ref('users').once('value').then(u => {
+                const users = u.val() || {};
+                db.ref('scores').once('value', s => {
+                    const scores = s.val() || {};
                     let rank = [];
-                    Object.keys(snap.val() || {}).forEach(uid => {
-                        let score = 0;
-                        Object.values(snap.val()[uid]).forEach(s => score += (Array.isArray(s) ? s.filter(Boolean).length : 0));
-                        // Safe Check for Name/School
-                        const uInfo = names[uid] || {};
-                        rank.push({ 
-                            name: uInfo.name || "Student", 
-                            school: uInfo.school || "School", 
-                            score, uid 
-                        });
+                    Object.keys(scores).forEach(uid => {
+                        let total = 0;
+                        Object.values(scores[uid]).forEach(v => total += v);
+                        rank.push({name: users[uid]?.name||'User', school: users[uid]?.school, xp: total, uid});
                     });
-                    rank.sort((a,b) => b.score - a.score);
-                    list.innerHTML = rank.slice(0,50).map((r, i) => `
-                        <div class="list-item" style="${r.uid===currentUser.uid?'border:1px solid var(--blue)':''}">
-                            <div>
-                                <span style="color:var(--gold); font-weight:bold; margin-right:10px;">#${i+1}</span> 
-                                <span style="font-weight:bold;">${r.name}</span>
-                                <div style="font-size:0.75rem; color:var(--text-gray); margin-left:25px; margin-top:2px;">${r.school}</div>
-                            </div>
-                            <div style="font-weight:bold; color:var(--blue);">${r.score} XP</div>
+                    rank.sort((a,b) => b.xp - a.xp);
+                    document.getElementById('rank-list').innerHTML = rank.slice(0,50).map((r,i) => `
+                        <div class="chapter-row anim-item" style="animation-delay:${i*0.05}s; ${r.uid===currentUser.uid?'border:1px solid var(--blue)':''}">
+                            <div><b style="color:var(--gold)">#${i+1}</b> ${r.name}</div>
+                            <div style="font-weight:bold; color:var(--blue)">${r.xp} XP</div>
                         </div>`).join('');
                 });
             });
         }
 
         function updateDashStats() {
-            Object.keys(syllabus).forEach(k => {
-                db.ref(`progress/${currentUser.uid}/${k}`).on('value', s => {
-                    const count = (s.val() || []).filter(Boolean).length;
-                    document.getElementById('prog-'+k).innerText = Math.round((count/syllabus[k].chapters.length)*100) + "%";
-                });
+            db.ref(`progress/${currentUser.uid}/biology`).on('value', s => {
+                const c = (s.val()||[]).filter(Boolean).length;
+                document.getElementById('prog-biology').innerText = Math.round((c/14)*100) + "%";
             });
         }
 
-        // TIMER
-        function startTimer() { if(!timerInt) timerInt = setInterval(() => { timeLeft--; _t(); if(timeLeft<=0){ clearInterval(timerInt); timerInt=null; document.getElementById('alarm').play(); alert("Focus Session Complete!"); } }, 1000); }
-        function pauseTimer() { clearInterval(timerInt); timerInt = null; }
-        function resetTimer() { pauseTimer(); timeLeft = 1500; _t(); }
+        function startTimer() { if(!timerInt) timerInt = setInterval(() => { timeLeft--; _t(); if(timeLeft<=0){ clearInterval(timerInt); timerInt=null; document.getElementById('alarm').play(); alert("Done!"); } }, 1000); }
+        function resetTimer() { clearInterval(timerInt); timerInt=null; timeLeft=1500; _t(); }
         function _t() { document.getElementById('timer').innerText = `${Math.floor(timeLeft/60)}:${(timeLeft%60).toString().padStart(2,'0')}`; }
         function logout() { auth.signOut(); location.reload(); }
     </script>
