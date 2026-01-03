@@ -14,14 +14,13 @@
 
     <style>
         :root {
-            /* PINK PICNIC THEME COLORS */
             --primary: #ff5e94;
             --primary-dark: #d6336c;
-            --accent: #ff9dbf;
+            --soft-pink: #fff0f3;
             --white: #ffffff;
             --text-main: #4a4a4a;
             --text-light: #777;
-            --shadow-soft: 0 8px 25px rgba(255, 94, 148, 0.2);
+            --shadow: 0 8px 25px rgba(255, 94, 148, 0.2);
             --font-head: 'Nunito', sans-serif;
             --font-body: 'Quicksand', sans-serif;
         }
@@ -32,65 +31,52 @@
             margin: 0; color: var(--text-main);
             font-family: var(--font-body); height: 100vh; overflow: hidden;
             position: relative;
-            
-            /* GINGHAM (PICNIC) PATTERN BACKGROUND */
             background-color: #fff0f3;
+            /* Gingham Pattern */
             background-image:
                 linear-gradient(90deg, rgba(255, 182, 193, 0.4) 50%, transparent 50%),
                 linear-gradient(rgba(255, 182, 193, 0.4) 50%, transparent 50%);
-            background-size: 60px 60px; /* Check size */
+            background-size: 60px 60px;
         }
 
-        /* FLOATING ANIMATION FOR BUTTONS */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
-            100% { transform: translateY(0px); }
-        }
+        /* ANIMATIONS */
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
+        @keyframes jelly { 0%, 100% { transform: scale(1, 1); } 25% { transform: scale(0.95, 1.05); } 50% { transform: scale(1.05, 0.95); } 75% { transform: scale(0.98, 1.02); } }
+        @keyframes slideUp { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
 
-        /* JELLY CLICK EFFECT */
-        @keyframes jelly {
-            0%, 100% { transform: scale(1, 1); }
-            25% { transform: scale(0.95, 1.05); }
-            50% { transform: scale(1.05, 0.95); }
-            75% { transform: scale(0.98, 1.02); }
-        }
-
-        /* AUTH SCREEN */
+        /* AUTH */
         #auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5000;
-            background: rgba(255, 240, 243, 0.95); backdrop-filter: blur(10px);
+            background: rgba(255, 240, 243, 0.95); backdrop-filter: blur(8px);
             display: flex; align-items: center; justify-content: center; transition: 0.5s;
         }
         .login-card {
             width: 85%; max-width: 380px; padding: 40px 30px;
             background: var(--white); border-radius: 30px; text-align: center;
-            box-shadow: 0 20px 60px rgba(255, 94, 148, 0.25);
-            border: 4px solid white;
+            box-shadow: 0 20px 60px rgba(255, 94, 148, 0.25); border: 4px solid white;
         }
         .inp, .sel {
-            width: 100%; padding: 16px; margin-bottom: 15px; background: #fff5f8;
-            border: 2px solid #ffdeeb; color: var(--text-main); border-radius: 18px;
-            font-family: var(--font-body); font-weight: 600; font-size: 1rem; transition: 0.3s;
+            width: 100%; padding: 15px; margin-bottom: 15px; background: #fff5f8;
+            border: 2px solid #ffdeeb; color: var(--text-main); border-radius: 15px;
+            font-family: var(--font-body); font-weight: 600; font-size: 1rem;
         }
-        .inp:focus, .sel:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255, 94, 148, 0.1); }
-        
+        .inp:focus, .sel:focus { background: white; border-color: var(--primary); }
         .btn-main {
-            width: 100%; padding: 16px; background: linear-gradient(135deg, #ff5e94, #ff8fa3);
-            border: none; color: white; font-weight: 800; border-radius: 18px; cursor: pointer;
+            width: 100%; padding: 15px; background: linear-gradient(135deg, #ff5e94, #ff8fa3);
+            border: none; color: white; font-weight: 800; border-radius: 15px; cursor: pointer;
             font-family: var(--font-head); letter-spacing: 1px; font-size: 1rem;
-            box-shadow: 0 10px 20px rgba(255, 94, 148, 0.3); transition: 0.2s;
+            box-shadow: 0 10px 20px rgba(255, 94, 148, 0.3);
         }
         .btn-main:active { animation: jelly 0.4s ease; }
 
-        /* HEADER & SIDEBAR */
+        /* LAYOUT */
         .header {
             height: 75px; padding: 0 25px; display: flex; align-items: center; justify-content: space-between;
             position: fixed; top: 0; width: 100%; z-index: 1000;
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); 
             box-shadow: 0 5px 25px rgba(255, 94, 148, 0.1); border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;
         }
-        .logo-text { font-family: var(--font-head); font-weight: 800; font-size: 1.6rem; color: var(--primary); letter-spacing: -0.5px; }
+        .logo-text { font-family: var(--font-head); font-weight: 800; font-size: 1.6rem; color: var(--primary); }
         
         .sidebar {
             position: fixed; top: 0; left: 0; width: 280px; height: 100%;
@@ -105,105 +91,85 @@
         }
         .overlay.active { opacity: 1; pointer-events: all; }
 
-        /* MAIN CONTAINER */
         .container { margin-top: 85px; height: calc(100vh - 85px); overflow-y: auto; padding: 20px; padding-bottom: 100px; scroll-behavior: smooth; }
-        .view-page { display: none; animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .view-page { display: none; animation: slideUp 0.5s ease-out; }
         .view-page.active { display: block; }
-        @keyframes slideUp { from{opacity:0; transform:translateY(30px);} to{opacity:1; transform:translateY(0);} }
 
-        /* CARDS (GLASS STYLE) */
-        .card-main {
-            background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 28px;
-            margin-bottom: 20px; box-shadow: var(--shadow-soft);
-            border: 2px solid white; transition: 0.2s; position: relative; overflow: hidden;
-        }
-        
+        /* CARDS */
         .frb-card {
             background: linear-gradient(135deg, #ff7eb3 0%, #ff758c 100%);
-            color: white; text-align: center; border: none;
-            box-shadow: 0 15px 35px rgba(255, 117, 140, 0.4);
+            padding: 25px; border-radius: 25px; color: white; text-align: center;
+            box-shadow: 0 15px 35px rgba(255, 117, 140, 0.4); margin-bottom: 25px;
         }
         .btn-sm {
-            padding: 10px 20px; border-radius: 30px; font-size: 0.85rem; font-weight: bold;
-            text-decoration: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: 0.2s;
+            padding: 8px 18px; border-radius: 30px; font-size: 0.85rem; font-weight: bold;
+            display: inline-flex; align-items: center; gap: 5px; cursor: pointer; text-decoration: none; border: none;
+            background: white; color: var(--primary); transition: 0.2s;
         }
         .btn-sm:active { animation: jelly 0.3s ease; }
-        .btn-white { background: white; color: var(--primary); }
-        .btn-trans { background: rgba(255,255,255,0.25); color: white; border: 1px solid rgba(255,255,255,0.4); }
 
         /* ANIMATED MENU BUTTONS */
         .menu-btn {
             background: white; padding: 22px; border-radius: 24px;
             display: flex; align-items: center; justify-content: space-between;
             margin-bottom: 18px; box-shadow: 0 8px 20px rgba(0,0,0,0.04);
-            border: 2px solid white; transition: 0.2s; cursor: pointer;
-            animation: float 4s ease-in-out infinite; /* Moving Animation */
+            border: 2px solid white; cursor: pointer; animation: float 4s ease-in-out infinite;
         }
         .menu-btn:nth-child(2) { animation-delay: 0.5s; }
         .menu-btn:nth-child(3) { animation-delay: 1s; }
-        .menu-btn:nth-child(4) { animation-delay: 1.5s; }
+        .menu-btn:active { animation: none; transform: scale(0.96); }
 
-        .menu-btn:active { animation: none; transform: scale(0.96); } /* Stop floating on click */
-        
-        .icon-box { 
-            width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; 
-            font-size: 1.6rem; margin-right: 18px; color: white;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        }
-
-        /* GRID SYSTEM */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .grid-card { 
+        /* GRID */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box { 
             background: white; padding: 20px; border-radius: 22px; 
-            text-align: center; cursor: pointer; box-shadow: var(--shadow-soft); 
+            text-align: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
             border: 2px solid white; transition: 0.2s;
         }
-        .grid-card:active { animation: jelly 0.3s ease; border-color: var(--primary); }
+        .stat-box:active { border-color: var(--primary); transform: scale(0.96); }
 
-        /* LIST ITEMS */
-        .list-row {
-            display: flex; justify-content: space-between; align-items: center;
-            background: white; padding: 18px 20px; margin-bottom: 12px;
-            border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03);
-            transition: 0.2s; border: 2px solid transparent;
-        }
-        .list-row:active { transform: scale(0.98); }
-        .list-row.active-me { border-color: var(--primary); background: #fff0f5; }
-        
-        /* VIDEO CARDS */
-        .vid-card { margin-bottom: 20px; background: white; border-radius: 22px; padding: 12px; box-shadow: var(--shadow-soft); border: 2px solid white; }
-        .vid-thumb { width: 100%; border-radius: 16px; display: block; }
-        .vid-title { font-weight: bold; margin: 12px 5px; font-size: 1rem; color: #444; }
-        .vid-btn { 
-            width: 100%; padding: 12px; background: #ff5e94; color: white; border-radius: 14px; 
-            border: none; font-weight: bold; cursor: pointer; margin-top: 5px;
-        }
+        /* VIDEOS */
+        .vid-card { background: white; border-radius: 20px; padding: 12px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .vid-thumb { width: 100%; border-radius: 15px; display: block; }
+        .vid-title { font-weight: bold; margin: 12px 5px; color: #444; }
+        .vid-btn { width: 100%; padding: 12px; background: #ff5e94; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
         .vid-btn:active { animation: jelly 0.3s ease; }
 
-        /* BACK BUTTON */
+        /* LISTS */
+        .list-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: white; padding: 15px 20px; margin-bottom: 10px;
+            border-radius: 18px; box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+            border-left: 4px solid transparent; transition: 0.2s;
+        }
+        .list-item.done { border-left-color: #00d26a; background: #e8f5e9; }
+        .list-item.active-user { border: 2px solid var(--primary); background: #fff0f6; }
+
+        .find-me-fab {
+            position: fixed; bottom: 30px; right: 20px; background: var(--primary); color: white;
+            padding: 12px 20px; border-radius: 30px; font-weight: bold; box-shadow: 0 8px 25px rgba(255, 94, 148, 0.4);
+            display: none; align-items: center; gap: 8px; cursor: pointer; z-index: 100; animation: float 3s infinite;
+        }
+
         .back-btn {
             display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px;
-            background: white; border-radius: 30px; margin-bottom: 25px;
-            color: var(--text-light); cursor: pointer; border: 1px solid white; 
-            box-shadow: var(--shadow-soft); font-weight: bold;
+            background: white; border-radius: 30px; margin-bottom: 20px;
+            color: var(--text-light); cursor: pointer; border: 1px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
-        .back-btn:active { transform: scale(0.95); }
-
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
         <div class="login-card">
-            <h1 style="font-family:var(--font-head); color:var(--primary); margin:0; font-size:2.2rem;">BIGGAN CLASS</h1>
-            <p style="color:var(--text-light); font-size:0.95rem; margin-bottom:30px;">🌸 Learning is Beautiful 🌸</p>
+            <h2 style="font-family:var(--font-head); color:var(--primary); margin:0;">BIGGAN CLASS</h2>
+            <p style="color:var(--text-light); font-size:0.9rem; margin-bottom:30px;">🌸 Learning is Beautiful</p>
             
             <div id="login-form">
                 <input type="email" id="email" class="inp" placeholder="Email Address">
                 <input type="password" id="pass" class="inp" placeholder="Password">
                 <button class="btn-main" onclick="handleAuth('login')">LOGIN</button>
-                <div style="margin-top:25px; font-size:0.9rem; color:var(--primary); cursor:pointer; font-weight:bold;" onclick="toggleForm()">Create Free Account</div>
+                <div style="margin-top:20px; font-size:0.85rem; color:var(--primary); cursor:pointer; font-weight:bold;" onclick="toggleForm()">Create Free Account</div>
             </div>
 
             <div id="reg-form" style="display:none;">
@@ -211,13 +177,12 @@
                 <input type="email" id="reg-email" class="inp" placeholder="Email Address">
                 <input type="text" id="reg-school" class="inp" placeholder="School Name">
                 <select id="reg-batch" class="sel">
-                    <option value="" disabled selected>Select Batch</option>
                     <option value="2025">SSC 2025</option>
                     <option value="2026">SSC 2026</option>
                 </select>
                 <input type="password" id="reg-pass" class="inp" placeholder="Password (Min 6)">
-                <button class="btn-main" id="btn-reg" onclick="handleAuth('register')">REGISTER NOW</button>
-                <div style="margin-top:25px; font-size:0.9rem; color:var(--text-light); cursor:pointer;" onclick="toggleForm()">Back to Login</div>
+                <button class="btn-main" id="btn-reg" onclick="handleAuth('register')">REGISTER</button>
+                <div style="margin-top:20px; font-size:0.85rem; color:var(--text-light); cursor:pointer;" onclick="toggleForm()">Back to Login</div>
             </div>
         </div>
     </div>
@@ -234,122 +199,91 @@
             <div id="user-name" style="font-weight:800; font-size:1.3rem;">Student</div>
             <div id="user-school" style="font-size:0.9rem; color:var(--text-light); margin-top:5px;">School Info</div>
         </div>
-        <div class="list-row" onclick="openPage('contact')" style="cursor:pointer; padding:15px; border-radius:15px;"><i class="fas fa-users" style="color:var(--primary); font-size:1.2rem;"></i> <span style="font-weight:bold;">Community</span></div>
+        <div class="list-item" onclick="openPage('contact')" style="cursor:pointer; padding:15px; border-radius:15px; box-shadow:none; border:1px solid #eee;">Community</div>
         <div style="flex:1"></div>
-        <div class="list-row" onclick="logout()" style="cursor:pointer; color:#ff4757; padding:15px; border-radius:15px;"><i class="fas fa-sign-out-alt"></i> <span style="font-weight:bold;">Logout</span></div>
+        <div class="list-item" onclick="logout()" style="cursor:pointer; color:#ff4757; padding:15px; border-radius:15px; box-shadow:none; border:1px solid #eee;">Logout</div>
     </div>
 
     <div class="container">
 
         <div id="view-dashboard" class="view-page active">
             
-            <div class="card-main frb-card">
-                <h2 style="margin:0 0 8px 0; font-family:var(--font-head); font-size:1.8rem;">FREE FRB COURSE</h2>
-                <p style="margin:0 0 20px 0; opacity:0.9; font-size:0.95rem;">Premium Revision Batch for SSC</p>
+            <div class="frb-card">
+                <h2 style="margin:0 0 5px 0; font-family:var(--font-head);">FREE FRB COURSE</h2>
+                <p style="margin:0 0 20px 0; opacity:0.9;">Premium Revision Batch</p>
                 <div style="display:flex; justify-content:center; gap:12px;">
-                    <a href="https://t.me/biggan_class" target="_blank" class="btn-sm btn-white"><i class="fab fa-telegram-plane"></i> JOIN TG</a>
-                    <a href="https://youtu.be/JVy4eAVhMGg" target="_blank" class="btn-sm btn-trans"><i class="fas fa-play"></i> DEMO</a>
+                    <a href="https://t.me/biggan_class" target="_blank" class="btn-sm">TELEGRAM</a>
+                    <a href="https://youtu.be/JVy4eAVhMGg" target="_blank" class="btn-sm" style="background:rgba(255,255,255,0.3); color:white;">INTRO</a>
                 </div>
             </div>
 
-            <div class="menu-btn" onclick="openPage('tracker_hub')">
+            <div class="menu-btn" onclick="openPage('modules')">
                 <div style="display:flex; align-items:center;">
-                    <div class="icon-box" style="background:linear-gradient(135deg, #4facfe, #00f2fe);"><i class="fas fa-tasks"></i></div>
-                    <div>
-                        <div style="font-weight:800; font-size:1.1rem; color:#444;">SYLLABUS TRACKER</div>
-                        <div style="font-size:0.8rem; color:var(--text-light);">Track Chapter Progress</div>
-                    </div>
+                    <i class="fas fa-layer-group" style="font-size:1.5rem; color:#4facfe; margin-right:15px;"></i>
+                    <div><b style="color:#444; font-size:1.1rem;">MODULES</b><br><small style="color:var(--text-light)">Subject Wise Chapters</small></div>
                 </div>
-                <i class="fas fa-chevron-right" style="color:#ddd;"></i>
+                <i class="fas fa-chevron-right" style="color:#ddd"></i>
             </div>
 
-            <div class="menu-btn" onclick="openPage('exam_hub')">
-                <div style="display:flex; align-items:center;">
-                    <div class="icon-box" style="background:linear-gradient(135deg, #a18cd1, #fbc2eb);"><i class="fas fa-pen-nib"></i></div>
-                    <div>
-                        <div style="font-weight:800; font-size:1.1rem; color:#444;">EXAM CENTER</div>
-                        <div style="font-size:0.8rem; color:var(--text-light);">Test Your Skills</div>
-                    </div>
-                </div>
-                <i class="fas fa-chevron-right" style="color:#ddd;"></i>
-            </div>
-
-            <div class="menu-btn" onclick="openPage('leaderboard')">
-                <div style="display:flex; align-items:center;">
-                    <div class="icon-box" style="background:linear-gradient(135deg, #ff9a9e, #fecfef);"><i class="fas fa-trophy"></i></div>
-                    <div>
-                        <div style="font-weight:800; font-size:1.1rem; color:#444;">LEADERBOARD</div>
-                        <div style="font-size:0.8rem; color:var(--text-light);">See Global Ranking</div>
-                    </div>
-                </div>
-                <i class="fas fa-chevron-right" style="color:#ddd;"></i>
-            </div>
-            
             <div class="menu-btn" onclick="openPage('classes')">
                 <div style="display:flex; align-items:center;">
-                    <div class="icon-box" style="background:linear-gradient(135deg, #84fab0, #8fd3f4);"><i class="fas fa-video"></i></div>
-                    <div>
-                        <div style="font-weight:800; font-size:1.1rem; color:#444;">CLASSROOM</div>
-                        <div style="font-size:0.8rem; color:var(--text-light);">Exclusive Videos</div>
-                    </div>
+                    <i class="fas fa-play-circle" style="font-size:1.5rem; color:#ff9f43; margin-right:15px;"></i>
+                    <div><b style="color:#444; font-size:1.1rem;">ALL CLASSES</b><br><small style="color:var(--text-light)">Guideline & Tricks</small></div>
                 </div>
-                <i class="fas fa-chevron-right" style="color:#ddd;"></i>
+                <i class="fas fa-chevron-right" style="color:#ddd"></i>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box" onclick="openPage('leaderboard')">
+                    <i class="fas fa-trophy" style="font-size:2rem; color:#ff9f43; margin-bottom:10px;"></i>
+                    <div style="font-weight:bold;">RANKING</div>
+                </div>
+                <div class="stat-box" onclick="openPage('pomodoro')">
+                    <i class="fas fa-bolt" style="font-size:2rem; color:#4facfe; margin-bottom:10px;"></i>
+                    <div style="font-weight:bold;">FOCUS</div>
+                </div>
             </div>
         </div>
 
-        <div id="view-tracker_hub" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Dashboard</div>
-            <h2 style="color:var(--primary); margin-bottom:20px; font-family:var(--font-head);">Select Subject</h2>
-            <div class="grid-2">
-                <div class="grid-card" onclick="openTrackerChapters('physics')"><i class="fas fa-atom" style="font-size:2.5rem; color:#4facfe;"></i><br><br><b>PHYSICS</b><br><small id="prog-physics" style="color:var(--text-light);">Loading...</small></div>
-                <div class="grid-card" onclick="openTrackerChapters('chemistry')"><i class="fas fa-flask" style="font-size:2.5rem; color:#ff5e94;"></i><br><br><b>CHEMISTRY</b><br><small id="prog-chemistry" style="color:var(--text-light);">Loading...</small></div>
-                <div class="grid-card" onclick="openTrackerChapters('biology')"><i class="fas fa-dna" style="font-size:2.5rem; color:#20bf6b;"></i><br><br><b>BIOLOGY</b><br><small id="prog-biology" style="color:var(--text-light);">Loading...</small></div>
-                <div class="grid-card" onclick="openTrackerChapters('math')"><i class="fas fa-calculator" style="font-size:2.5rem; color:#fbc2eb;"></i><br><br><b>MATH</b><br><small id="prog-math" style="color:var(--text-light);">Loading...</small></div>
+        <div id="view-modules" class="view-page">
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
+            <div class="stats-grid">
+                <div class="stat-box" onclick="openSubject('physics')"><i class="fas fa-atom" style="font-size:1.8rem; color:#4facfe;"></i><div style="margin-top:10px; font-weight:bold;">PHYSICS</div><small id="prog-physics">0%</small></div>
+                <div class="stat-box" onclick="openSubject('chemistry')"><i class="fas fa-flask" style="font-size:1.8rem; color:#ff5e94;"></i><div style="margin-top:10px; font-weight:bold;">CHEMISTRY</div><small id="prog-chemistry">0%</small></div>
+                <div class="stat-box" onclick="openSubject('biology')"><i class="fas fa-dna" style="font-size:1.8rem; color:#20bf6b;"></i><div style="margin-top:10px; font-weight:bold;">BIOLOGY</div><small id="prog-biology">0%</small></div>
+                <div class="stat-box" onclick="openSubject('higherMath')"><i class="fas fa-calculator" style="font-size:1.8rem; color:#ff9f43;"></i><div style="margin-top:10px; font-weight:bold;">MATH</div><small id="prog-higherMath">0%</small></div>
             </div>
         </div>
 
-        <div id="view-tracker_chapters" class="view-page">
-            <div class="back-btn" onclick="openPage('tracker_hub')"><i class="fas fa-arrow-left"></i> Subjects</div>
-            <h2 id="tracker-title" style="color:var(--primary); margin-bottom:20px; font-family:var(--font-head);">CHAPTERS</h2>
-            <div id="tracker-list"></div>
-        </div>
-
-        <div id="view-exam_hub" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Dashboard</div>
-            <h2 style="color:var(--primary); margin-bottom:20px; font-family:var(--font-head);">Select Exam</h2>
-            <div class="grid-2">
-                <div class="grid-card" onclick="openExamChapters('biology')" style="border:2px solid #20bf6b;"><i class="fas fa-dna" style="font-size:2.5rem; color:#20bf6b;"></i><br><br><b>BIOLOGY</b><br><small style="color:#20bf6b; font-weight:bold;">Active</small></div>
-            </div>
-        </div>
-
-        <div id="view-exam_chapters" class="view-page">
-            <div class="back-btn" onclick="openPage('exam_hub')"><i class="fas fa-arrow-left"></i> Subjects</div>
-            <h2 id="exam-title" style="color:var(--primary); margin-bottom:20px; font-family:var(--font-head);">TESTS</h2>
-            <div id="exam-list"></div>
+        <div id="view-subject" class="view-page">
+            <div class="back-btn" onclick="openPage('modules')"><i class="fas fa-arrow-left"></i> Modules</div>
+            <h2 id="page-title" style="color:var(--primary);">CHAPTERS</h2>
+            <div id="chapter-list">Loading...</div>
         </div>
 
         <div id="view-leaderboard" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Dashboard</div>
-            <h2 style="color:var(--primary); margin-bottom:20px; font-family:var(--font-head);">GLOBAL RANKING</h2>
-            <div id="rank-list" style="padding-bottom:80px;">
-                <div style="text-align:center; padding:40px; color:#aaa;">Loading Champions...</div>
-            </div>
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
+            <h2 style="color:#ff9f43;">RANKING</h2>
+            <div id="rank-list" style="padding-bottom:60px;">Syncing...</div>
+            <div class="find-me-fab" onclick="findMe()"><i class="fas fa-crosshairs"></i> FIND ME</div>
         </div>
 
         <div id="view-classes" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Dashboard</div>
-            <h2 style="color:var(--primary); font-family:var(--font-head);">Classroom</h2>
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
+            <h2 style="color:var(--primary);">EXCLUSIVE VIDEOS</h2>
             
             <div class="vid-card">
                 <img src="https://img.youtube.com/vi/PCV3YtF1Lh4/maxresdefault.jpg" class="vid-thumb">
                 <div class="vid-title">🎯 Physics মনে রাখতে সমস্যা? ৫টি কার্যকর কৌশল!</div>
                 <a href="https://youtu.be/PCV3YtF1Lh4" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
             </div>
+            
             <div class="vid-card">
                 <img src="https://img.youtube.com/vi/qFM2g7dfiBY/maxresdefault.jpg" class="vid-thumb">
-                <div class="vid-title">🔥 রসায়ন টেস্টে ৯৮+ পাওয়ার গ্যারান্টি!</div>
+                <div class="vid-title">🔥 SSC 2026/27 রসায়ন টেস্টে ৯৮+ পাওয়ার গ্যারান্টি!</div>
                 <a href="https://youtu.be/qFM2g7dfiBY" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
             </div>
+
             <div class="vid-card">
                 <img src="https://img.youtube.com/vi/G-meXsmaE2Y/maxresdefault.jpg" class="vid-thumb">
                 <div class="vid-title">🔥 বায়োলজিতে ১০০/১০০ পাওয়ার টিপস</div>
@@ -357,27 +291,35 @@
             </div>
         </div>
 
+        <div id="view-pomodoro" class="view-page">
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
+            <div style="text-align:center; margin-top:50px;">
+                <div style="width:220px; height:220px; border-radius:50%; border:5px solid var(--primary); display:flex; align-items:center; justify-content:center; margin:0 auto; box-shadow:0 0 30px rgba(255,94,148,0.2); background:white;">
+                    <div id="timer" style="font-size:3.5rem; font-weight:800; color:var(--text-main);">25:00</div>
+                </div>
+                <div style="margin-top:40px; display:flex; gap:15px; justify-content:center;">
+                    <button class="btn-main" style="width:100px;" onclick="startTimer()">START</button>
+                    <button class="btn-main" style="width:100px; background:#ddd; color:#444;" onclick="pauseTimer()">PAUSE</button>
+                    <button class="btn-main" style="width:100px; background:#ff4757;" onclick="resetTimer()">RESET</button>
+                </div>
+            </div>
+        </div>
+
         <div id="view-contact" class="view-page">
-            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Dashboard</div>
-            <div class="card-main" style="text-align:center;">
-                <h2 style="color:var(--primary);">Community</h2>
-                <a href="https://t.me/biggan_class_SSC" target="_blank" class="btn-sm" style="background:#0088cc; color:white; width:100%; justify-content:center; margin-bottom:15px;"><i class="fab fa-telegram"></i> Telegram Group</a>
-                <a href="https://wa.me/8801792595165" target="_blank" class="btn-sm" style="background:#25D366; color:white; width:100%; justify-content:center; margin-bottom:15px;"><i class="fab fa-whatsapp"></i> Instructor Pial</a>
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
+            <div class="frb-card" style="margin-top:20px;">
+                <h3>Join Community</h3>
+                <a href="https://t.me/biggan_class_SSC" target="_blank" class="btn-sm" style="background:white; color:#0088cc; display:block; margin-bottom:10px;">Telegram Group</a>
+                <a href="https://wa.me/8801792595165" target="_blank" class="btn-sm" style="background:white; color:#25D366; display:block;">Instructor Pial</a>
             </div>
         </div>
 
     </div>
 
-    <div id="quiz-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#fff0f3; z-index:6000; flex-direction:column;">
-        <div class="header" style="background:white;">
-            <div style="font-weight:800; color:var(--primary); font-size:1.2rem;">MCQ TEST</div>
-            <i class="fas fa-times" onclick="closeQuiz()" style="font-size:1.8rem; cursor:pointer; color:#777;"></i>
-        </div>
-        <div class="container" id="quiz-content" style="margin-top:75px; display:flex; flex-direction:column; justify-content:center;"></div>
-    </div>
+    <audio id="alarm" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
     <script>
-        // CONFIG
+        // FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ",
             authDomain: "masrur-app-dccc1.firebaseapp.com",
@@ -390,24 +332,17 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
-        let currentUser = null;
+        let currentUser = null, timerInt = null, timeLeft = 1500;
 
-        // SYLLABUS DATA
+        // SYLLABUS DATA (Added all subjects)
         const syllabus = {
-            biology: { title: "BIOLOGY", chapters: ["জীবন পাঠ", "জীবকোষ ও টিস্যু", "কোষ বিভাজন", "জীবনীশক্তি", "খাদ্য ও পুষ্টি", "জীবে পরিবহন", "গ্যাসীয় বিনিময়", "রেচন", "দৃঢ়তা ও চলন", "সমন্বয়", "জীবের প্রজনন", "বংশগতি ও বিবর্তন", "জীবের পরিবেশ", "জীবপ্রযুক্তি"] },
             physics: { title: "PHYSICS", chapters: ["ভৌত রাশি ও পরিমাপ", "গতি", "বল", "কাজ, ক্ষমতা ও শক্তি", "পদার্থের অবস্থা ও চাপ", "বস্তুর উপর তাপের প্রভাব", "তরঙ্গ ও শব্দ", "আলোর প্রতিফলন", "আলোর প্রতিসরণ", "স্থির তড়িৎ", "চল তড়িৎ", "তড়িৎ এর চৌম্বক ক্রিয়া", "আধুনিক পদার্থবিজ্ঞান", "জীবন বাঁচাতে পদার্থবিজ্ঞান"] },
             chemistry: { title: "CHEMISTRY", chapters: ["রসায়নের ধারণা", "পদার্থের অবস্থা", "পদার্থের গঠন", "পর্যায় সারণি", "রাসায়নিক বন্ধন", "মোল ও রাসায়নিক গণনা", "রাসায়নিক বিক্রিয়া", "রসায়ন ও শক্তি", "এসিড-ক্ষার সমতা", "খনিজ সম্পদ: ধাতু-অধাতু", "খনিজ সম্পদ: জীবাশ্ম", "আমাদের জীবনে রসায়ন"] },
-            math: { title: "MATH", chapters: ["বাস্তব সংখ্যা", "সেট ও ফাংশন", "বীজগাণিতিক রাশি", "সূচক ও লগারিদম", "এক চলক বিশিষ্ট সমীকরণ", "রেখা, কোণ ও ত্রিভুজ", "ব্যবহারিক জ্যামিতি", "বৃত্ত", "ত্রিকোণমিতিক অনুপাত", "দূরত্ব ও উচ্চতা", "বীজগাণিতিক অনুপাত", "দুই চলক বিশিষ্ট সমীকরণ", "সসীম ধারা", "অনুপাত, সদৃশতা ও প্রতিসমতা", "ক্ষেত্রফল সম্পর্কিত উপপাদ্য", "পরিমিতি", "পরিসংখ্যান"] }
+            biology: { title: "BIOLOGY", chapters: ["জীবন পাঠ", "জীবকোষ ও টিস্যু", "কোষ বিভাজন", "জীবনীশক্তি", "খাদ্য ও পুষ্টি", "জীবে পরিবহন", "গ্যাসীয় বিনিময়", "রেচন", "দৃঢ়তা ও চলন", "সমন্বয়", "জীবের প্রজনন", "বংশগতি ও বিবর্তন", "জীবের পরিবেশ", "জীবপ্রযুক্তি"] },
+            higherMath: { title: "HIGHER MATH", chapters: ["সেট ও ফাংশন", "বীজগাণিতিক রাশি", "জ্যামিতি", "অঙ্কন", "সমীকরণ", "অসমতা", "অসীম ধারা", "ত্রিকোণমিতি", "সূচক ও লগারিদম", "দ্বিপদী বিস্তৃতি", "স্থানাঙ্ক জ্যামিতি", "সমতলীয় ভেক্টর", "ঘন জ্যামিতি", "সম্ভাবনা"] }
         };
 
-        const quizData = {
-            biology: {
-                0: [ { q: "কোনটি ভৌত বিজ্ঞানের অর্ন্তভুক্ত?", o: ["Morphology", "Batamology", "Plaeontology", "Biochemistry"], a: 0 }, { q: "কোনটির সাথে এন্ডোক্রাইনোলজি সম্পর্কিত?", o: ["হরমোন", "এনজাইম", "টিস্যু", "কোষ"], a: 0 } ],
-                // Add more questions here later
-            }
-        };
-
-        // NAV
+        // NAVIGATION
         history.replaceState({view: 'dashboard'}, null, '');
         function openPage(id) { history.pushState({view: id}, null, ''); _render(id); }
         function goHome() { history.back(); }
@@ -415,7 +350,7 @@
         function _render(id) {
             document.querySelectorAll('.view-page').forEach(p => p.classList.remove('active'));
             document.getElementById('view-' + id).classList.add('active');
-            if(id === 'leaderboard') loadLeaderboard();
+            if(id === 'leaderboard') loadRank();
             if(window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('open');
                 document.querySelector('.overlay').classList.remove('active');
@@ -423,31 +358,28 @@
         }
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.overlay').classList.toggle('active'); }
         function toggleForm() {
-            const l = document.getElementById('login-form'), r = document.getElementById('reg-form');
-            if(l.style.display==='none'){ l.style.display='block'; r.style.display='none'; } else { l.style.display='none'; r.style.display='block'; }
+            const l=document.getElementById('login-form'), r=document.getElementById('reg-form');
+            if(l.style.display==='none'){l.style.display='block';r.style.display='none'}else{l.style.display='none';r.style.display='block'}
         }
 
         // AUTH
         function handleAuth(type) {
-            const btn = document.getElementById(type === 'register' ? 'btn-reg' : 'btn-login');
-            btn.innerText = "Please Wait..."; btn.disabled = true;
+            const btn = document.getElementById(type==='register'?'btn-reg':'btn-login');
+            btn.innerText = "Wait..."; btn.disabled = true;
 
             if(type === 'register') {
-                const n = document.getElementById('reg-name').value.trim();
-                const e = document.getElementById('reg-email').value.trim();
-                const s = document.getElementById('reg-school').value.trim();
-                const b = document.getElementById('reg-batch').value;
-                const pass = document.getElementById('reg-pass').value.trim();
+                const n=document.getElementById('reg-name').value, e=document.getElementById('reg-email').value;
+                const s=document.getElementById('reg-school').value, b=document.getElementById('reg-batch').value;
+                const p=document.getElementById('reg-pass').value;
+                if(!n||!e||!s||!p) { alert("Fill all fields"); btn.disabled=false; return; }
 
-                if(!n || !e || !s || !b || !pass) { alert("Please fill all fields!"); btn.disabled=false; btn.innerText="REGISTER"; return; }
-
-                auth.createUserWithEmailAndPassword(e, pass).then(c => {
+                auth.createUserWithEmailAndPassword(e, p).then(c => {
                     c.user.updateProfile({displayName: n});
                     db.ref('users/'+c.user.uid).set({name:n, school:s, batch:b, email:e});
-                }).catch(err => { alert(err.message); btn.disabled=false; btn.innerText="REGISTER"; });
+                }).catch(er => { alert(er.message); btn.disabled=false; });
             } else {
-                const e = document.getElementById('email').value, p = document.getElementById('pass').value;
-                auth.signInWithEmailAndPassword(e, p).catch(err => { alert(err.message); btn.disabled=false; btn.innerText="LOGIN"; });
+                const e=document.getElementById('email').value, p=document.getElementById('pass').value;
+                auth.signInWithEmailAndPassword(e, p).catch(er => { alert(er.message); btn.disabled=false; });
             }
         }
 
@@ -458,150 +390,95 @@
                 db.ref('users/'+user.uid).once('value', s => {
                     const d = s.val() || {};
                     document.getElementById('user-name').innerText = d.name || user.displayName;
-                    document.getElementById('user-school').innerText = d.school || 'Unknown School';
+                    document.getElementById('user-school').innerText = d.school || 'Student';
                 });
-                updateTrackerStats();
+                updateStats();
             }
         });
 
-        // TRACKER SYSTEM
-        function openTrackerChapters(sub) {
-            openPage('tracker_chapters');
-            document.getElementById('tracker-title').innerText = syllabus[sub].title;
-            const list = document.getElementById('tracker-list');
-            list.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Loading...</div>';
+        // TRACKER (MODULES)
+        function openSubject(key) {
+            openPage('subject');
+            document.getElementById('page-title').innerText = syllabus[key].title;
+            const list = document.getElementById('chapter-list');
+            list.innerHTML = 'Loading...';
             
-            db.ref(`tracker/${currentUser.uid}/${sub}`).on('value', snap => {
+            db.ref(`progress/${currentUser.uid}/${key}`).on('value', snap => {
                 const prog = snap.val() || [];
                 list.innerHTML = '';
-                syllabus[sub].chapters.forEach((chap, i) => {
+                syllabus[key].chapters.forEach((chap, i) => {
                     const done = prog[i] ? true : false;
                     const div = document.createElement('div');
-                    div.className = `list-row ${done?'list-item done':'list-item'}`;
-                    div.innerHTML = `
-                        <div style="font-weight:600;"><span style="color:#bbb; margin-right:12px;">${i+1}</span> ${chap}</div>
-                        <i class="fas ${done?'fa-check-circle':'fa-circle'}" style="color:${done?'#00d26a':'#eee'}; font-size:1.4rem;"></i>
-                    `;
-                    div.onclick = () => db.ref(`tracker/${currentUser.uid}/${sub}/${i}`).set(!done);
+                    div.className = `list-item ${done?'done':''}`;
+                    div.innerHTML = `<div><b style="color:#aaa; margin-right:10px;">${i+1}</b> ${chap}</div>${done?'<i class="fas fa-check" style="color:#00d26a"></i>':''}`;
+                    div.onclick = () => db.ref(`progress/${currentUser.uid}/${key}/${i}`).set(!done);
                     list.appendChild(div);
                 });
             });
         }
 
-        function updateTrackerStats() {
-            Object.keys(syllabus).forEach(sub => {
-                db.ref(`tracker/${currentUser.uid}/${sub}`).on('value', s => {
+        function updateStats() {
+            Object.keys(syllabus).forEach(k => {
+                db.ref(`progress/${currentUser.uid}/${k}`).on('value', s => {
                     const c = (s.val()||[]).filter(Boolean).length;
-                    const el = document.getElementById(`prog-${sub}`);
-                    if(el) el.innerText = Math.round((c/syllabus[sub].chapters.length)*100) + "% Done";
+                    document.getElementById('prog-'+k).innerText = Math.round((c/syllabus[k].chapters.length)*100) + "%";
                 });
             });
         }
 
         // LEADERBOARD (FIXED)
-        function loadLeaderboard() {
+        function loadRank() {
             const list = document.getElementById('rank-list');
-            list.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">Syncing...</div>';
+            list.innerHTML = "Loading...";
+            document.querySelector('.find-me-fab').style.display = 'none';
 
             db.ref('users').once('value').then(uSnap => {
                 const users = uSnap.val() || {};
-                
-                db.ref('scores').once('value', sSnap => {
-                    const scores = sSnap.val() || {};
+                db.ref('progress').once('value', pSnap => {
+                    const prog = pSnap.val() || {};
                     let rank = [];
 
+                    // Loop through ALL users
                     Object.keys(users).forEach(uid => {
-                        let totalXP = 0;
-                        if(scores[uid]) {
-                            Object.values(scores[uid]).forEach(sub => {
-                                Object.values(sub).forEach(s => totalXP += s);
+                        let score = 0;
+                        if(prog[uid]) {
+                            Object.values(prog[uid]).forEach(sub => {
+                                if(Array.isArray(sub)) score += sub.filter(Boolean).length;
                             });
                         }
-                        
-                        rank.push({ 
-                            name: users[uid].name || "Unknown", 
-                            school: users[uid].school || "No School", 
-                            xp: totalXP, 
-                            uid: uid 
-                        });
+                        rank.push({ name: users[uid].name, school: users[uid].school, xp: score, uid: uid });
                     });
 
                     rank.sort((a,b) => b.xp - a.xp);
 
-                    list.innerHTML = rank.map((r, i) => {
-                        const isMe = r.uid === currentUser.uid;
-                        return `
-                        <div id="rank-${r.uid}" class="list-row ${isMe?'active-me':''}">
-                            <div style="display:flex; align-items:center; gap:15px;">
-                                <b style="color:#ff9f43; font-size:1.1rem; width:30px;">#${i+1}</b>
+                    list.innerHTML = rank.map((r, i) => `
+                        <div id="rank-${r.uid}" class="list-item ${r.uid===currentUser.uid?'active-user':''}">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <b style="color:#ff9f43; width:25px;">#${i+1}</b>
                                 <div>
-                                    <div style="font-weight:bold; color:#444; font-size:0.95rem;">${r.name}</div>
-                                    <div style="font-size:0.75rem; color:#777;">${r.school}</div>
+                                    <div style="font-weight:bold;">${r.name}</div>
+                                    <div style="font-size:0.75rem; color:#888;">${r.school}</div>
                                 </div>
                             </div>
-                            <b style="color:#ff5e94;">${r.xp} XP</b>
+                            <b style="color:var(--primary);">${r.xp} XP</b>
                         </div>
-                    `}).join('');
+                    `).join('');
+                    document.querySelector('.find-me-fab').style.display = 'flex';
                 });
             });
         }
 
-        // EXAMS (Logic remains same)
-        function openExamChapters(sub) {
-            openPage('exam_chapters');
-            document.getElementById('exam-title').innerText = syllabus[sub].title;
-            const list = document.getElementById('exam-list');
-            const q = quizData[sub];
-            if(!q) { list.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">No exams available.</div>'; return; }
-            
-            list.innerHTML = '';
-            syllabus[sub].chapters.forEach((chap, i) => {
-                if(q[i]) {
-                    const div = document.createElement('div');
-                    div.className = 'list-row';
-                    div.innerHTML = `
-                        <div><b style="color:#bbb; margin-right:10px;">${i+1}</b> ${chap}</div>
-                        <button class="btn-sm" style="background:#ff9dbf; color:white;">START</button>
-                    `;
-                    div.onclick = () => startQuiz(sub, i);
-                    list.appendChild(div);
-                }
-            });
+        function findMe() {
+            const el = document.getElementById('rank-'+currentUser.uid);
+            if(el) el.scrollIntoView({behavior: "smooth", block: "center"});
+            else alert("You are not on the list yet!");
         }
-        
-        let curQuiz=[], score=0, qIdx=0, subKey='', chIdx=0;
-        function startQuiz(sub, ch) {
-            subKey=sub; chIdx=ch; curQuiz=quizData[sub][ch]; score=0; qIdx=0;
-            document.getElementById('quiz-modal').style.display='flex';
-            showQ();
-        }
-        function showQ() {
-            if(qIdx>=curQuiz.length) {
-                db.ref(`scores/${currentUser.uid}/${subKey}/${chIdx}`).set(score);
-                const perc = Math.round((score/curQuiz.length)*100);
-                document.getElementById('quiz-content').innerHTML = `
-                    <div class="card-main" style="text-align:center; margin:20px; border:4px solid white;">
-                        <div style="font-size:3.5rem; font-weight:800; color:${perc>70?'#00b894':'#ff5e94'}; margin-bottom:10px;">${perc}%</div>
-                        <h2 style="color:#777; margin:0;">Score: ${score} / ${curQuiz.length}</h2>
-                        <button class="btn-main" onclick="closeQuiz()" style="margin-top:30px; width:100%;">FINISH</button>
-                    </div>`;
-                return;
-            }
-            const q = curQuiz[qIdx];
-            document.getElementById('quiz-content').innerHTML = `
-                <div class="card-main" style="text-align:left; margin:20px; border:4px solid white;">
-                    <b style="color:#ff9dbf; letter-spacing:1px; font-size:0.9rem;">QUESTION ${qIdx+1}</b>
-                    <h3 style="margin:10px 0 20px; font-size:1.2rem; line-height:1.5;">${q.q}</h3>
-                    ${q.o.map((o,i)=>`<button class="btn-sm" style="display:block; width:100%; text-align:left; margin-top:10px; background:white; color:#444; border:1px solid #eee; padding:15px;" onclick="chk(${i}, this)">${o}</button>`).join('')}
-                </div>`;
-        }
-        function chk(i, btn) {
-            const cor = curQuiz[qIdx].a;
-            if(i===cor) { score++; btn.style.background="#d1fae5"; btn.style.borderColor="#00b894"; }
-            else { btn.style.background="#ffe4e6"; btn.style.borderColor="#ff7675"; }
-            setTimeout(()=>{qIdx++; showQ();},800);
-        }
-        function closeQuiz() { document.getElementById('quiz-modal').style.display='none'; }
+
+        // TIMER
+        function startTimer() { if(!timerInt) timerInt = setInterval(() => { timeLeft--; _t(); if(timeLeft<=0){ clearInterval(timerInt); timerInt=null; document.getElementById('alarm').play(); alert("Done!"); } }, 1000); }
+        function pauseTimer() { clearInterval(timerInt); timerInt = null; }
+        function resetTimer() { pauseTimer(); timeLeft = 1500; _t(); }
+        function _t() { document.getElementById('timer').innerText = `${Math.floor(timeLeft/60)}:${(timeLeft%60).toString().padStart(2,'0')}`; }
         function logout() { auth.signOut(); location.reload(); }
 
     </script>
