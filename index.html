@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BIGGAN CLASS Final Fixed</title>
+    <title>BIGGAN CLASS Floral</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -20,6 +20,7 @@
             --text-light: #666;
             --font-head: 'Nunito', sans-serif;
             --font-body: 'Quicksand', sans-serif;
+            --leaf-color: #88d498;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -27,8 +28,6 @@
         body {
             margin: 0; color: var(--text-main);
             font-family: var(--font-body); 
-            /* height: 100vh; REMOVED to fix scrolling/refresh */
-            /* overflow: hidden; REMOVED to fix scrolling/refresh */
             position: relative;
             background-color: #fff0f3;
             /* Gingham Pattern */
@@ -36,7 +35,6 @@
                 linear-gradient(90deg, rgba(255, 182, 193, 0.3) 50%, transparent 50%),
                 linear-gradient(rgba(255, 182, 193, 0.3) 50%, transparent 50%);
             background-size: 50px 50px;
-            /* Ensures native pull-to-refresh works on supported browsers */
             overscroll-behavior-y: auto; 
         }
 
@@ -48,7 +46,6 @@
             box-shadow: 0 2px 15px rgba(0,0,0,0.05);
         }
         
-        /* LOGO STYLE */
         .logo-area { display: flex; align-items: center; gap: 10px; }
         .logo-img { height: 40px; width: auto; object-fit: contain; }
         .logo-text { font-family: var(--font-head); font-weight: 800; font-size: 1.4rem; color: var(--primary); }
@@ -91,19 +88,18 @@
         }
         .overlay.active { opacity: 1; pointer-events: all; }
 
-        /* CONTENT CONTAINER (UPDATED FOR BETTER SCROLLING) */
+        /* CONTAINER */
         .container { 
             margin-top: 70px; 
-            min-height: calc(100vh - 70px); /* Ensures it fills screen */
+            min-height: calc(100vh - 70px); 
             padding: 15px; 
-            padding-bottom: 80px; /* Extra space for chat footer */
-            /* overflow-y: auto; REMOVED - Let body scroll */
+            padding-bottom: 80px;
         }
         .view-page { display: none; }
         .view-page.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
 
-        /* CARDS & BUTTONS */
+        /* CARDS */
         .frb-card {
             background: linear-gradient(135deg, #ff9eb3 0%, #ff5e94 100%);
             padding: 20px; border-radius: 20px; color: white; text-align: center;
@@ -134,7 +130,66 @@
         .vid-btn { width: 100%; padding: 10px; background: var(--primary-soft); color: var(--primary); border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
 
 
-        /* CHAT UI */
+        /* --- NEW AESTHETIC POMODORO STYLES --- */
+        .pomodoro-container {
+            text-align: center; position: relative; overflow: hidden;
+            background: white; border-radius: 30px; padding: 40px 20px;
+            box-shadow: 0 15px 40px rgba(255, 94, 148, 0.15);
+            margin-top: 20px;
+        }
+        
+        /* Floral Decoration */
+        .floral-deco {
+            position: absolute; width: 80px; opacity: 0.8; pointer-events: none;
+        }
+        .deco-tl { top: -10px; left: -10px; transform: rotate(-45deg); color: var(--leaf-color); font-size: 3rem; }
+        .deco-br { bottom: -10px; right: -10px; transform: rotate(135deg); color: var(--primary-soft); font-size: 4rem; }
+        .deco-flower { top: 10px; right: 20px; color: #ffb7b2; font-size: 1.5rem; animation: float 3s infinite ease-in-out; }
+
+        /* Timer Circle */
+        .timer-ring {
+            position: relative; width: 220px; height: 220px; margin: 0 auto 30px;
+        }
+        .timer-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .timer-circle-bg { fill: none; stroke: #f0f0f0; stroke-width: 8; }
+        .timer-circle-prog { 
+            fill: none; stroke: var(--primary); stroke-width: 8; 
+            stroke-linecap: round; stroke-dasharray: 628; stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear;
+        }
+        .timer-time {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 3rem; font-weight: 800; color: var(--text-main); font-family: var(--font-head);
+        }
+        .timer-status {
+            position: absolute; top: 65%; left: 50%; transform: translate(-50%, 0);
+            font-size: 0.9rem; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        /* Controls */
+        .timer-controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .ctrl-btn {
+            width: 50px; height: 50px; border-radius: 50%; border: none; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .btn-play { background: var(--primary); color: white; }
+        .btn-pause { background: #ffe3ec; color: var(--primary); }
+        .btn-reset { background: #f0f0f0; color: #666; }
+        .ctrl-btn:active { transform: scale(0.95); }
+
+        .mode-switch {
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 25px;
+        }
+        .mode-btn {
+            padding: 8px 16px; border-radius: 20px; border: 1px solid #eee; background: white;
+            color: #666; font-size: 0.85rem; cursor: pointer; font-weight: bold;
+        }
+        .mode-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
+
+        /* --- CHAT STYLES --- */
         .chat-container { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
         
         .msg-bubble {
@@ -147,43 +202,22 @@
         
         .msg-info { font-size: 0.7rem; margin-top: 4px; display: flex; justify-content: space-between; align-items: center; opacity: 0.8;}
         
-        /* CHAT INPUT AREA */
         .chat-footer {
             position: fixed; bottom: 0; left: 0; width: 100%;
-            background: rgba(255,255,255,0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             padding: 10px 15px; display: flex; align-items: center; gap: 10px;
             box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000;
             border-top: 1px solid rgba(255,255,255,0.5);
         }
-        .chat-inp { 
-            flex: 1; border: 1px solid #eee; background: rgba(255,255,255,0.9); 
-            padding: 10px 15px; border-radius: 25px; font-size: 1rem; color: #333; outline: none;
-        }
-        .chat-icon-btn { 
-            width: 42px; height: 42px; border-radius: 50%; border: none; 
-            background: white; color: #666; font-size: 1.1rem; 
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            flex-shrink: 0;
-        }
+        .chat-inp { flex: 1; border: 1px solid #eee; background: rgba(255,255,255,0.9); padding: 10px 15px; border-radius: 25px; font-size: 1rem; color: #333; outline: none; }
+        .chat-icon-btn { width: 42px; height: 42px; border-radius: 50%; border: none; background: white; color: #666; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-shrink: 0; }
         .send-btn { background: var(--primary); color: white; }
 
-        /* CONTACTS IN SIDEBAR */
         .contact-section { margin-top: auto; border-top: 1px solid #eee; padding-top: 15px; }
         .dev-info { font-size: 0.8rem; color: #888; text-align: center; margin-top: 10px; }
-        .contact-item { 
-            display: flex; align-items: center; gap: 10px; padding: 10px; 
-            background: #f8f9fa; border-radius: 12px; margin-bottom: 8px; text-decoration: none; color: #444; font-weight: 600; font-size: 0.9rem;
-        }
-
-        /* BACK BTN */
-        .back-btn {
-            display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
-            background: white; border-radius: 20px; margin-bottom: 15px;
-            color: #666; cursor: pointer; border: 1px solid #eee; font-weight: 700; font-size: 0.9rem;
-        }
+        .contact-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8f9fa; border-radius: 12px; margin-bottom: 8px; text-decoration: none; color: #444; font-weight: 600; font-size: 0.9rem; }
+        
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: white; border-radius: 20px; margin-bottom: 15px; color: #666; cursor: pointer; border: 1px solid #eee; font-weight: 700; font-size: 0.9rem; }
 
     </style>
 </head>
@@ -232,34 +266,21 @@
 
         <div class="contact-section">
             <small style="display:block; margin-bottom:8px; color:#aaa; font-weight:bold;">CONTACT US</small>
-            
             <a href="https://wa.me/8801792595165" target="_blank" class="contact-item">
                 <i class="fab fa-whatsapp" style="color:#25D366; font-size:1.2rem;"></i>
-                <div>
-                    <div>Instructor Pial Hasan</div>
-                    <small style="font-weight:normal; color:#888;">Founder & Instructor</small>
-                </div>
+                <div><div>Instructor Pial Hasan</div><small style="font-weight:normal; color:#888;">Founder & Instructor</small></div>
             </a>
-
             <a href="https://wa.me/8801706592005" target="_blank" class="contact-item">
                 <i class="fas fa-code" style="color:#4facfe; font-size:1.1rem;"></i>
-                <div>
-                    <div>Masrur Muntasir</div>
-                    <small style="font-weight:normal; color:#888;">Developer & Admin</small>
-                </div>
+                <div><div>Masrur Muntasir</div><small style="font-weight:normal; color:#888;">Developer & Admin</small></div>
             </a>
-            
-            <div class="dev-info">
-                App Version 2.1<br>
-                Created with ❤️ by Masrur Muntasir
-            </div>
+            <div class="dev-info">App Version 2.2<br>Created with ❤️ by Masrur Muntasir</div>
         </div>
     </div>
 
     <div class="container" id="main-container">
 
         <div id="view-dashboard" class="view-page active">
-            
             <div class="frb-card">
                 <h2 style="margin:0 0 5px 0; font-family:var(--font-head);">FREE FRB COURSE</h2>
                 <p style="margin:0 0 15px 0; opacity:0.9; font-size:0.9rem;">Premium Revision Batch</p>
@@ -276,7 +297,6 @@
                 </div>
                 <i class="fas fa-chevron-right" style="color:#ddd"></i>
             </div>
-
             <div class="menu-btn" onclick="openPage('modules')">
                 <div style="display:flex; align-items:center;">
                     <div class="icon-box ib-blue"><i class="fas fa-layer-group"></i></div>
@@ -284,7 +304,6 @@
                 </div>
                 <i class="fas fa-chevron-right" style="color:#ddd"></i>
             </div>
-
             <div class="menu-btn" onclick="openPage('classes')">
                 <div style="display:flex; align-items:center;">
                     <div class="icon-box ib-orange"><i class="fas fa-play-circle"></i></div>
@@ -292,15 +311,12 @@
                 </div>
                 <i class="fas fa-chevron-right" style="color:#ddd"></i>
             </div>
-
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div class="menu-btn" style="flex-direction:column; text-align:center; padding:15px;" onclick="openPage('leaderboard')">
-                    <div class="icon-box ib-purple" style="margin:0 auto 10px auto;"><i class="fas fa-trophy"></i></div>
-                    <b style="font-size:0.9rem;">RANKING</b>
+                    <div class="icon-box ib-purple" style="margin:0 auto 10px auto;"><i class="fas fa-trophy"></i></div><b style="font-size:0.9rem;">RANKING</b>
                 </div>
                 <div class="menu-btn" style="flex-direction:column; text-align:center; padding:15px;" onclick="openPage('pomodoro')">
-                    <div class="icon-box ib-green" style="margin:0 auto 10px auto;"><i class="fas fa-bolt"></i></div>
-                    <b style="font-size:0.9rem;">FOCUS</b>
+                    <div class="icon-box ib-green" style="margin:0 auto 10px auto;"><i class="fas fa-leaf"></i></div><b style="font-size:0.9rem;">FOCUS</b>
                 </div>
             </div>
         </div>
@@ -308,22 +324,10 @@
         <div id="view-modules" class="view-page">
             <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                <div class="menu-btn" style="flex-direction:column; padding:20px; text-align:center;" onclick="openSubject('physics')">
-                    <div class="icon-box ib-blue" style="margin:0 auto 10px;"><i class="fas fa-atom"></i></div>
-                    <b>PHYSICS</b><small id="prog-physics">0%</small>
-                </div>
-                <div class="menu-btn" style="flex-direction:column; padding:20px; text-align:center;" onclick="openSubject('chemistry')">
-                    <div class="icon-box ib-pink" style="margin:0 auto 10px;"><i class="fas fa-flask"></i></div>
-                    <b>CHEMISTRY</b><small id="prog-chemistry">0%</small>
-                </div>
-                <div class="menu-btn" style="flex-direction:column; padding:20px; text-align:center;" onclick="openSubject('biology')">
-                    <div class="icon-box ib-green" style="margin:0 auto 10px;"><i class="fas fa-dna"></i></div>
-                    <b>BIOLOGY</b><small id="prog-biology">0%</small>
-                </div>
-                <div class="menu-btn" style="flex-direction:column; padding:20px; text-align:center;" onclick="openSubject('higherMath')">
-                    <div class="icon-box ib-orange" style="margin:0 auto 10px;"><i class="fas fa-calculator"></i></div>
-                    <b>MATH</b><small id="prog-higherMath">0%</small>
-                </div>
+                <div class="menu-btn" style="flex-direction:column; padding:20px; text-align:center;" onclick="openSubject('physics')"><div class="icon-box ib-blue" style="margin:0 auto 10px;"><i class="fas fa-atom"></i></div><b>PHYSICS</b><small id="prog-physics">0%</small></div>
+                <div class="menu-btn" style="flex-direction:column; padding:20px; text-align:center;" onclick="openSubject('chemistry')"><div class="icon-box ib-pink" style="margin:0 auto 10px;"><i class="fas fa-flask"></i></div><b>CHEMISTRY</b><small id="prog-chemistry">0%</small></div>
+                <div class="menu-btn" style="flex-direction:column; padding:20px; text-align:center;" onclick="openSubject('biology')"><div class="icon-box ib-green" style="margin:0 auto 10px;"><i class="fas fa-dna"></i></div><b>BIOLOGY</b><small id="prog-biology">0%</small></div>
+                <div class="menu-btn" style="flex-direction:column; padding:20px; text-align:center;" onclick="openSubject('higherMath')"><div class="icon-box ib-orange" style="margin:0 auto 10px;"><i class="fas fa-calculator"></i></div><b>MATH</b><small id="prog-higherMath">0%</small></div>
             </div>
         </div>
 
@@ -341,51 +345,59 @@
 
         <div id="view-classes" class="view-page">
             <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
-            <h2 style="color:var(--primary); margin:0 0 15px 5px;">EXCLUSIVE VIDEOS</h2>
-            
-            <div class="vid-card">
-                <img src="https://img.youtube.com/vi/PCV3YtF1Lh4/maxresdefault.jpg" class="vid-thumb">
-                <div class="vid-title">🎯 Physics মনে রাখতে সমস্যা? ৫টি কার্যকর কৌশল!</div>
-                <a href="https://youtu.be/PCV3YtF1Lh4" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
-            </div>
-            
-            <div class="vid-card">
-                <img src="https://img.youtube.com/vi/qFM2g7dfiBY/maxresdefault.jpg" class="vid-thumb">
-                <div class="vid-title">🔥 SSC Chemistry: টেস্টে ৯৮+ পাওয়ার গ্যারান্টি!</div>
-                <a href="https://youtu.be/qFM2g7dfiBY" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
-            </div>
+            <h2 style="color:var(--primary); margin:0 0 15px 5px;">VIDEOS</h2>
+            <div class="vid-card"><img src="https://img.youtube.com/vi/PCV3YtF1Lh4/maxresdefault.jpg" class="vid-thumb"><div class="vid-title">🎯 Physics মনে রাখতে সমস্যা? ৫টি কার্যকর কৌশল!</div><a href="https://youtu.be/PCV3YtF1Lh4" target="_blank"><button class="vid-btn">WATCH NOW</button></a></div>
+            <div class="vid-card"><img src="https://img.youtube.com/vi/qFM2g7dfiBY/maxresdefault.jpg" class="vid-thumb"><div class="vid-title">🔥 SSC Chemistry: টেস্টে ৯৮+ পাওয়ার গ্যারান্টি!</div><a href="https://youtu.be/qFM2g7dfiBY" target="_blank"><button class="vid-btn">WATCH NOW</button></a></div>
+            <div class="vid-card"><img src="https://img.youtube.com/vi/G-meXsmaE2Y/maxresdefault.jpg" class="vid-thumb"><div class="vid-title">🔥 Biology: ১০০/১০০ পাওয়ার টিপস</div><a href="https://youtu.be/G-meXsmaE2Y" target="_blank"><button class="vid-btn">WATCH NOW</button></a></div>
+        </div>
 
-            <div class="vid-card">
-                <img src="https://img.youtube.com/vi/G-meXsmaE2Y/maxresdefault.jpg" class="vid-thumb">
-                <div class="vid-title">🔥 Biology: ১০০/১০০ পাওয়ার টিপস</div>
-                <a href="https://youtu.be/G-meXsmaE2Y" target="_blank"><button class="vid-btn">WATCH NOW</button></a>
+        <div id="view-pomodoro" class="view-page">
+            <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
+            
+            <div class="pomodoro-container">
+                <i class="fas fa-leaf floral-deco deco-tl"></i>
+                <i class="fas fa-fan floral-deco deco-br"></i>
+                <i class="fas fa-spa floral-deco deco-flower"></i>
+
+                <h2 style="color:var(--text-main); margin-bottom:20px; font-family:var(--font-head);">Stay Focused</h2>
+                
+                <div class="mode-switch">
+                    <button class="mode-btn active" id="mode-focus" onclick="setTimerMode('focus')">Focus (25m)</button>
+                    <button class="mode-btn" id="mode-break" onclick="setTimerMode('break')">Break (5m)</button>
+                </div>
+
+                <div class="timer-ring">
+                    <svg class="timer-svg" viewBox="0 0 220 220">
+                        <circle class="timer-circle-bg" cx="110" cy="110" r="100"></circle>
+                        <circle class="timer-circle-prog" id="time-prog" cx="110" cy="110" r="100"></circle>
+                    </svg>
+                    <div class="timer-time" id="timer-display">25:00</div>
+                    <div class="timer-status" id="timer-status">READY</div>
+                </div>
+
+                <div class="timer-controls">
+                    <button class="ctrl-btn btn-reset" onclick="resetTimer()"><i class="fas fa-redo"></i></button>
+                    <button class="ctrl-btn btn-play" id="btn-play" onclick="toggleTimer()"><i class="fas fa-play"></i></button>
+                </div>
+            </div>
+            
+            <div style="text-align:center; margin-top:20px; color:#888; font-size:0.9rem;">
+                <i class="fas fa-seedling" style="color:#20bf6b; margin-right:5px;"></i> Grow your knowledge tree!
             </div>
         </div>
 
         <div id="view-chat" class="view-page">
             <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
-            
             <div style="background:white; padding:15px; border-radius:15px; margin-bottom:15px; display:flex; align-items:center; gap:12px; box-shadow:0 2px 5px rgba(0,0,0,0.03);">
                 <div class="icon-box ib-pink" style="width:40px; height:40px; margin:0;"><i class="fas fa-comments"></i></div>
-                <div>
-                    <h3 style="margin:0; font-size:1rem; color:#444;">Community Chat</h3>
-                    <small style="color:#888;">Be helpful & kind.</small>
-                </div>
+                <div><h3 style="margin:0; font-size:1rem; color:#444;">Community Chat</h3><small style="color:#888;">Be helpful & kind.</small></div>
             </div>
-
-            <div id="chat-list" class="chat-container">
-                <div style="text-align:center; color:#aaa; margin-top:50px;">Loading messages...</div>
-            </div>
-
+            <div id="chat-list" class="chat-container"><div style="text-align:center; color:#aaa; margin-top:50px;">Loading messages...</div></div>
             <div class="chat-footer">
                 <input type="file" id="img-input" accept="image/*" style="display:none;" onchange="handleImgSelect()">
-                <button class="chat-icon-btn" onclick="document.getElementById('img-input').click()">
-                    <i class="fas fa-camera" style="color:var(--primary);"></i>
-                </button>
+                <button class="chat-icon-btn" onclick="document.getElementById('img-input').click()"><i class="fas fa-camera" style="color:var(--primary);"></i></button>
                 <input type="text" id="msg-input" class="chat-inp" placeholder="Type a message...">
-                <button class="chat-icon-btn send-btn" onclick="sendMsg()">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
+                <button class="chat-icon-btn send-btn" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
 
@@ -394,24 +406,15 @@
     <audio id="alarm" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
     <script>
-        // FIREBASE CONFIG
-        const firebaseConfig = {
-            apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ",
-            authDomain: "masrur-app-dccc1.firebaseapp.com",
-            databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com",
-            projectId: "masrur-app-dccc1",
-            storageBucket: "masrur-app-dccc1.firebasestorage.app",
-            messagingSenderId: "54049170636",
-            appId: "1:54049170636:web:0d0fd5f530027e72688e69"
-        };
+        // FIREBASE
+        const firebaseConfig = { apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ", authDomain: "masrur-app-dccc1.firebaseapp.com", databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com", projectId: "masrur-app-dccc1", storageBucket: "masrur-app-dccc1.firebasestorage.app", messagingSenderId: "54049170636", appId: "1:54049170636:web:0d0fd5f530027e72688e69" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
         let currentUser = null, chatListener = null;
-
         const ADMIN_EMAIL = "admin@biggan.com"; 
 
-        // SYLLABUS DATA
+        // SYLLABUS
         const syllabus = {
             physics: { title: "PHYSICS", chapters: ["ভৌত রাশি ও পরিমাপ", "গতি", "বল", "কাজ, ক্ষমতা ও শক্তি", "পদার্থের অবস্থা ও চাপ", "বস্তুর উপর তাপের প্রভাব", "তরঙ্গ ও শব্দ", "আলোর প্রতিফলন", "আলোর প্রতিসরণ", "স্থির তড়িৎ", "চল তড়িৎ", "তড়িৎ এর চৌম্বক ক্রিয়া", "আধুনিক পদার্থবিজ্ঞান", "জীবন বাঁচাতে পদার্থবিজ্ঞান"] },
             chemistry: { title: "CHEMISTRY", chapters: ["রসায়নের ধারণা", "পদার্থের অবস্থা", "পদার্থের গঠন", "পর্যায় সারণি", "রাসায়নিক বন্ধন", "মোল ও রাসায়নিক গণনা", "রাসায়নিক বিক্রিয়া", "রসায়ন ও শক্তি", "এসিড-ক্ষার সমতা", "খনিজ সম্পদ: ধাতু-অধাতু", "খনিজ সম্পদ: জীবাশ্ম", "আমাদের জীবনে রসায়ন"] },
@@ -421,25 +424,10 @@
 
         // NAVIGATION
         history.replaceState({view: 'dashboard'}, null, '');
-        
-        function openPage(id) { 
-            history.pushState({view: id}, null, ''); 
-            _render(id); 
-        }
-        
-        function goHome() { 
-            if(history.state && history.state.view !== 'dashboard') {
-                history.back();
-            } else {
-                openPage('dashboard');
-            }
-        }
-
+        function openPage(id) { history.pushState({view: id}, null, ''); _render(id); }
+        function goHome() { if(history.state && history.state.view !== 'dashboard') { history.back(); } else { openPage('dashboard'); } }
         window.onpopstate = (e) => {
-            if(document.getElementById('sidebar').classList.contains('open')) {
-                toggleMenu();
-                return;
-            }
+            if(document.getElementById('sidebar').classList.contains('open')) { toggleMenu(); return; }
             _render(e.state ? e.state.view : 'dashboard');
         };
         
@@ -457,38 +445,23 @@
                 document.querySelector('.overlay').classList.remove('active');
             }
         }
-        
-        function toggleMenu() { 
-            document.getElementById('sidebar').classList.toggle('open'); 
-            document.querySelector('.overlay').classList.toggle('active'); 
-        }
-        
-        function toggleForm() {
-            const l=document.getElementById('login-form'), r=document.getElementById('reg-form');
-            if(l.style.display==='none'){l.style.display='block';r.style.display='none'}else{l.style.display='none';r.style.display='block'}
-        }
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.overlay').classList.toggle('active'); }
+        function toggleForm() { const l=document.getElementById('login-form'), r=document.getElementById('reg-form'); if(l.style.display==='none'){l.style.display='block';r.style.display='none'}else{l.style.display='none';r.style.display='block'} }
 
         // AUTH
         function handleAuth(type) {
             const btn = document.getElementById(type==='register'?'btn-reg':'btn-login');
             btn.innerText = "..."; btn.disabled = true;
-
             if(type === 'register') {
                 const n=document.getElementById('reg-name').value, e=document.getElementById('reg-email').value;
-                const s=document.getElementById('reg-school').value;
-                const p=document.getElementById('reg-pass').value;
+                const s=document.getElementById('reg-school').value, p=document.getElementById('reg-pass').value;
                 if(!n||!e||!s||!p) { alert("Fill all fields"); btn.disabled=false; btn.innerText="REGISTER"; return; }
-
-                auth.createUserWithEmailAndPassword(e, p).then(c => {
-                    c.user.updateProfile({displayName: n});
-                    db.ref('users/'+c.user.uid).set({name:n, school:s, email:e});
-                }).catch(er => { alert(er.message); btn.disabled=false; btn.innerText="REGISTER"; });
+                auth.createUserWithEmailAndPassword(e, p).then(c => { c.user.updateProfile({displayName: n}); db.ref('users/'+c.user.uid).set({name:n, school:s, email:e}); }).catch(er => { alert(er.message); btn.disabled=false; btn.innerText="REGISTER"; });
             } else {
                 const e=document.getElementById('email').value, p=document.getElementById('pass').value;
                 auth.signInWithEmailAndPassword(e, p).catch(er => { alert(er.message); btn.disabled=false; btn.innerText="LOGIN"; });
             }
         }
-
         auth.onAuthStateChanged(user => {
             if(user) {
                 currentUser = user;
@@ -502,28 +475,25 @@
             }
         });
 
-        // PROGRESS
+        // TRACKER
         function openSubject(key) {
             openPage('subject');
             document.getElementById('page-title').innerText = syllabus[key].title;
             const list = document.getElementById('chapter-list');
             list.innerHTML = 'Loading...';
-            
             db.ref(`progress/${currentUser.uid}/${key}`).on('value', snap => {
                 const prog = snap.val() || [];
                 list.innerHTML = '';
                 syllabus[key].chapters.forEach((chap, i) => {
                     const done = prog[i] ? true : false;
                     const div = document.createElement('div');
-                    div.className = 'menu-btn';
-                    div.style.padding = '15px';
+                    div.className = 'menu-btn'; div.style.padding = '15px';
                     div.innerHTML = `<div><b style="color:#ccc; margin-right:10px;">${i+1}</b> ${chap}</div>${done?'<i class="fas fa-check-circle" style="color:#20bf6b"></i>':''}`;
                     div.onclick = () => db.ref(`progress/${currentUser.uid}/${key}/${i}`).set(!done);
                     list.appendChild(div);
                 });
             });
         }
-
         function updateStats() {
             Object.keys(syllabus).forEach(k => {
                 db.ref(`progress/${currentUser.uid}/${k}`).on('value', s => {
@@ -532,12 +502,8 @@
                 });
             });
         }
-
-        // RANK
         function loadRank() {
-            const list = document.getElementById('rank-list');
-            list.innerHTML = "Loading...";
-            
+            const list = document.getElementById('rank-list'); list.innerHTML = "Loading...";
             db.ref('users').once('value').then(uSnap => {
                 const users = uSnap.val() || {};
                 db.ref('progress').once('value', pSnap => {
@@ -545,11 +511,7 @@
                     let rank = [];
                     Object.keys(users).forEach(uid => {
                         let score = 0;
-                        if(prog[uid]) {
-                            Object.values(prog[uid]).forEach(sub => {
-                                if(Array.isArray(sub)) score += sub.filter(Boolean).length;
-                            });
-                        }
+                        if(prog[uid]) { Object.values(prog[uid]).forEach(sub => { if(Array.isArray(sub)) score += sub.filter(Boolean).length; }); }
                         rank.push({ name: users[uid].name, school: users[uid].school, xp: score, uid: uid });
                     });
                     rank.sort((a,b) => b.xp - a.xp);
@@ -558,103 +520,123 @@
                             <div style="display:flex; align-items:center; gap:10px;">
                                 <b style="color:#ff9f43; width:25px;">#${i+1}</b>
                                 <div><div style="font-weight:bold;">${r.name}</div><div style="font-size:0.75rem; color:#888;">${r.school}</div></div>
-                            </div>
-                            <b style="color:var(--primary);">${r.xp} XP</b>
-                        </div>
-                    `).join('');
+                            </div><b style="color:var(--primary);">${r.xp} XP</b>
+                        </div>`).join('');
                 });
             });
         }
 
-        // CHAT
-        function initChat() {
-            const list = document.getElementById('chat-list');
-            list.innerHTML = ''; 
-            // Use setTimeout to ensure content is loaded before scrolling
-            const scrollToBottom = () => { 
-                setTimeout(() => {
-                    window.scrollTo(0, document.body.scrollHeight);
-                }, 100);
-            };
-
-            if(chatListener) db.ref('messages').off(); 
-            chatListener = db.ref('messages').limitToLast(50);
+        // --- IMPROVED TIMER LOGIC ---
+        let timerInterval = null;
+        let totalTime = 1500; // 25 mins default
+        let timeLeft = totalTime;
+        let isRunning = false;
+        
+        function updateTimerVisuals() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            document.getElementById('timer-display').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
             
-            chatListener.on('child_added', snap => {
-                const msg = snap.val();
-                const key = snap.key;
-                const isMe = msg.uid === currentUser.uid;
-                const isAdmin = currentUser.email === ADMIN_EMAIL;
-                
-                const date = new Date(msg.time);
-                const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                const div = document.createElement('div');
-                div.className = `msg-bubble ${isMe ? 'me' : 'other'}`;
-                div.id = `msg-${key}`;
-                
-                let trash = '';
-                if(isMe || isAdmin) {
-                    trash = `<i class="fas fa-trash" style="margin-left:8px; cursor:pointer; font-size:0.8rem;" onclick="deleteMsg('${key}')"></i>`;
-                }
-
-                div.innerHTML = `
-                    ${isMe ? '' : `<div style="font-size:0.75rem; font-weight:bold; color:var(--primary); margin-bottom:2px;">${msg.name}</div>`}
-                    ${msg.img ? `<img src="${msg.img}" style="width:100%; border-radius:10px; margin-top:5px; display:block;">` : ''}
-                    <div>${msg.text}</div>
-                    <div class="msg-info" style="color:${isMe?'rgba(255,255,255,0.8)':'#999'}">
-                        <span>${timeStr}</span>${trash}
-                    </div>
-                `;
-                
-                list.appendChild(div);
-                scrollToBottom();
-            });
-
-            chatListener.on('child_removed', snap => {
-                const el = document.getElementById(`msg-${snap.key}`);
-                if(el) el.remove();
-            });
+            // Circle Progress
+            const circle = document.getElementById('time-prog');
+            const offset = 628 - (timeLeft / totalTime) * 628;
+            circle.style.strokeDashoffset = offset;
         }
 
-        function sendMsg() {
-            const txt = document.getElementById('msg-input');
-            const val = txt.value.trim();
-            if(!val && !tempImg) return;
-
-            db.ref('messages').push({
-                text: val,
-                img: tempImg || null,
-                uid: currentUser.uid,
-                name: currentUser.displayName || "Student",
-                time: firebase.database.ServerValue.TIMESTAMP
-            });
-
-            txt.value = '';
-            tempImg = null;
+        function setTimerMode(mode) {
+            pauseTimer();
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('mode-'+mode).classList.add('active');
+            
+            totalTime = (mode === 'focus') ? 1500 : 300; // 25m or 5m
+            timeLeft = totalTime;
+            updateTimerVisuals();
+            document.getElementById('timer-status').innerText = "READY";
         }
 
-        function deleteMsg(key) {
-            if(confirm("Delete this message?")) {
-                db.ref('messages/' + key).remove();
+        function toggleTimer() {
+            if(isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
             }
         }
 
+        function startTimer() {
+            if(isRunning) return;
+            isRunning = true;
+            document.getElementById('timer-status').innerText = "FOCUSING...";
+            document.getElementById('btn-play').innerHTML = '<i class="fas fa-pause"></i>';
+            document.getElementById('btn-play').classList.replace('btn-play', 'btn-pause');
+            
+            timerInterval = setInterval(() => {
+                if(timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerVisuals();
+                } else {
+                    completeTimer();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            document.getElementById('timer-status').innerText = "PAUSED";
+            document.getElementById('btn-play').innerHTML = '<i class="fas fa-play"></i>';
+            const btn = document.getElementById('btn-play');
+            if(btn.classList.contains('btn-pause')) btn.classList.replace('btn-pause', 'btn-play');
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            const isFocus = document.getElementById('mode-focus').classList.contains('active');
+            totalTime = isFocus ? 1500 : 300;
+            timeLeft = totalTime;
+            updateTimerVisuals();
+            document.getElementById('timer-status').innerText = "READY";
+        }
+
+        function completeTimer() {
+            pauseTimer();
+            document.getElementById('timer-status').innerText = "DONE!";
+            document.getElementById('alarm').play();
+            alert("Time's up! Great job! 🌸");
+        }
+
+        // CHAT
+        function initChat() {
+            const list = document.getElementById('chat-list'); list.innerHTML = ''; 
+            const scrollToBottom = () => { setTimeout(() => { window.scrollTo(0, document.body.scrollHeight); }, 100); };
+            if(chatListener) db.ref('messages').off(); 
+            chatListener = db.ref('messages').limitToLast(50);
+            chatListener.on('child_added', snap => {
+                const msg = snap.val(); const key = snap.key;
+                const isMe = msg.uid === currentUser.uid; const isAdmin = currentUser.email === ADMIN_EMAIL;
+                const timeStr = new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const div = document.createElement('div');
+                div.className = `msg-bubble ${isMe ? 'me' : 'other'}`; div.id = `msg-${key}`;
+                let trash = (isMe || isAdmin) ? `<i class="fas fa-trash" style="margin-left:8px; cursor:pointer; font-size:0.8rem;" onclick="deleteMsg('${key}')"></i>` : '';
+                div.innerHTML = `${isMe ? '' : `<div style="font-size:0.75rem; font-weight:bold; color:var(--primary); margin-bottom:2px;">${msg.name}</div>`}
+                    ${msg.img ? `<img src="${msg.img}" style="width:100%; border-radius:10px; margin-top:5px; display:block;">` : ''}
+                    <div>${msg.text}</div><div class="msg-info" style="color:${isMe?'rgba(255,255,255,0.8)':'#999'}"><span>${timeStr}</span>${trash}</div>`;
+                list.appendChild(div); scrollToBottom();
+            });
+            chatListener.on('child_removed', snap => { const el = document.getElementById(`msg-${snap.key}`); if(el) el.remove(); });
+        }
+        function sendMsg() {
+            const txt = document.getElementById('msg-input'); const val = txt.value.trim();
+            if(!val && !tempImg) return;
+            db.ref('messages').push({ text: val, img: tempImg || null, uid: currentUser.uid, name: currentUser.displayName || "Student", time: firebase.database.ServerValue.TIMESTAMP });
+            txt.value = ''; tempImg = null;
+        }
+        function deleteMsg(key) { if(confirm("Delete this message?")) db.ref('messages/' + key).remove(); }
         let tempImg = null;
         function handleImgSelect() {
             const file = document.getElementById('img-input').files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    tempImg = e.target.result;
-                    sendMsg();
-                };
-                reader.readAsDataURL(file);
-            }
+            if(file) { const reader = new FileReader(); reader.onload = e => { tempImg = e.target.result; sendMsg(); }; reader.readAsDataURL(file); }
         }
-
         function logout() { auth.signOut(); location.reload(); }
-
     </script>
 </body>
 </html>
