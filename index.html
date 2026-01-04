@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#fff0f3">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href='data:application/manifest+json;base64,ewogICJuYW1lIjogIkJJR0dBTiBDTEFTUyIsCiAgInNob3J0X25hbWUiOiAiQmlnZ2FuIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmYwZjMiLAogICJ0aGVtZV9jb2xvciI6ICIjZmY1ZTk0IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAibG9nby5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0KICBdCn0='>
+
     <title>BIGGAN CLASS Floral</title>
     
-    <link rel="manifest" href='data:application/manifest+json;base64,ewogICJuYW1lIjogIkJJR0dBTiBDTEFTUyIsCiAgInNob3J0X25hbWUiOiAiQmlnZ2FuIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmYwZjMiLAogICJ0aGVtZV9jb2xvciI6ICIjZmY1ZTk0IiwKICAiaWNvbnMiOiBswogICAgewogICAgICAic3JjIjogImh0dHBzOi8vY2RuLWljb25zLXBuZy5mbGF0aWNvbi5jb20vNTEyLzMzNDIvMzM0MjEzNy5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0KICBdCn0='>
-
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -239,13 +240,6 @@
         
         .back-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: white; border-radius: 20px; margin-bottom: 15px; color: #666; cursor: pointer; border: 1px solid #eee; font-weight: 700; font-size: 0.9rem; }
 
-        /* Install Prompt */
-        #install-bar {
-            display: none; background: #fff; padding: 15px; border-radius: 15px;
-            margin-bottom: 15px; border: 2px dashed var(--primary);
-            text-align: center; cursor: pointer;
-        }
-
     </style>
 </head>
 <body>
@@ -273,7 +267,7 @@
 
     <div class="header">
         <div class="logo-area">
-            <img src="https://cdn-icons-png.flaticon.com/512/3342/3342137.png" class="logo-img" alt="Logo">
+            <img src="logo.png" class="logo-img" alt="Logo">
             <div class="logo-text">BIGGAN <span style="color:#444">CLASS</span></div>
         </div>
         <i class="fas fa-bars" style="font-size:1.4rem; color:#444; background:#f5f5f5; padding:8px; border-radius:10px; cursor:pointer;" onclick="toggleMenu()"></i>
@@ -287,7 +281,7 @@
             <div id="user-school" style="font-size:0.85rem; color:#888;">School Info</div>
         </div>
         
-        <div id="install-btn" class="menu-btn" onclick="installApp()" style="display:none; border: 2px solid var(--primary); background: var(--primary-soft);">
+        <div id="install-btn" class="menu-btn" onclick="installApp()" style="border: 2px solid var(--primary); background: var(--primary-soft);">
             <div style="display:flex; align-items:center;">
                 <div class="icon-box ib-pink" style="background:white;"><i class="fas fa-download"></i></div>
                 <div style="color:var(--primary);"><b>INSTALL APP</b><br><small>Add to Home Screen</small></div>
@@ -312,7 +306,7 @@
                 <i class="fas fa-code" style="color:#4facfe; font-size:1.1rem;"></i>
                 <div><div>Masrur Muntasir</div><small style="font-weight:normal; color:#888;">Developer & Admin</small></div>
             </a>
-            <div class="dev-info">App Version 2.5<br>Created with ❤️ by Masrur Muntasir</div>
+            <div class="dev-info">App Version 2.6<br>Created with ❤️ by Masrur Muntasir</div>
         </div>
     </div>
 
@@ -480,24 +474,24 @@
         const db = firebase.database();
         let currentUser = null, chatListener = null;
         
-        // --- NEW: PWA INSTALLATION LOGIC ---
+        // --- 3. UPDATED INSTALL LOGIC ---
         let deferredPrompt;
         const installBtn = document.getElementById('install-btn');
 
+        // Listen for prompt (if browser supports it)
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.style.display = 'flex';
         });
 
         async function installApp() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    installBtn.style.display = 'none';
-                }
                 deferredPrompt = null;
+            } else {
+                // Manual Fallback if prompt is not ready (e.g. Chrome on iOS or already installed)
+                alert("To install:\n1. Tap your browser's Share/Menu button\n2. Select 'Add to Home Screen'");
             }
         }
 
@@ -535,15 +529,14 @@
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.overlay').classList.toggle('active'); }
         function toggleForm() { const l=document.getElementById('login-form'), r=document.getElementById('reg-form'); if(l.style.display==='none'){l.style.display='block';r.style.display='none'}else{l.style.display='none';r.style.display='block'} }
 
-        // --- NEW: ADMIN LOGIC ---
+        // --- 2. CORRECTED ADMIN CREDENTIALS ---
         function verifyAdmin() {
-            // Simple prompt based admin check as requested
             let adminID = prompt("Enter Admin ID:");
             let adminPass = prompt("Enter Admin Password:");
 
-            if (adminID === "admin" && adminPass === "1234") {
+            if (adminID === "amikena420@123" && adminPass === "5972959729") {
                 openPage('admin');
-                toggleMenu(); // Close sidebar
+                toggleMenu(); 
             } else {
                 alert("Access Denied: Incorrect Credentials");
             }
