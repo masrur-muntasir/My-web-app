@@ -17,8 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
-    <style>
+    <script src='https://meet.jit.si/external_api.js'></script> <style>
         :root {
             --primary: #ff5e94;
             --primary-soft: #ffe3ec;
@@ -37,7 +36,6 @@
             font-family: var(--font-body); 
             position: relative;
             background-color: #fff0f3;
-            /* Gingham Pattern */
             background-image:
                 linear-gradient(90deg, rgba(255, 182, 193, 0.3) 50%, transparent 50%),
                 linear-gradient(rgba(255, 182, 193, 0.3) 50%, transparent 50%);
@@ -131,6 +129,7 @@
         .ib-purple { background: #f3e5f5; color: #a55eea; }
         .ib-green { background: #e8f8f0; color: #20bf6b; }
         .ib-red { background: #ffe5e5; color: #ff4757; }
+        .ib-teal { background: #e0fdfd; color: #00cec9; }
 
         /* ADMIN SECTION */
         .admin-card {
@@ -151,85 +150,43 @@
         .vid-btn { width: 100%; padding: 10px; background: var(--primary-soft); color: var(--primary); border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
 
 
-        /* --- NEW AESTHETIC POMODORO STYLES --- */
+        /* POMODORO & MISC STYLES */
         .pomodoro-container {
             text-align: center; position: relative; overflow: hidden;
             background: white; border-radius: 30px; padding: 40px 20px;
             box-shadow: 0 15px 40px rgba(255, 94, 148, 0.15);
             margin-top: 20px;
         }
-        
-        /* Floral Decoration */
-        .floral-deco {
-            position: absolute; width: 80px; opacity: 0.8; pointer-events: none;
-        }
+        .floral-deco { position: absolute; width: 80px; opacity: 0.8; pointer-events: none; }
         .deco-tl { top: -10px; left: -10px; transform: rotate(-45deg); color: var(--leaf-color); font-size: 3rem; }
         .deco-br { bottom: -10px; right: -10px; transform: rotate(135deg); color: var(--primary-soft); font-size: 4rem; }
         .deco-flower { top: 10px; right: 20px; color: #ffb7b2; font-size: 1.5rem; animation: float 3s infinite ease-in-out; }
 
-        /* Timer Circle */
-        .timer-ring {
-            position: relative; width: 220px; height: 220px; margin: 0 auto 30px;
-        }
+        .timer-ring { position: relative; width: 220px; height: 220px; margin: 0 auto 30px; }
         .timer-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
         .timer-circle-bg { fill: none; stroke: #f0f0f0; stroke-width: 8; }
-        .timer-circle-prog { 
-            fill: none; stroke: var(--primary); stroke-width: 8; 
-            stroke-linecap: round; stroke-dasharray: 628; stroke-dashoffset: 0;
-            transition: stroke-dashoffset 1s linear;
-        }
-        .timer-time {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 3rem; font-weight: 800; color: var(--text-main); font-family: var(--font-head);
-        }
-        .timer-status {
-            position: absolute; top: 65%; left: 50%; transform: translate(-50%, 0);
-            font-size: 0.9rem; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
-        }
+        .timer-circle-prog { fill: none; stroke: var(--primary); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 628; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+        .timer-time { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: 800; color: var(--text-main); font-family: var(--font-head); }
+        .timer-status { position: absolute; top: 65%; left: 50%; transform: translate(-50%, 0); font-size: 0.9rem; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Controls */
         .timer-controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .ctrl-btn {
-            width: 50px; height: 50px; border-radius: 50%; border: none; font-size: 1.2rem;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
+        .ctrl-btn { width: 50px; height: 50px; border-radius: 50%; border: none; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .btn-play { background: var(--primary); color: white; }
         .btn-pause { background: #ffe3ec; color: var(--primary); }
         .btn-reset { background: #f0f0f0; color: #666; }
-        .ctrl-btn:active { transform: scale(0.95); }
-
-        .mode-switch {
-            display: flex; justify-content: center; gap: 10px; margin-bottom: 25px;
-        }
-        .mode-btn {
-            padding: 8px 16px; border-radius: 20px; border: 1px solid #eee; background: white;
-            color: #666; font-size: 0.85rem; cursor: pointer; font-weight: bold;
-        }
+        
+        .mode-switch { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
+        .mode-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #eee; background: white; color: #666; font-size: 0.85rem; cursor: pointer; font-weight: bold; }
         .mode-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
 
         /* --- CHAT STYLES --- */
         .chat-container { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
-        
-        .msg-bubble {
-            max-width: 80%; padding: 10px 14px; border-radius: 16px; position: relative;
-            font-size: 0.95rem; line-height: 1.4; word-wrap: break-word;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+        .msg-bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; position: relative; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .msg-bubble.me { align-self: flex-end; background: #ff5e94; color: white; border-bottom-right-radius: 4px; }
         .msg-bubble.other { align-self: flex-start; background: white; color: #333; border-bottom-left-radius: 4px; }
-        
         .msg-info { font-size: 0.7rem; margin-top: 4px; display: flex; justify-content: space-between; align-items: center; opacity: 0.8;}
-        
-        .chat-footer {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            padding: 10px 15px; display: flex; align-items: center; gap: 10px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000;
-            border-top: 1px solid rgba(255,255,255,0.5);
-        }
+        .chat-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 10px 15px; display: flex; align-items: center; gap: 10px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000; border-top: 1px solid rgba(255,255,255,0.5); }
         .chat-inp { flex: 1; border: 1px solid #eee; background: rgba(255,255,255,0.9); padding: 10px 15px; border-radius: 25px; font-size: 1rem; color: #333; outline: none; }
         .chat-icon-btn { width: 42px; height: 42px; border-radius: 50%; border: none; background: white; color: #666; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-shrink: 0; }
         .send-btn { background: var(--primary); color: white; }
@@ -237,8 +194,10 @@
         .contact-section { margin-top: auto; border-top: 1px solid #eee; padding-top: 15px; }
         .dev-info { font-size: 0.8rem; color: #888; text-align: center; margin-top: 10px; }
         .contact-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8f9fa; border-radius: 12px; margin-bottom: 8px; text-decoration: none; color: #444; font-weight: 600; font-size: 0.9rem; }
-        
         .back-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: white; border-radius: 20px; margin-bottom: 15px; color: #666; cursor: pointer; border: 1px solid #eee; font-weight: 700; font-size: 0.9rem; }
+
+        /* MEET SECTION */
+        #meet-frame { width: 100%; height: 75vh; border-radius: 20px; overflow: hidden; background: #eee; }
 
     </style>
 </head>
@@ -306,7 +265,7 @@
                 <i class="fas fa-code" style="color:#4facfe; font-size:1.1rem;"></i>
                 <div><div>Masrur Muntasir</div><small style="font-weight:normal; color:#888;">Developer & Admin</small></div>
             </a>
-            <div class="dev-info">App Version 2.6<br>Created with ❤️ by Masrur Muntasir</div>
+            <div class="dev-info">App Version 2.8<br>Created with ❤️ by Masrur Muntasir</div>
         </div>
     </div>
 
@@ -329,6 +288,15 @@
                 </div>
                 <i class="fas fa-chevron-right" style="color:#ddd"></i>
             </div>
+            
+            <div class="menu-btn" onclick="checkClassroomAccess()" id="classroom-btn">
+                <div style="display:flex; align-items:center;">
+                    <div class="icon-box ib-teal"><i class="fas fa-headset"></i></div>
+                    <div><b>LIVE CLASSROOM</b><br><small style="color:#888" id="classroom-status">Check Status...</small></div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:#ddd"></i>
+            </div>
+
             <div class="menu-btn" onclick="openPage('modules')">
                 <div style="display:flex; align-items:center;">
                     <div class="icon-box ib-blue"><i class="fas fa-layer-group"></i></div>
@@ -385,19 +353,15 @@
 
         <div id="view-pomodoro" class="view-page">
             <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
-            
             <div class="pomodoro-container">
                 <i class="fas fa-leaf floral-deco deco-tl"></i>
                 <i class="fas fa-fan floral-deco deco-br"></i>
                 <i class="fas fa-spa floral-deco deco-flower"></i>
-
                 <h2 style="color:var(--text-main); margin-bottom:20px; font-family:var(--font-head);">Stay Focused</h2>
-                
                 <div class="mode-switch">
                     <button class="mode-btn active" id="mode-focus" onclick="setTimerMode('focus')">Focus (25m)</button>
                     <button class="mode-btn" id="mode-break" onclick="setTimerMode('break')">Break (5m)</button>
                 </div>
-
                 <div class="timer-ring">
                     <svg class="timer-svg" viewBox="0 0 220 220">
                         <circle class="timer-circle-bg" cx="110" cy="110" r="100"></circle>
@@ -406,13 +370,11 @@
                     <div class="timer-time" id="timer-display">25:00</div>
                     <div class="timer-status" id="timer-status">READY</div>
                 </div>
-
                 <div class="timer-controls">
                     <button class="ctrl-btn btn-reset" onclick="resetTimer()"><i class="fas fa-redo"></i></button>
                     <button class="ctrl-btn btn-play" id="btn-play" onclick="toggleTimer()"><i class="fas fa-play"></i></button>
                 </div>
             </div>
-            
             <div style="text-align:center; margin-top:20px; color:#888; font-size:0.9rem;">
                 <i class="fas fa-seedling" style="color:#20bf6b; margin-right:5px;"></i> Grow your knowledge tree!
             </div>
@@ -420,9 +382,12 @@
 
         <div id="view-chat" class="view-page">
             <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
-            <div style="background:white; padding:15px; border-radius:15px; margin-bottom:15px; display:flex; align-items:center; gap:12px; box-shadow:0 2px 5px rgba(0,0,0,0.03);">
-                <div class="icon-box ib-pink" style="width:40px; height:40px; margin:0;"><i class="fas fa-comments"></i></div>
-                <div><h3 style="margin:0; font-size:1rem; color:#444;">Community Chat</h3><small style="color:#888;">Be helpful & kind.</small></div>
+            <div style="background:white; padding:15px; border-radius:15px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 5px rgba(0,0,0,0.03);">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div class="icon-box ib-pink" style="width:40px; height:40px; margin:0;"><i class="fas fa-comments"></i></div>
+                    <div><h3 style="margin:0; font-size:1rem; color:#444;">Community Chat</h3><small style="color:#888;">Be helpful & kind.</small></div>
+                </div>
+                <i class="fas fa-bell" id="notif-icon" onclick="reqNotifPermission()" style="color:#ccc; cursor:pointer; font-size:1.2rem;"></i>
             </div>
             <div id="chat-list" class="chat-container"><div style="text-align:center; color:#aaa; margin-top:50px;">Loading messages...</div></div>
             <div class="chat-footer">
@@ -433,10 +398,26 @@
             </div>
         </div>
 
+        <div id="view-classroom" class="view-page">
+             <div class="back-btn" onclick="leaveClassroom()"><i class="fas fa-arrow-left"></i> Leave Classroom</div>
+             <div id="meet-frame"></div>
+             <div style="text-align:center; color:#888; margin-top:15px; font-size:0.9rem;">
+                <i class="fas fa-shield-alt" style="color:#20bf6b;"></i> Secured & Encrypted Classroom
+             </div>
+        </div>
+
         <div id="view-admin" class="view-page">
             <div class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i> Home</div>
             <h2 style="color:#ff4757; font-family:var(--font-head); margin-bottom:20px;">ADMIN DASHBOARD</h2>
             
+            <div class="admin-card">
+                <div>
+                    <b>Classroom Access</b>
+                    <div style="font-size:0.8rem; color:#666;" id="admin-class-status">Status: Unknown</div>
+                </div>
+                <button class="admin-btn" id="btn-toggle-class" onclick="adminAction('toggleClass')">TOGGLE</button>
+            </div>
+
             <div class="admin-card">
                 <div>
                     <b>Clear Chat</b>
@@ -465,6 +446,7 @@
     </div>
 
     <audio id="alarm" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+    <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2346/2346-preview.mp3"></audio>
 
     <script>
         // FIREBASE
@@ -472,27 +454,15 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
-        let currentUser = null, chatListener = null;
+        let currentUser = null, chatListener = null, isClassOpen = false;
         
-        // --- 3. UPDATED INSTALL LOGIC ---
+        // PWA INSTALL
         let deferredPrompt;
         const installBtn = document.getElementById('install-btn');
-
-        // Listen for prompt (if browser supports it)
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
-
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
         async function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-            } else {
-                // Manual Fallback if prompt is not ready (e.g. Chrome on iOS or already installed)
-                alert("To install:\n1. Tap your browser's Share/Menu button\n2. Select 'Add to Home Screen'");
-            }
+            if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null; } 
+            else { alert("To install:\n1. Tap your browser's Share/Menu button\n2. Select 'Add to Home Screen'"); }
         }
 
         // SYLLABUS
@@ -529,32 +499,81 @@
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.overlay').classList.toggle('active'); }
         function toggleForm() { const l=document.getElementById('login-form'), r=document.getElementById('reg-form'); if(l.style.display==='none'){l.style.display='block';r.style.display='none'}else{l.style.display='none';r.style.display='block'} }
 
-        // --- 2. CORRECTED ADMIN CREDENTIALS ---
+        // --- ADMIN & CLASSROOM LOGIC ---
         function verifyAdmin() {
             let adminID = prompt("Enter Admin ID:");
             let adminPass = prompt("Enter Admin Password:");
-
             if (adminID === "amikena420@123" && adminPass === "5972959729") {
-                openPage('admin');
-                toggleMenu(); 
-            } else {
-                alert("Access Denied: Incorrect Credentials");
-            }
+                openPage('admin'); toggleMenu(); 
+                // Sync Admin UI with DB
+                db.ref('system/classActive').on('value', s => {
+                    const active = s.val();
+                    document.getElementById('admin-class-status').innerText = active ? "Status: OPEN 🟢" : "Status: CLOSED 🔴";
+                    document.getElementById('btn-toggle-class').innerText = active ? "CLOSE CLASS" : "OPEN CLASS";
+                });
+            } else { alert("Access Denied: Incorrect Credentials"); }
         }
 
         function adminAction(action) {
+            if (action === 'toggleClass') {
+                db.ref('system/classActive').once('value', s => {
+                    const current = s.val();
+                    db.ref('system/classActive').set(!current);
+                });
+                return;
+            }
             if(!confirm("Are you sure? This action cannot be undone.")) return;
+            if (action === 'clearChat') { db.ref('messages').remove().then(() => alert("Chat Cleared")); }
+            if (action === 'resetXP') { db.ref('progress').remove().then(() => alert("Progress Reset")); }
+        }
 
-            if (action === 'clearChat') {
-                db.ref('messages').remove()
-                    .then(() => alert("Chat Cleared Successfully"))
-                    .catch(e => alert(e.message));
+        // CLASSROOM CLIENT SIDE
+        db.ref('system/classActive').on('value', s => {
+            isClassOpen = s.val();
+            const status = document.getElementById('classroom-status');
+            const btn = document.getElementById('classroom-btn');
+            if(isClassOpen) {
+                status.innerText = "🔴 LIVE NOW - Join"; status.style.color = "#ff4757"; status.style.fontWeight="bold";
+                btn.style.border = "1px solid #ff4757";
+            } else {
+                status.innerText = "Classroom is Closed"; status.style.color = "#888"; status.style.fontWeight="normal";
+                btn.style.border = "1px solid rgba(0,0,0,0.02)";
             }
-            if (action === 'resetXP') {
-                db.ref('progress').remove()
-                    .then(() => alert("All User Progress Reset"))
-                    .catch(e => alert(e.message));
+        });
+
+        function checkClassroomAccess() {
+            if(isClassOpen) {
+                initJitsi();
+                openPage('classroom');
+            } else {
+                alert("Classroom is currently closed by the Admin.");
             }
+        }
+
+        let jitsiApi = null;
+        function initJitsi() {
+            const domain = 'meet.jit.si';
+            const options = {
+                roomName: 'BigganClass_Live_Room_Secure_79', // Unique Room Name
+                width: '100%',
+                height: '100%',
+                parentNode: document.querySelector('#meet-frame'),
+                userInfo: { displayName: currentUser ? currentUser.displayName : 'Student' },
+                configOverwrite: { startWithAudioMuted: true, startWithVideoMuted: true },
+                interfaceConfigOverwrite: { 
+                    TOOLBAR_BUTTONS: ['microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen', 'fodeviceselection', 'hangup', 'profile', 'chat', 'raisehand', 'videoquality', 'filmstrip', 'tileview'] 
+                }
+            };
+            if(jitsiApi) jitsiApi.dispose();
+            jitsiApi = new JitsiMeetExternalAPI(domain, options);
+            jitsiApi.addEventListeners({
+                videoConferenceLeft: function () { leaveClassroom(); }
+            });
+        }
+        
+        function leaveClassroom() {
+            if(jitsiApi) jitsiApi.dispose();
+            goHome();
         }
 
         // AUTH
@@ -581,6 +600,8 @@
                     document.getElementById('user-school').innerText = d.school || 'Student';
                 });
                 updateStats();
+                // Listen for notifications even if not on chat page
+                initGlobalNotifListener();
             }
         });
 
@@ -636,84 +657,65 @@
         }
 
         // TIMER
-        let timerInterval = null;
-        let totalTime = 1500; // 25 mins default
-        let timeLeft = totalTime;
-        let isRunning = false;
-        
+        let timerInterval = null, totalTime = 1500, timeLeft = totalTime, isRunning = false;
         function updateTimerVisuals() {
-            const mins = Math.floor(timeLeft / 60);
-            const secs = timeLeft % 60;
+            const mins = Math.floor(timeLeft / 60); const secs = timeLeft % 60;
             document.getElementById('timer-display').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
-            
-            // Circle Progress
             const circle = document.getElementById('time-prog');
             const offset = 628 - (timeLeft / totalTime) * 628;
             circle.style.strokeDashoffset = offset;
         }
-
         function setTimerMode(mode) {
-            pauseTimer();
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            pauseTimer(); document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('mode-'+mode).classList.add('active');
-            
-            totalTime = (mode === 'focus') ? 1500 : 300; // 25m or 5m
-            timeLeft = totalTime;
-            updateTimerVisuals();
-            document.getElementById('timer-status').innerText = "READY";
+            totalTime = (mode === 'focus') ? 1500 : 300; timeLeft = totalTime;
+            updateTimerVisuals(); document.getElementById('timer-status').innerText = "READY";
         }
-
-        function toggleTimer() {
-            if(isRunning) {
-                pauseTimer();
-            } else {
-                startTimer();
-            }
-        }
-
+        function toggleTimer() { if(isRunning) pauseTimer(); else startTimer(); }
         function startTimer() {
-            if(isRunning) return;
-            isRunning = true;
+            if(isRunning) return; isRunning = true;
             document.getElementById('timer-status').innerText = "FOCUSING...";
             document.getElementById('btn-play').innerHTML = '<i class="fas fa-pause"></i>';
             document.getElementById('btn-play').classList.replace('btn-play', 'btn-pause');
-            
-            timerInterval = setInterval(() => {
-                if(timeLeft > 0) {
-                    timeLeft--;
-                    updateTimerVisuals();
-                } else {
-                    completeTimer();
-                }
-            }, 1000);
+            timerInterval = setInterval(() => { if(timeLeft > 0) { timeLeft--; updateTimerVisuals(); } else { completeTimer(); } }, 1000);
         }
-
         function pauseTimer() {
-            clearInterval(timerInterval);
-            isRunning = false;
+            clearInterval(timerInterval); isRunning = false;
             document.getElementById('timer-status').innerText = "PAUSED";
             document.getElementById('btn-play').innerHTML = '<i class="fas fa-play"></i>';
-            const btn = document.getElementById('btn-play');
-            if(btn.classList.contains('btn-pause')) btn.classList.replace('btn-pause', 'btn-play');
+            const btn = document.getElementById('btn-play'); if(btn.classList.contains('btn-pause')) btn.classList.replace('btn-pause', 'btn-play');
+        }
+        function resetTimer() { pauseTimer(); const isFocus = document.getElementById('mode-focus').classList.contains('active'); totalTime = isFocus ? 1500 : 300; timeLeft = totalTime; updateTimerVisuals(); document.getElementById('timer-status').innerText = "READY"; }
+        function completeTimer() { pauseTimer(); document.getElementById('timer-status').innerText = "DONE!"; document.getElementById('alarm').play(); alert("Time's up! Great job! 🌸"); }
+
+        // CHAT & NOTIFICATIONS
+        function reqNotifPermission() {
+            if (!("Notification" in window)) { alert("This browser does not support notifications."); return; }
+            Notification.requestPermission().then(permission => {
+                if(permission === "granted") { 
+                    document.getElementById('notif-icon').style.color = "#ff5e94"; 
+                    new Notification("Notifications Enabled! 🌸");
+                }
+            });
         }
 
-        function resetTimer() {
-            pauseTimer();
-            const isFocus = document.getElementById('mode-focus').classList.contains('active');
-            totalTime = isFocus ? 1500 : 300;
-            timeLeft = totalTime;
-            updateTimerVisuals();
-            document.getElementById('timer-status').innerText = "READY";
+        // Global listener for background notifications
+        function initGlobalNotifListener() {
+            db.ref('messages').limitToLast(1).on('child_added', snap => {
+                const msg = snap.val();
+                // If message is new (within last 2 seconds) and NOT from me
+                const isRecent = (Date.now() - msg.time) < 5000;
+                if(currentUser && msg.uid !== currentUser.uid && isRecent) {
+                    // Play sound
+                    document.getElementById('notif-sound').play().catch(e=>{});
+                    // Show Popup if permitted
+                    if(Notification.permission === "granted" && document.visibilityState === "hidden") {
+                        new Notification(`New msg from ${msg.name}`, { body: msg.text, icon: 'logo.png' });
+                    }
+                }
+            });
         }
 
-        function completeTimer() {
-            pauseTimer();
-            document.getElementById('timer-status').innerText = "DONE!";
-            document.getElementById('alarm').play();
-            alert("Time's up! Great job! 🌸");
-        }
-
-        // CHAT
         function initChat() {
             const list = document.getElementById('chat-list'); list.innerHTML = ''; 
             const scrollToBottom = () => { setTimeout(() => { window.scrollTo(0, document.body.scrollHeight); }, 100); };
@@ -725,7 +727,6 @@
                 const timeStr = new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 const div = document.createElement('div');
                 div.className = `msg-bubble ${isMe ? 'me' : 'other'}`; div.id = `msg-${key}`;
-                // Allow user to delete own, or Admin to delete any
                 let trash = (isMe) ? `<i class="fas fa-trash" style="margin-left:8px; cursor:pointer; font-size:0.8rem;" onclick="deleteMsg('${key}')"></i>` : '';
                 div.innerHTML = `${isMe ? '' : `<div style="font-size:0.75rem; font-weight:bold; color:var(--primary); margin-bottom:2px;">${msg.name}</div>`}
                     ${msg.img ? `<img src="${msg.img}" style="width:100%; border-radius:10px; margin-top:5px; display:block;">` : ''}
