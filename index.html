@@ -17,7 +17,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src='https://meet.jit.si/external_api.js'></script> <style>
+    <script src='https://meet.jit.si/external_api.js'></script>
+
+    <style>
         :root {
             --primary: #ff5e94;
             --primary-soft: #ffe3ec;
@@ -265,7 +267,7 @@
                 <i class="fas fa-code" style="color:#4facfe; font-size:1.1rem;"></i>
                 <div><div>Masrur Muntasir</div><small style="font-weight:normal; color:#888;">Developer & Admin</small></div>
             </a>
-            <div class="dev-info">App Version 2.8<br>Created with ❤️ by Masrur Muntasir</div>
+            <div class="dev-info">App Version 2.9<br>Created with ❤️ by Masrur Muntasir</div>
         </div>
     </div>
 
@@ -413,7 +415,7 @@
             <div class="admin-card">
                 <div>
                     <b>Classroom Access</b>
-                    <div style="font-size:0.8rem; color:#666;" id="admin-class-status">Status: Unknown</div>
+                    <div style="font-size:0.8rem; color:#666;" id="admin-class-status">Loading Status...</div>
                 </div>
                 <button class="admin-btn" id="btn-toggle-class" onclick="adminAction('toggleClass')">TOGGLE</button>
             </div>
@@ -546,12 +548,18 @@
                 initJitsi();
                 openPage('classroom');
             } else {
-                alert("Classroom is currently closed by the Admin.");
+                alert("Classroom is currently closed by the Admin. Please contact Instructor.");
             }
         }
 
         let jitsiApi = null;
         function initJitsi() {
+            // Check if script loaded
+            if (typeof JitsiMeetExternalAPI === 'undefined') {
+                alert("Error: Video script failed to load. Please check internet connection.");
+                return;
+            }
+
             const domain = 'meet.jit.si';
             const options = {
                 roomName: 'BigganClass_Live_Room_Secure_79', // Unique Room Name
