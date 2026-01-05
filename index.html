@@ -267,7 +267,7 @@
                 <i class="fas fa-code" style="color:#4facfe; font-size:1.1rem;"></i>
                 <div><div>Masrur Muntasir</div><small style="font-weight:normal; color:#888;">Developer & Admin</small></div>
             </a>
-            <div class="dev-info">App Version 2.9<br>Created with ❤️ by Masrur Muntasir</div>
+            <div class="dev-info">App Version 3.0<br>Created with ❤️ by Masrur Muntasir</div>
         </div>
     </div>
 
@@ -574,9 +574,7 @@
             };
             if(jitsiApi) jitsiApi.dispose();
             jitsiApi = new JitsiMeetExternalAPI(domain, options);
-            jitsiApi.addEventListeners({
-                videoConferenceLeft: function () { leaveClassroom(); }
-            });
+            // REMOVED AUTO-CLOSE LISTENER TO FIX BUG
         }
         
         function leaveClassroom() {
