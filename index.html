@@ -267,7 +267,7 @@
                 <i class="fas fa-code" style="color:#4facfe; font-size:1.1rem;"></i>
                 <div><div>Masrur Muntasir</div><small style="font-weight:normal; color:#888;">Developer & Admin</small></div>
             </a>
-            <div class="dev-info">App Version 3.0<br>Created with ❤️ by Masrur Muntasir</div>
+            <div class="dev-info">App Version 3.1<br>Created with ❤️ by Masrur Muntasir</div>
         </div>
     </div>
 
@@ -545,8 +545,8 @@
 
         function checkClassroomAccess() {
             if(isClassOpen) {
-                initJitsi();
                 openPage('classroom');
+                setTimeout(initJitsi, 500); // Small delay to ensure container is ready
             } else {
                 alert("Classroom is currently closed by the Admin. Please contact Instructor.");
             }
@@ -554,27 +554,36 @@
 
         let jitsiApi = null;
         function initJitsi() {
-            // Check if script loaded
-            if (typeof JitsiMeetExternalAPI === 'undefined') {
-                alert("Error: Video script failed to load. Please check internet connection.");
-                return;
-            }
+            if (typeof JitsiMeetExternalAPI === 'undefined') { alert("Connection Error: Video API failed."); return; }
+            
+            // Clean previous instance
+            const container = document.querySelector('#meet-frame');
+            container.innerHTML = ""; 
 
             const domain = 'meet.jit.si';
             const options = {
-                roomName: 'BigganClass_Live_Room_Secure_79', // Unique Room Name
+                roomName: 'BigganClass_Live_Room_Secure_79',
                 width: '100%',
                 height: '100%',
-                parentNode: document.querySelector('#meet-frame'),
+                parentNode: container,
                 userInfo: { displayName: currentUser ? currentUser.displayName : 'Student' },
-                configOverwrite: { startWithAudioMuted: true, startWithVideoMuted: true },
+                configOverwrite: { 
+                    startWithAudioMuted: true, 
+                    startWithVideoMuted: true,
+                    prejoinPageEnabled: false // DISABLE PREJOIN PAGE
+                },
                 interfaceConfigOverwrite: { 
-                    TOOLBAR_BUTTONS: ['microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen', 'fodeviceselection', 'hangup', 'profile', 'chat', 'raisehand', 'videoquality', 'filmstrip', 'tileview'] 
+                    TOOLBAR_BUTTONS: ['microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen', 'fodeviceselection', 'hangup', 'profile', 'chat', 'raisehand', 'videoquality', 'filmstrip', 'tileview'],
+                    MOBILE_APP_PROMO: false // DISABLE APP PROMO
+                },
+                featureFlags: {
+                    'deep-linking.enabled': false // DISABLE APP OPENING TRY
                 }
             };
+
             if(jitsiApi) jitsiApi.dispose();
             jitsiApi = new JitsiMeetExternalAPI(domain, options);
-            // REMOVED AUTO-CLOSE LISTENER TO FIX BUG
+            // Removed auto-close listener to prevent accidental exits
         }
         
         function leaveClassroom() {
@@ -606,7 +615,6 @@
                     document.getElementById('user-school').innerText = d.school || 'Student';
                 });
                 updateStats();
-                // Listen for notifications even if not on chat page
                 initGlobalNotifListener();
             }
         });
@@ -704,24 +712,18 @@
                 }
             });
         }
-
-        // Global listener for background notifications
         function initGlobalNotifListener() {
             db.ref('messages').limitToLast(1).on('child_added', snap => {
                 const msg = snap.val();
-                // If message is new (within last 2 seconds) and NOT from me
                 const isRecent = (Date.now() - msg.time) < 5000;
                 if(currentUser && msg.uid !== currentUser.uid && isRecent) {
-                    // Play sound
                     document.getElementById('notif-sound').play().catch(e=>{});
-                    // Show Popup if permitted
                     if(Notification.permission === "granted" && document.visibilityState === "hidden") {
                         new Notification(`New msg from ${msg.name}`, { body: msg.text, icon: 'logo.png' });
                     }
                 }
             });
         }
-
         function initChat() {
             const list = document.getElementById('chat-list'); list.innerHTML = ''; 
             const scrollToBottom = () => { setTimeout(() => { window.scrollTo(0, document.body.scrollHeight); }, 100); };
