@@ -281,6 +281,9 @@
         const auth = firebase.auth();
         const db = firebase.database();
         let currentUser = null;
+        
+        // List of tracked subjects for calculations
+        const trackedSubjects = ["physics", "chemistry", "biology", "higherMath"];
 
         // AUTH
         auth.onAuthStateChanged(user => {
@@ -294,7 +297,7 @@
                     document.getElementById('p-school').innerText = d.school || 'School';
                 });
                 loadTasks();
-                loadMyRank(); // Calling the Rank Function
+                loadMyRank(); // Initial load
             } else {
                 document.getElementById('auth-screen').style.display = 'flex';
             }
@@ -392,7 +395,12 @@
                     const div = document.createElement('div');
                     div.style.cssText = "display:flex; justify-content:space-between; padding:15px; background:white; border-radius:12px; margin-bottom:10px; align-items:center;";
                     div.innerHTML = `<span>${i+1}. ${c}</span> ${done ? '<i class="fas fa-check-circle" style="color:#20bf6b"></i>' : '<i class="far fa-circle" style="color:#ccc"></i>'}`;
-                    div.onclick = () => { db.ref(`progress/${currentUser.uid}/${sub}/${i}`).set(!done); if(!done) confetti(); };
+                    div.onclick = () => { 
+                        db.ref(`progress/${currentUser.uid}/${sub}/${i}`).set(!done); 
+                        if(!done) confetti();
+                        // Refresh rank display shortly after update
+                        setTimeout(loadMyRank, 500);
+                    };
                     list.appendChild(div);
                 });
             });
@@ -413,31 +421,44 @@
         }
         function resetTimer() { clearInterval(timer); isRun=false; time=1500; document.getElementById('timer-display').innerText="25:00"; document.getElementById('btn-play').innerHTML='<i class="fas fa-play"></i>'; }
 
-        // LEADERBOARD (FIXED)
+        // --- NEW & ROBUST LEADERBOARD LOGIC ---
+        function calculateXP(userProgress) {
+            let xp = 0;
+            if (!userProgress) return 0;
+            
+            // Only iterate through known valid subjects
+            trackedSubjects.forEach(sub => {
+                if (userProgress[sub]) {
+                    // It could be an Array or an Object, Object.values handles both
+                    Object.values(userProgress[sub]).forEach(isDone => {
+                        if (isDone === true) xp++;
+                    });
+                }
+            });
+            return xp * 10; // 10 XP per chapter
+        }
+
         function loadLeaderboard() {
             const list = document.getElementById('rank-list');
             list.innerHTML = '<div style="text-align:center; padding:20px;">Loading rankings...</div>';
             
             db.ref('users').once('value', uS => {
                 db.ref('progress').once('value', pS => {
-                    const u = uS.val() || {};
-                    const p = pS.val() || {};
+                    const users = uS.val() || {};
+                    const progress = pS.val() || {};
                     const rank = [];
 
-                    Object.keys(u).forEach(k => {
-                        let xp = 0;
-                        if (p[k]) {
-                            Object.values(p[k]).forEach(subData => {
-                                if (subData) {
-                                    Object.values(subData).forEach(isDone => {
-                                        if (isDone === true) xp++;
-                                    });
-                                }
-                            });
-                        }
-                        rank.push({ n: u[k].name, s: u[k].school, xp: xp * 10, uid: k });
+                    Object.keys(users).forEach(uid => {
+                        const userXP = calculateXP(progress[uid]);
+                        rank.push({ 
+                            n: users[uid].name || 'Unknown', 
+                            s: users[uid].school || 'No School', 
+                            xp: userXP, 
+                            uid: uid 
+                        });
                     });
 
+                    // Sort descending
                     rank.sort((a, b) => b.xp - a.xp);
 
                     list.innerHTML = rank.map((r, i) => `
@@ -446,7 +467,7 @@
                                 <div class="rank-num ${i === 0 ? 'rank-1' : ''}">${i + 1}</div>
                                 <div>
                                     <b>${r.n}</b>
-                                    <div style="font-size:0.8rem; color:#888;">${r.s || 'No School'}</div>
+                                    <div style="font-size:0.8rem; color:#888;">${r.s}</div>
                                 </div>
                             </div>
                             <b style="color:var(--primary)">${r.xp} XP</b>
@@ -456,29 +477,21 @@
             });
         }
 
-        // MY RANK (FIXED)
         function loadMyRank() {
+            if(!currentUser) return;
+            
             db.ref('users').once('value', uS => {
                 db.ref('progress').once('value', pS => {
-                    const u = uS.val() || {};
-                    const p = pS.val() || {};
+                    const users = uS.val() || {};
+                    const progress = pS.val() || {};
                     const rank = [];
 
-                    Object.keys(u).forEach(k => {
-                        let xp = 0;
-                        if (p[k]) {
-                            Object.values(p[k]).forEach(subData => {
-                                if (subData) {
-                                    Object.values(subData).forEach(isDone => {
-                                        if (isDone === true) xp++;
-                                    });
-                                }
-                            });
-                        }
-                        rank.push({ uid: k, xp: xp });
+                    Object.keys(users).forEach(uid => {
+                        rank.push({ uid: uid, xp: calculateXP(progress[uid]) });
                     });
 
                     rank.sort((a, b) => b.xp - a.xp);
+                    
                     const myIndex = rank.findIndex(r => r.uid === currentUser.uid);
                     document.getElementById('my-rank').innerText = myIndex !== -1 ? (myIndex + 1) : '-';
                 });
