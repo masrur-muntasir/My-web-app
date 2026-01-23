@@ -78,7 +78,7 @@
         .card-gradient h2 { margin: 0; font-size: 1.5rem; }
         .glass-tag { background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; backdrop-filter: blur(5px); display: inline-block; margin-top: 5px; }
 
-        /* --- CHAT STYLES (FIXED) --- */
+        /* --- CHAT STYLES --- */
         .chat-container { display: flex; flex-direction: column; height: calc(100vh - 180px); }
         .chat-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 12px; }
         
@@ -92,7 +92,7 @@
         .msg-row.me .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 10px rgba(255, 51, 102, 0.3); }
         
         .msg-name { font-size: 0.7rem; color: var(--text-sub); margin-bottom: 2px; margin-left: 2px; }
-        .msg-row.me .msg-name { display: none; } /* Hide own name */
+        .msg-row.me .msg-name { display: none; }
 
         /* --- BOTTOM NAV --- */
         .nav { 
@@ -294,7 +294,7 @@
                     document.getElementById('p-school').innerText = d.school || 'School';
                 });
                 loadTasks();
-                loadMyRank();
+                loadMyRank(); // Calling the Rank Function
             } else {
                 document.getElementById('auth-screen').style.display = 'flex';
             }
@@ -333,7 +333,7 @@
             if(id === 'leaderboard') loadLeaderboard();
         }
 
-        // CHAT (FIXED)
+        // CHAT
         function loadChat() {
             const box = document.getElementById('chat-box');
             box.innerHTML = '';
@@ -343,7 +343,6 @@
                 const div = document.createElement('div');
                 div.className = `msg-row ${isMe ? 'me' : 'other'}`;
                 
-                // Show name for others
                 const nameHtml = isMe ? '' : `<div class="msg-name">${m.name || 'User'}</div>`;
                 const avatarHtml = isMe ? '' : `<div class="msg-avatar">${(m.name||'U')[0]}</div>`;
                 
@@ -374,7 +373,7 @@
 
         // SYLLABUS
         const syllabus = {
-            physics: ["ভৌত রাশি", "গতি", "বল", "কাজ", "পদার্থের অবস্থা", "তাপ", "তরঙ্গ", "আলো", "তড়িৎ", "চৌম্বক", "আধুনিক পদার্থ"],
+            physics: ["ভৌত রাশি", "গতি", "বল", "কাজ", "পদার্থের অবস্থা", "তাপ", "তরঙ্গ", "আলো", "তড়িৎ", "চৌম্বক", "আধুনিক পদার্থ"],
             chemistry: ["ধারণা", "পদার্থ", "গঠন", "পর্যায় সারণি", "বন্ধন", "মোল", "বিক্রিয়া", "এসিড-ক্ষার", "খনিজ", "জীবাশ্ম"],
             biology: ["জীবন পাঠ", "কোষ", "বিভাজন", "পুষ্টি", "পরিবহন", "রেচন", "সমন্বয়", "প্রজনন", "বংশগতি", "বাস্তুতন্ত্র"],
             higherMath: ["সেট", "রাশি", "জ্যামিতি", "অঙ্কন", "অসমতা", "ধারা", "ত্রিকোণমিতি", "সূচক", "দ্বিপদী", "স্থানাঙ্ক", "সম্ভাবনা"]
@@ -386,10 +385,10 @@
             const list = document.getElementById('chapter-list');
             list.innerHTML = 'Loading...';
             db.ref(`progress/${currentUser.uid}/${sub}`).on('value', s => {
-                const prog = s.val() || [];
+                const prog = s.val() || {};
                 list.innerHTML = '';
                 syllabus[sub].forEach((c, i) => {
-                    const done = prog[i] ? true : false;
+                    const done = prog[i] === true;
                     const div = document.createElement('div');
                     div.style.cssText = "display:flex; justify-content:space-between; padding:15px; background:white; border-radius:12px; margin-bottom:10px; align-items:center;";
                     div.innerHTML = `<span>${i+1}. ${c}</span> ${done ? '<i class="fas fa-check-circle" style="color:#20bf6b"></i>' : '<i class="far fa-circle" style="color:#ccc"></i>'}`;
@@ -414,30 +413,77 @@
         }
         function resetTimer() { clearInterval(timer); isRun=false; time=1500; document.getElementById('timer-display').innerText="25:00"; document.getElementById('btn-play').innerHTML='<i class="fas fa-play"></i>'; }
 
-        // LEADERBOARD
+        // LEADERBOARD (FIXED)
         function loadLeaderboard() {
-            const list = document.getElementById('rank-list'); list.innerHTML = "Loading...";
+            const list = document.getElementById('rank-list');
+            list.innerHTML = '<div style="text-align:center; padding:20px;">Loading rankings...</div>';
+            
             db.ref('users').once('value', uS => {
                 db.ref('progress').once('value', pS => {
-                    const u=uS.val()||{}, p=pS.val()||{}, rank=[];
+                    const u = uS.val() || {};
+                    const p = pS.val() || {};
+                    const rank = [];
+
                     Object.keys(u).forEach(k => {
-                        let xp=0; if(p[k]) Object.values(p[k]).forEach(s => xp += (Array.isArray(s)?s.filter(Boolean).length:0));
-                        rank.push({n:u[k].name, s:u[k].school, xp:xp});
+                        let xp = 0;
+                        if (p[k]) {
+                            Object.values(p[k]).forEach(subData => {
+                                if (subData) {
+                                    Object.values(subData).forEach(isDone => {
+                                        if (isDone === true) xp++;
+                                    });
+                                }
+                            });
+                        }
+                        rank.push({ n: u[k].name, s: u[k].school, xp: xp * 10, uid: k });
                     });
-                    rank.sort((a,b)=>b.xp-a.xp);
-                    list.innerHTML = rank.map((r,i) => `
-                        <div class="rank-item">
+
+                    rank.sort((a, b) => b.xp - a.xp);
+
+                    list.innerHTML = rank.map((r, i) => `
+                        <div class="rank-item" style="${r.uid === currentUser.uid ? 'border: 2px solid var(--primary); background:var(--primary-soft);' : ''}">
                             <div style="display:flex; gap:10px; align-items:center;">
-                                <div class="rank-num ${i===0?'rank-1':''}">${i+1}</div>
-                                <div><b>${r.n}</b><div style="font-size:0.8rem; color:#888;">${r.s}</div></div>
+                                <div class="rank-num ${i === 0 ? 'rank-1' : ''}">${i + 1}</div>
+                                <div>
+                                    <b>${r.n}</b>
+                                    <div style="font-size:0.8rem; color:#888;">${r.s || 'No School'}</div>
+                                </div>
                             </div>
-                            <b style="color:var(--primary)">${r.xp*10} XP</b>
+                            <b style="color:var(--primary)">${r.xp} XP</b>
                         </div>
                     `).join('');
                 });
             });
         }
-        function loadMyRank() { /* Simplified rank check logic can go here */ }
+
+        // MY RANK (FIXED)
+        function loadMyRank() {
+            db.ref('users').once('value', uS => {
+                db.ref('progress').once('value', pS => {
+                    const u = uS.val() || {};
+                    const p = pS.val() || {};
+                    const rank = [];
+
+                    Object.keys(u).forEach(k => {
+                        let xp = 0;
+                        if (p[k]) {
+                            Object.values(p[k]).forEach(subData => {
+                                if (subData) {
+                                    Object.values(subData).forEach(isDone => {
+                                        if (isDone === true) xp++;
+                                    });
+                                }
+                            });
+                        }
+                        rank.push({ uid: k, xp: xp });
+                    });
+
+                    rank.sort((a, b) => b.xp - a.xp);
+                    const myIndex = rank.findIndex(r => r.uid === currentUser.uid);
+                    document.getElementById('my-rank').innerText = myIndex !== -1 ? (myIndex + 1) : '-';
+                });
+            });
+        }
 
         // EXTRAS
         function addTask() { 
