@@ -3,344 +3,448 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PC Master Academy | Premium</title>
+    <title>PC Master Academy | Lite</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; background: #0b1121; color: #fff; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; background: #0f172a; color: #fff; -webkit-tap-highlight-color: transparent; }
         
-        /* Butter Smooth Animations */
-        .page-transition { animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        @keyframes slideUp { 
-            from { opacity: 0; transform: translateY(20px) scale(0.98); } 
-            to { opacity: 1; transform: translateY(0) scale(1); } 
-        }
+        /* Optimized Animation */
+        .page-transition { animation: fadeUp 0.3s ease-out forwards; opacity: 0; transform: translateY(10px); }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-        /* Premium Glass Effect */
+        /* Performance Glass (Lighter blur for mobile) */
         .glass { 
-            background: rgba(30, 41, 59, 0.7); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            background: rgba(30, 41, 59, 0.85); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        @supports (backdrop-filter: blur(10px)) {
+            .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
         }
         
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
 
-        /* Active State for Nav */
         .nav-active { color: #60a5fa; position: relative; }
         .nav-active::after {
-            content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
-            width: 5px; height: 5px; background: #60a5fa; border-radius: 50%;
-            box-shadow: 0 0 10px #60a5fa;
+            content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+            width: 4px; height: 4px; background: #60a5fa; border-radius: 50%;
         }
+        .safe-area-bottom { padding-bottom: calc(70px + env(safe-area-inset-bottom)); }
+        
+        .msg-me { align-self: flex-end; background: #2563eb; border-radius: 16px 16px 0 16px; }
+        .msg-other { align-self: flex-start; background: #1e293b; border-radius: 16px 16px 16px 0; border: 1px solid rgba(255,255,255,0.05); }
 
-        /* Mobile Adjustments */
-        .safe-area-bottom { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+        /* Pulse Animation for Online Status */
+        .online-indicator { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; }
+        .pulse { animation: pulse-animation 2s infinite; }
+        @keyframes pulse-animation { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
     </style>
 </head>
 <body class="h-screen flex flex-col md:flex-row overflow-hidden">
 
-    <div id="login-screen" class="fixed inset-0 z-50 bg-[#0b1121] flex flex-col items-center justify-center p-6 transition-all duration-500">
-        <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-3xl mb-6 shadow-[0_0_30px_rgba(37,99,235,0.5)] animate-bounce">
-            <i class="fas fa-graduation-cap text-white"></i>
-        </div>
-        <h1 class="text-3xl font-bold mb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">PC Master Academy</h1>
-        <p class="text-slate-400 mb-8 text-sm">Learning is Future</p>
+    <div id="auth-screen" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-opacity duration-300">
+        <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-lg rotate-3"><i class="fas fa-graduation-cap text-white"></i></div>
+        <h1 class="text-2xl font-bold mb-1 text-white">PC Master Academy</h1>
+        <p class="text-slate-400 mb-8 text-sm">Sign in to continue</p>
         
-        <div class="w-full max-w-sm glass rounded-3xl p-6 space-y-4">
-            <input type="email" placeholder="Email Address" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-5 py-4 outline-none focus:border-blue-500 focus:bg-slate-800 transition">
-            <input type="password" placeholder="Password" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-5 py-4 outline-none focus:border-blue-500 focus:bg-slate-800 transition">
-            <button onclick="appLogin()" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 py-4 rounded-xl font-bold shadow-lg shadow-blue-600/30 active:scale-95 transition">লগইন করুন</button>
+        <div class="w-full max-w-sm glass rounded-2xl p-6 space-y-3">
+            <input type="text" id="reg-name" placeholder="Full Name" class="hidden w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition">
+            <input type="text" id="reg-school" placeholder="School Name" class="hidden w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition">
+            
+            <input type="email" id="email" placeholder="Email" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition">
+            <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition">
+            
+            <button onclick="handleAuth()" id="auth-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold shadow-lg active:scale-95 transition">লগইন</button>
+            <p class="text-center text-sm text-slate-400 mt-2 cursor-pointer" onclick="toggleAuthMode()" id="auth-toggle">Create Account</p>
+        </div>
+        <div class="absolute bottom-5 text-[10px] text-slate-600 text-center">Developed by<br>Masrur Muntasir (DIU)</div>
+    </div>
+
+    <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm transition-all">
+        <div class="glass w-full max-w-sm p-6 rounded-3xl relative text-center border-t border-white/10">
+            <button onclick="document.getElementById('profile-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 p-2"><i class="fas fa-times"></i></button>
+            
+            <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-3xl font-bold mb-3 shadow-lg" id="prof-avatar">U</div>
+            <h2 class="text-xl font-bold text-white" id="prof-name">...</h2>
+            <p class="text-slate-400 text-xs mb-4" id="prof-school">...</p>
+            
+            <div id="prof-status" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs mb-6">
+                <span class="w-2 h-2 rounded-full bg-slate-500"></span> Offline
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-slate-800/50 p-3 rounded-xl border border-white/5">
+                    <div class="text-blue-400 text-lg mb-1"><i class="fas fa-fire"></i></div>
+                    <div class="font-bold text-lg" id="prof-xp">0</div>
+                    <div class="text-[10px] text-slate-500">XP Earned</div>
+                </div>
+                <div class="bg-slate-800/50 p-3 rounded-xl border border-white/5">
+                    <div class="text-green-400 text-lg mb-1"><i class="fas fa-clock"></i></div>
+                    <div class="font-bold text-lg" id="prof-sessions">0</div>
+                    <div class="text-[10px] text-slate-500">Sessions</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <aside class="hidden md:flex flex-col w-72 glass border-r border-slate-700/50 z-20">
-        <div class="p-8">
-            <h2 class="text-2xl font-bold text-blue-500 flex items-center gap-2">
-                <i class="fas fa-atom"></i> PC MASTER
-            </h2>
-        </div>
-        <nav class="flex-1 px-4 space-y-2">
-            <button onclick="nav('home')" id="d-home" class="w-full text-left px-6 py-4 rounded-xl hover:bg-slate-800/50 transition flex items-center gap-4 text-slate-400 nav-active">
-                <i class="fas fa-home text-xl"></i> ড্যাশবোর্ড
-            </button>
-            <button onclick="nav('study')" id="d-study" class="w-full text-left px-6 py-4 rounded-xl hover:bg-slate-800/50 transition flex items-center gap-4 text-slate-400">
-                <i class="fas fa-stopwatch text-xl"></i> স্টাডি টাইমার
-            </button>
-            <button onclick="nav('leaderboard')" id="d-leaderboard" class="w-full text-left px-6 py-4 rounded-xl hover:bg-slate-800/50 transition flex items-center gap-4 text-slate-400">
-                <i class="fas fa-trophy text-xl"></i> লিডারবোর্ড
-            </button>
-            <button onclick="nav('chat')" id="d-chat" class="w-full text-left px-6 py-4 rounded-xl hover:bg-slate-800/50 transition flex items-center gap-4 text-slate-400">
-                <i class="fas fa-comments text-xl"></i> ডিসকাশন
-            </button>
-        </nav>
-        <div class="p-6">
-            <div class="glass p-4 rounded-2xl flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-500 to-yellow-500 flex items-center justify-center shadow-lg"><i class="fas fa-fire"></i></div>
-                <div>
-                    <div class="text-xs text-slate-400">Daily Streak</div>
-                    <div class="font-bold">12 Days 🔥</div>
-                </div>
+    <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-md p-6 rounded-3xl relative">
+            <button onclick="document.getElementById('admin-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400"><i class="fas fa-times"></i></button>
+            <h2 class="text-lg font-bold text-red-500 mb-4 flex items-center gap-2"><i class="fas fa-shield-alt"></i> Admin Control</h2>
+            
+            <div class="bg-slate-800 p-4 rounded-xl mb-4">
+                <h3 class="text-xs font-bold text-blue-400 mb-2 uppercase">Publish Notice</h3>
+                <input type="text" id="n-title" placeholder="Title" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm mb-2 text-white">
+                <textarea id="n-body" placeholder="Details..." class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm mb-2 text-white"></textarea>
+                <button onclick="postNotice()" class="w-full bg-blue-600 py-2 rounded text-sm font-bold">Post</button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="adm('clearChat')" class="bg-red-500/10 text-red-400 py-3 rounded-xl text-xs font-bold">Clear Chat</button>
+                <button onclick="adm('resetRank')" class="bg-red-500/10 text-red-400 py-3 rounded-xl text-xs font-bold">Reset XP</button>
             </div>
         </div>
-    </aside>
+    </div>
 
-    <main class="flex-1 overflow-y-auto relative bg-[#0b1121] safe-area-bottom">
+    <div class="flex flex-1 overflow-hidden h-full flex-col md:flex-row">
         
-        <header class="md:hidden sticky top-0 z-10 glass px-6 py-4 flex justify-between items-center">
-            <div class="font-bold text-lg text-blue-400"><i class="fas fa-atom"></i> PC MASTER</div>
-            <div class="w-8 h-8 rounded-full bg-slate-700 border border-slate-600 overflow-hidden">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User">
+        <aside class="hidden md:flex flex-col w-64 glass border-r border-slate-700/30 z-20">
+            <div class="p-6 text-xl font-bold text-blue-500 flex items-center gap-2"><i class="fas fa-atom"></i> PC MASTER</div>
+            <nav class="flex-1 px-3 space-y-1">
+                <button onclick="nav('home')" id="d-home" class="w-full text-left px-4 py-3 rounded-xl nav-active bg-slate-800/50 text-blue-400 text-sm font-medium"><i class="fas fa-home w-6"></i> Dashboard</button>
+                <button onclick="nav('study')" id="d-study" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 text-sm font-medium hover:bg-slate-800/30"><i class="fas fa-stopwatch w-6"></i> Timer</button>
+                <button onclick="nav('rank')" id="d-rank" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 text-sm font-medium hover:bg-slate-800/30"><i class="fas fa-trophy w-6"></i> Leaderboard</button>
+                <button onclick="nav('chat')" id="d-chat" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 text-sm font-medium hover:bg-slate-800/30"><i class="fas fa-comments w-6"></i> Chat</button>
+                <button onclick="openAdmin()" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 text-sm font-medium hover:bg-slate-800/30"><i class="fas fa-lock w-6"></i> Admin</button>
+            </nav>
+            <div class="p-4 border-t border-white/5">
+                <button onclick="logout()" class="w-full py-2 text-red-400 text-xs font-bold hover:bg-red-500/10 rounded-lg">Sign Out</button>
             </div>
-        </header>
+        </aside>
 
-        <div id="p-home" class="p-6 md:p-10 page-transition">
-            <div class="mb-8">
-                <h1 class="text-2xl md:text-3xl font-bold mb-1" id="greeting">Welcome Back!</h1>
-                <p class="text-slate-400">আপনার আজকের লক্ষ্য: ৫ ঘণ্টা পড়াশোনা</p>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="glass p-5 rounded-3xl">
-                    <div class="text-blue-400 text-2xl mb-2"><i class="fas fa-clock"></i></div>
-                    <div class="text-2xl font-bold">১২.৫</div>
-                    <div class="text-xs text-slate-400">ঘণ্টা (সাপ্তাহিক)</div>
+        <main class="flex-1 overflow-y-auto relative bg-[#0f172a] safe-area-bottom scroll-smooth">
+            
+            <header class="md:hidden sticky top-0 z-30 glass px-5 py-3 flex justify-between items-center">
+                <div class="font-bold text-blue-500"><i class="fas fa-atom"></i> PC MASTER</div>
+                <div class="flex items-center gap-3">
+                    <button onclick="openAdmin()" class="text-slate-400"><i class="fas fa-shield-alt"></i></button>
+                    <button onclick="logout()" class="text-red-400 text-xs font-bold">EXIT</button>
                 </div>
-                <div class="glass p-5 rounded-3xl">
-                    <div class="text-purple-400 text-2xl mb-2"><i class="fas fa-book"></i></div>
-                    <div class="text-2xl font-bold">৪টি</div>
-                    <div class="text-xs text-slate-400">মডিউল সম্পন্ন</div>
-                </div>
-            </div>
+            </header>
 
-            <div class="glass rounded-3xl p-6 mb-8 border-l-4 border-blue-500 relative overflow-hidden group">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-blue-500/20 transition"></div>
-                <div class="flex justify-between items-start mb-2">
-                    <span class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-xs font-bold">LATEST UPDATE</span>
-                    <i class="fas fa-thumbtack text-slate-500"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-2">ফিজিক্স ২য় পত্র - এক্সাম রুটিন</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">আগামী শুক্রবার সন্ধ্যা ৭টায় চ্যাপ্টার ৩ এর উপর মেগা এক্সাম হবে। সবাই প্রস্তুতি নিয়ে রেখো।</p>
-            </div>
-
-            <div class="glass rounded-3xl p-6">
-                <h3 class="font-bold mb-4">সাবজেক্ট পারফরম্যান্স</h3>
-                <div class="h-64 md:h-80">
-                    <canvas id="progressChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div id="p-study" class="p-6 md:p-10 hidden page-transition h-full">
-            <div class="h-full flex flex-col items-center justify-center max-w-lg mx-auto">
-                <div class="grid grid-cols-4 gap-3 w-full mb-8">
-                    <button class="bg-blue-600 text-white p-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/30">Phy</button>
-                    <button class="glass text-slate-400 p-3 rounded-xl font-bold text-sm">Chem</button>
-                    <button class="glass text-slate-400 p-3 rounded-xl font-bold text-sm">Bio</button>
-                    <button class="glass text-slate-400 p-3 rounded-xl font-bold text-sm">Math</button>
-                </div>
-
-                <div class="relative w-72 h-72 md:w-80 md:h-80 glass rounded-full flex items-center justify-center mb-10 shadow-[0_0_50px_rgba(37,99,235,0.1)] border-4 border-slate-700/30">
-                    <svg class="absolute inset-0 w-full h-full transform -rotate-90">
-                        <circle cx="50%" cy="50%" r="45%" stroke="#1e293b" stroke-width="15" fill="none"/>
-                        <circle cx="50%" cy="50%" r="45%" stroke="#3b82f6" stroke-width="15" fill="none" stroke-dasharray="880" stroke-dashoffset="220" stroke-linecap="round" class="transition-all duration-1000"/>
-                    </svg>
-                    <div class="text-center z-10">
-                        <div id="timer" class="text-6xl md:text-7xl font-bold tracking-tighter tabular-nums">25:00</div>
-                        <div id="status" class="text-blue-400 font-medium mt-2 animate-pulse">Ready to Focus</div>
+            <div id="p-home" class="p-5 md:p-10 page-transition">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold" id="greeting">Hello!</h1>
+                        <p class="text-slate-400 text-xs" id="u-school">...</p>
+                    </div>
+                    <div class="bg-slate-800/80 px-3 py-1.5 rounded-full flex items-center gap-2 border border-slate-700">
+                        <span class="online-indicator pulse"></span>
+                        <span class="text-xs font-bold"><span id="live-cnt">0</span> Online</span>
                     </div>
                 </div>
 
-                <div class="flex gap-6 items-center">
-                    <button class="w-14 h-14 rounded-full glass flex items-center justify-center text-slate-300 hover:text-white transition"><i class="fas fa-music"></i></button>
-                    <button onclick="toggleTimer()" id="playBtn" class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-3xl shadow-[0_10px_30px_rgba(37,99,235,0.4)] hover:scale-105 active:scale-95 transition"><i class="fas fa-play ml-1"></i></button>
-                    <button class="w-14 h-14 rounded-full glass flex items-center justify-center text-slate-300 hover:text-white transition"><i class="fas fa-expand"></i></button>
-                </div>
-            </div>
-        </div>
-
-        <div id="p-leaderboard" class="p-6 md:p-10 hidden page-transition">
-            <div class="flex justify-between items-end mb-6">
-                <h2 class="text-2xl font-bold">Top Learners</h2>
-                <span class="text-xs font-bold bg-green-500/20 text-green-400 px-3 py-1 rounded-full animate-pulse">● Live Updating</span>
-            </div>
-            
-            <div class="space-y-4" id="rank-list">
-                </div>
-        </div>
-
-        <div id="p-chat" class="hidden page-transition flex flex-col h-full absolute inset-0 pt-20 pb-24 md:pb-10 md:pt-10 px-4 md:px-10">
-            <div class="flex-1 overflow-y-auto space-y-4 pb-4" id="chat-container">
-                <div class="flex gap-3">
-                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs">P</div>
-                    <div class="glass px-4 py-2 rounded-2xl rounded-tl-none max-w-[80%] text-sm leading-relaxed">
-                        <span class="text-blue-400 text-xs font-bold block mb-1">Pial Bhaiya (Admin)</span>
-                        আজকের ক্লাসের নোটগুলো পিন করা হয়েছে। সবাই দেখে নিও।
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="glass p-4 rounded-2xl border-l-4 border-blue-500">
+                        <div class="text-2xl font-bold" id="my-xp">0</div>
+                        <div class="text-xs text-slate-400">Total XP</div>
+                    </div>
+                    <div class="glass p-4 rounded-2xl border-l-4 border-green-500">
+                        <div class="text-2xl font-bold" id="my-rank">-</div>
+                        <div class="text-xs text-slate-400">My Rank</div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="glass p-2 rounded-full flex gap-2 items-center mt-2">
-                <button class="w-10 h-10 rounded-full bg-slate-700/50 flex items-center justify-center text-slate-400"><i class="fas fa-image"></i></button>
-                <input type="text" placeholder="Type a message..." class="flex-1 bg-transparent border-none outline-none text-white px-2">
-                <button class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-sm"></i></button>
-            </div>
-        </div>
 
-    </main>
-
-    <nav class="md:hidden fixed bottom-0 left-0 w-full glass z-40 pb-[env(safe-area-inset-bottom)]">
-        <div class="flex justify-around items-center h-16">
-            <button onclick="nav('home')" id="m-home" class="flex flex-col items-center justify-center w-full h-full text-slate-400 nav-active transition">
-                <i class="fas fa-home text-lg mb-1"></i>
-                <span class="text-[10px] font-medium">Home</span>
-            </button>
-            <button onclick="nav('study')" id="m-study" class="flex flex-col items-center justify-center w-full h-full text-slate-400 transition">
-                <i class="fas fa-stopwatch text-lg mb-1"></i>
-                <span class="text-[10px] font-medium">Study</span>
-            </button>
-            <div class="relative -top-6">
-                <button onclick="nav('study')" class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(37,99,235,0.5)] border-4 border-[#0b1121]">
-                    <i class="fas fa-play text-white text-lg"></i>
-                </button>
+                <div class="glass rounded-2xl p-5 border border-blue-500/20 relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider">NOTICE</span>
+                        <span class="text-[10px] text-slate-500" id="nt-date"></span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-1" id="nt-title">No Notices</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed" id="nt-body">Stay tuned for updates.</p>
+                </div>
             </div>
-            <button onclick="nav('leaderboard')" id="m-leaderboard" class="flex flex-col items-center justify-center w-full h-full text-slate-400 transition">
-                <i class="fas fa-trophy text-lg mb-1"></i>
-                <span class="text-[10px] font-medium">Rank</span>
-            </button>
-            <button onclick="nav('chat')" id="m-chat" class="flex flex-col items-center justify-center w-full h-full text-slate-400 transition">
-                <i class="fas fa-comments text-lg mb-1"></i>
-                <span class="text-[10px] font-medium">Chat</span>
-            </button>
-        </div>
-    </nav>
+
+            <div id="p-study" class="hidden h-full flex flex-col items-center justify-center p-6 page-transition">
+                <div class="grid grid-cols-4 gap-2 w-full max-w-sm mb-8">
+                    <button onclick="setSub('phy')" class="s-btn glass text-slate-400 py-3 rounded-xl text-xs font-bold hover:bg-slate-700">PHY</button>
+                    <button onclick="setSub('chem')" class="s-btn glass text-slate-400 py-3 rounded-xl text-xs font-bold hover:bg-slate-700">CHEM</button>
+                    <button onclick="setSub('bio')" class="s-btn glass text-slate-400 py-3 rounded-xl text-xs font-bold hover:bg-slate-700">BIO</button>
+                    <button onclick="setSub('math')" class="s-btn glass text-slate-400 py-3 rounded-xl text-xs font-bold hover:bg-slate-700">MATH</button>
+                </div>
+                <div class="relative w-64 h-64 flex items-center justify-center mb-8">
+                    <div class="absolute inset-0 border-4 border-slate-700/30 rounded-full"></div>
+                    <div class="text-center">
+                        <div id="timer" class="text-6xl font-bold tabular-nums tracking-tight">25:00</div>
+                        <div id="t-status" class="text-blue-400 text-xs font-bold mt-2 uppercase tracking-widest">Select Subject</div>
+                    </div>
+                </div>
+                <button onclick="toggleT()" id="t-btn" class="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-xl shadow-lg active:scale-95 transition"><i class="fas fa-play text-white"></i></button>
+            </div>
+
+            <div id="p-rank" class="hidden p-5 md:p-10 page-transition">
+                <h2 class="text-xl font-bold mb-4">Top Students</h2>
+                <div id="rank-list" class="space-y-3"></div>
+            </div>
+
+            <div id="p-chat" class="hidden h-full flex flex-col relative pt-16 md:pt-0 page-transition">
+                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3 pb-24"></div>
+                <div class="absolute bottom-0 w-full p-4 glass md:static">
+                    <form onsubmit="sendMsg(); return false;" class="flex gap-2">
+                        <input type="text" id="m-in" placeholder="Type here..." class="flex-1 bg-slate-800 border-none rounded-full px-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <button type="submit" class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-xs text-white"></i></button>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <nav class="md:hidden fixed bottom-0 left-0 w-full glass z-40 pb-[env(safe-area-inset-bottom)] border-t border-white/5">
+            <div class="flex justify-around items-center h-16">
+                <button onclick="nav('home')" id="m-home" class="flex flex-col items-center justify-center w-full h-full text-blue-400 nav-active"><i class="fas fa-home text-lg mb-0.5"></i></button>
+                <button onclick="nav('study')" id="m-study" class="flex flex-col items-center justify-center w-full h-full text-slate-500"><i class="fas fa-stopwatch text-lg mb-0.5"></i></button>
+                <div class="relative -top-5"><button onclick="nav('study')" class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-lg border-4 border-[#0f172a]"><i class="fas fa-play text-white text-sm"></i></button></div>
+                <button onclick="nav('rank')" id="m-rank" class="flex flex-col items-center justify-center w-full h-full text-slate-500"><i class="fas fa-trophy text-lg mb-0.5"></i></button>
+                <button onclick="nav('chat')" id="m-chat" class="flex flex-col items-center justify-center w-full h-full text-slate-500"><i class="fas fa-comments text-lg mb-0.5"></i></button>
+            </div>
+        </nav>
+    </div>
 
     <script>
-        // 1. SMART GREETING
-        const hours = new Date().getHours();
-        const greetText = hours < 12 ? 'Good Morning' : hours < 18 ? 'Good Afternoon' : 'Good Evening';
-        document.getElementById('greeting').innerText = `${greetText}, Champ!`;
+        // --- FIREBASE CONFIG ---
+        const firebaseConfig = { apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ", authDomain: "masrur-app-dccc1.firebaseapp.com", databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com", projectId: "masrur-app-dccc1", storageBucket: "masrur-app-dccc1.firebasestorage.app", messagingSenderId: "54049170636", appId: "1:54049170636:web:0d0fd5f530027e72688e69" };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(); const db = firebase.database();
+        let curUser = null;
 
-        // 2. SMOOTH NAVIGATION
-        function nav(page) {
-            // Hide all pages
-            ['home', 'study', 'leaderboard', 'chat'].forEach(p => {
-                document.getElementById('p-'+p).classList.add('hidden');
-                // Remove active styles desktop
-                const dBtn = document.getElementById('d-'+p);
-                if(dBtn) {
-                    dBtn.classList.remove('nav-active', 'text-blue-400', 'bg-slate-800/50'); 
-                    dBtn.classList.add('text-slate-400');
-                }
-                // Remove active styles mobile
-                const mBtn = document.getElementById('m-'+p);
-                if(mBtn) { mBtn.classList.remove('nav-active', 'text-blue-400'); mBtn.classList.add('text-slate-400'); }
-            });
-
-            // Show selected page
-            document.getElementById('p-'+page).classList.remove('hidden');
-
-            // Add active styles desktop
-            const activeDBtn = document.getElementById('d-'+page);
-            if(activeDBtn) {
-                activeDBtn.classList.add('nav-active', 'text-blue-400', 'bg-slate-800/50');
-                activeDBtn.classList.remove('text-slate-400');
-            }
-            
-            // Add active styles mobile
-            const activeMBtn = document.getElementById('m-'+page);
-            if(activeMBtn) {
-                activeMBtn.classList.add('nav-active', 'text-blue-400');
-                activeMBtn.classList.remove('text-slate-400');
-            }
+        // --- AUTH & SETUP ---
+        let isReg=false;
+        function toggleAuthMode(){isReg=!isReg; document.getElementById('reg-name').classList.toggle('hidden'); document.getElementById('reg-school').classList.toggle('hidden'); document.getElementById('auth-btn').innerText=isReg?'Register':'Login'; document.getElementById('auth-toggle').innerText=isReg?'Have account? Login':'No account? Register';}
+        
+        async function handleAuth(){
+            const em = document.getElementById('email').value, pw = document.getElementById('pass').value;
+            try {
+                if(isReg){
+                    const nm = document.getElementById('reg-name').value, sc = document.getElementById('reg-school').value;
+                    if(!nm||!sc) throw "Fill all fields";
+                    const c = await auth.createUserWithEmailAndPassword(em,pw);
+                    await c.user.updateProfile({displayName:nm});
+                    await db.ref('users/'+c.user.uid).set({name:nm, school:sc});
+                } else { await auth.signInWithEmailAndPassword(em,pw); }
+            } catch(e){ alert(e.message||e); }
         }
 
-        // 3. LOGIN ANIMATION
-        function appLogin() {
-            const screen = document.getElementById('login-screen');
-            screen.style.opacity = '0';
-            screen.style.transform = 'scale(1.1)';
-            setTimeout(() => {
-                screen.classList.add('hidden');
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-            }, 500);
-        }
-
-        // 4. CHART.JS
-        const ctx = document.getElementById('progressChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-                datasets: [{
-                    label: 'Study Hours',
-                    data: [4, 6, 3, 7, 5, 8, 6],
-                    backgroundColor: '#3b82f6',
-                    borderRadius: 8,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                },
-                plugins: { legend: { display: false } }
-            }
+        auth.onAuthStateChanged(u => {
+            if(u){
+                curUser = u;
+                document.getElementById('auth-screen').style.opacity = '0';
+                setTimeout(()=>document.getElementById('auth-screen').classList.add('hidden'),300);
+                document.getElementById('greeting').innerText = `Hi, ${u.displayName.split(' ')[0]}!`;
+                db.ref('users/'+u.uid).once('value', s=>document.getElementById('u-school').innerText=s.val()?.school||'Student');
+                
+                initApp();
+            } else { document.getElementById('auth-screen').classList.remove('hidden'); document.getElementById('auth-screen').style.opacity='1'; }
         });
 
-        // 5. MOCK LEADERBOARD DATA
-        const users = [
-            { n: "Masrur M.", s: "Math", h: "8.5h", img: "Felix" },
-            { n: "Sadia I.", s: "Bio", h: "7.2h", img: "Aneka" },
-            { n: "Rahim K.", s: "Phy", h: "6.8h", img: "Jude" },
-        ];
-        document.getElementById('rank-list').innerHTML = users.map((u, i) => `
-            <div class="glass p-4 rounded-2xl flex items-center justify-between border border-white/5">
-                <div class="flex items-center gap-4">
-                    <div class="font-bold text-slate-500 text-lg w-6">#${i+1}</div>
-                    <div class="w-10 h-10 rounded-full bg-slate-700 overflow-hidden">
-                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${u.img}" alt="Avatar">
-                    </div>
-                    <div>
-                        <div class="font-bold text-sm">${u.n}</div>
-                        <div class="text-xs text-blue-400">Reading: ${u.s}</div>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="font-bold text-lg">${u.h}</div>
-                    <div class="text-[10px] text-green-400 font-bold tracking-wider">ONLINE</div>
-                </div>
-            </div>
-        `).join('');
+        function logout(){ auth.signOut().then(()=>location.reload()); }
 
-        // 6. TIMER LOGIC
-        let isRunning = false;
-        function toggleTimer() {
-            const btn = document.getElementById('playBtn');
-            const status = document.getElementById('status');
-            if(!isRunning) {
-                btn.innerHTML = '<i class="fas fa-pause"></i>';
-                btn.classList.add('animate-pulse');
-                status.innerText = "Focus Mode On";
-                status.classList.remove('animate-pulse');
-            } else {
-                btn.innerHTML = '<i class="fas fa-play ml-1"></i>';
-                btn.classList.remove('animate-pulse');
-                status.innerText = "Paused";
+        // --- CORE FUNCTIONS (OPTIMIZED) ---
+        function initApp() {
+            presenceSystem();
+            loadNotices();
+            // Load heavy items only when needed or lazy load
+            loadChat(); 
+            loadRank();
+            trackMyXP();
+        }
+
+        // 1. PRESENCE SYSTEM (FIXED)
+        function presenceSystem() {
+            const connectedRef = db.ref(".info/connected");
+            const myStatusRef = db.ref("/status/" + curUser.uid);
+            
+            connectedRef.on("value", (snap) => {
+                if (snap.val() === false) return;
+                myStatusRef.onDisconnect().set({ state: 'offline', last_changed: firebase.database.ServerValue.TIMESTAMP })
+                    .then(() => {
+                        myStatusRef.set({ state: 'online', last_changed: firebase.database.ServerValue.TIMESTAMP });
+                    });
+            });
+
+            // Efficient Count
+            db.ref('status').on('value', s => {
+                let c = 0; s.forEach(x => { if(x.val().state==='online') c++ });
+                document.getElementById('live-cnt').innerText = c;
+            });
+        }
+
+        // 2. LEADERBOARD (Optimized Rendering)
+        function loadRank() {
+            // Fetch everything once to avoid N+1 queries
+            Promise.all([db.ref('users').once('value'), db.ref('progress').once('value'), db.ref('status').once('value')]).then(([uS, pS, sS]) => {
+                const users = uS.val()||{}, prog = pS.val()||{}, stats = sS.val()||{};
+                
+                // Subscribe to status changes ONLY for dots (lightweight)
+                db.ref('status').on('value', rtStatus => {
+                    const st = rtStatus.val()||{};
+                    const list = [];
+                    Object.keys(users).forEach(uid => {
+                        let xp = 0;
+                        if(prog[uid]) Object.values(prog[uid]).forEach(sub=>Object.values(sub).forEach(v=>{if(v)xp+=10}));
+                        list.push({ uid, name: users[uid].name, school: users[uid].school, xp, online: st[uid]?.state==='online' });
+                    });
+                    
+                    list.sort((a,b)=>b.xp-a.xp);
+                    
+                    // Update My Rank UI
+                    const myIdx = list.findIndex(x=>x.uid===curUser.uid);
+                    document.getElementById('my-rank').innerText = myIdx >= 0 ? `#${myIdx+1}` : '-';
+
+                    // Render List
+                    document.getElementById('rank-list').innerHTML = list.map((d,i) => `
+                        <div onclick="showProf('${d.uid}')" class="glass p-3 rounded-xl flex items-center justify-between cursor-pointer active:scale-95 transition ${d.uid===curUser.uid?'border border-blue-500/50 bg-blue-500/10':''}">
+                            <div class="flex items-center gap-3">
+                                <div class="font-bold text-slate-500 text-sm w-5">#${i+1}</div>
+                                <div>
+                                    <div class="font-bold text-sm flex items-center gap-2 text-slate-200">
+                                        ${d.name} ${d.online ? '<span class="online-indicator pulse" style="width:6px;height:6px;"></span>' : ''}
+                                    </div>
+                                    <div class="text-[10px] text-slate-500">${d.school}</div>
+                                </div>
+                            </div>
+                            <div class="font-bold text-blue-400 text-sm">${d.xp} XP</div>
+                        </div>
+                    `).join('');
+                });
+            });
+        }
+
+        // 3. PROFILE & LAST SEEN
+        function showProf(uid) {
+            document.getElementById('profile-modal').classList.remove('hidden');
+            // Reset UI
+            document.getElementById('prof-name').innerText = '...';
+            document.getElementById('prof-status').innerHTML = 'Checking...';
+
+            db.ref('users/'+uid).once('value', s => {
+                const u = s.val();
+                document.getElementById('prof-name').innerText = u.name;
+                document.getElementById('prof-school').innerText = u.school;
+                document.getElementById('prof-avatar').innerText = u.name[0];
+            });
+
+            db.ref('status/'+uid).once('value', s => {
+                const st = s.val();
+                const el = document.getElementById('prof-status');
+                if(st?.state === 'online') {
+                    el.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span> Active Now';
+                    el.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 text-xs mb-6';
+                } else {
+                    const time = st?.last_changed ? timeAgo(st.last_changed) : 'Offline';
+                    el.innerHTML = `<span class="w-2 h-2 bg-slate-500 rounded-full mr-1"></span> Last seen: ${time}`;
+                    el.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-400 text-xs mb-6';
+                }
+            });
+            
+            // Stats
+            db.ref('progress/'+uid).once('value', s=>{
+                let xp=0, ses=0; const d=s.val()||{};
+                Object.values(d).forEach(sub=>Object.values(sub).forEach(v=>{if(v){xp+=10;ses++}}));
+                document.getElementById('prof-xp').innerText = xp;
+                document.getElementById('prof-sessions').innerText = ses;
+            });
+        }
+
+        function timeAgo(ts) {
+            const s = Math.floor((Date.now() - ts) / 1000);
+            if(s < 60) return 'Just now';
+            if(s < 3600) return Math.floor(s/60) + 'm ago';
+            if(s < 86400) return Math.floor(s/3600) + 'h ago';
+            return 'Days ago';
+        }
+
+        // 4. CHAT
+        function loadChat() {
+            const b = document.getElementById('chat-box');
+            b.innerHTML = '';
+            db.ref('messages').limitToLast(50).on('child_added', s => {
+                const m = s.val(); const me = m.uid===curUser.uid;
+                const d = document.createElement('div');
+                d.className = `p-3 text-sm max-w-[85%] ${me?'msg-me text-white':'msg-other text-slate-300'}`;
+                d.onclick = ()=>showProf(m.uid);
+                d.innerHTML = me ? m.text : `<div class="text-[10px] text-blue-400 font-bold mb-1">${m.name}</div>${m.text}`;
+                b.appendChild(d); b.scrollTo(0, b.scrollHeight);
+            });
+            db.ref('messages').on('child_removed', ()=>b.innerHTML='');
+        }
+        function sendMsg() {
+            const i = document.getElementById('m-in'); const t = i.value.trim();
+            if(!t) return;
+            db.ref('messages').push({text:t, uid:curUser.uid, name:curUser.displayName, time:Date.now()});
+            i.value='';
+        }
+
+        // 5. NOTICE & ADMIN
+        function loadNotices(){
+            db.ref('notice').on('value', s=>{
+                const d=s.val();
+                if(d){
+                    document.getElementById('nt-title').innerText=d.title;
+                    document.getElementById('nt-body').innerText=d.body;
+                    document.getElementById('nt-date').innerText=new Date(d.date).toLocaleDateString();
+                }
+            });
+        }
+        function openAdmin(){
+            const p = prompt("Admin Pass:");
+            if(p==="masrur1234") document.getElementById('admin-modal').classList.remove('hidden');
+            else alert("Wrong Pass");
+        }
+        function postNotice(){
+            const t=document.getElementById('n-title').value, b=document.getElementById('n-body').value;
+            if(t&&b) db.ref('notice').set({title:t, body:b, date:Date.now()}).then(()=>{alert('Posted');document.getElementById('admin-modal').classList.add('hidden')});
+        }
+        function adm(a){ if(confirm('Sure?')) { if(a=='clearChat') db.ref('messages').remove(); if(a=='resetRank') db.ref('progress').remove(); } }
+
+        // 6. TIMER & XP
+        function trackMyXP() { db.ref('progress/'+curUser.uid).on('value', s=>{ let xp=0; const d=s.val()||{}; Object.values(d).forEach(x=>Object.values(x).forEach(v=>{if(v)xp+=10})); document.getElementById('my-xp').innerText=xp; }); }
+        
+        let tmr, time=1500, run=false, sub=null;
+        function setSub(s){ sub=s; document.querySelectorAll('.s-btn').forEach(b=>b.classList.remove('bg-slate-700','text-white')); event.target.classList.add('bg-slate-700','text-white'); document.getElementById('t-status').innerText=s; }
+        function toggleT(){
+            if(!sub) return alert("Select Subject");
+            if(run){ clearInterval(tmr); run=false; document.querySelector('#t-btn i').className='fas fa-play text-white'; }
+            else {
+                run=true; document.querySelector('#t-btn i').className='fas fa-pause text-white';
+                tmr=setInterval(()=>{
+                    if(time>0){ time--; let m=Math.floor(time/60), s=time%60; document.getElementById('timer').innerText=`${m}:${s<10?'0'+s:s}`; }
+                    else { clearInterval(tmr); run=false; confetti(); db.ref(`progress/${curUser.uid}/${sub}/${Date.now()}`).set(true); alert("Done! +10 XP"); time=1500; }
+                },1000);
             }
-            isRunning = !isRunning;
+        }
+
+        // 7. NAV
+        function nav(p) {
+            ['home','study','rank','chat'].forEach(i => {
+                document.getElementById('p-'+i).classList.add('hidden');
+                document.getElementById('d-'+i)?.classList.remove('nav-active','bg-slate-800/50','text-blue-400');
+                document.getElementById('m-'+i)?.classList.remove('nav-active','text-blue-400');
+            });
+            document.getElementById('p-'+p).classList.remove('hidden');
+            document.getElementById('d-'+p)?.classList.add('nav-active','bg-slate-800/50','text-blue-400');
+            document.getElementById('m-'+p)?.classList.add('nav-active','text-blue-400');
         }
     </script>
 </body>
