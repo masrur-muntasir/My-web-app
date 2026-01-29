@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>PC Master | Ultimate Pro</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,183 +14,267 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Manrope', sans-serif; background: #0f172a; color: #fff; height: 100dvh; overflow: hidden; }
+        /* BASE RESET */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden; background: #0f172a; font-family: 'Manrope', sans-serif; color: #fff; }
         
-        /* Glass Effect */
-        .glass { background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); }
-        .nav-active { background: #2563eb; color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
-        .mob-active { color: #3b82f6; border-top: 2px solid #3b82f6; }
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* UI ELEMENTS */
+        .glass { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .nav-active { background: #2563eb; color: white; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.5); border: 1px solid rgba(255,255,255,0.2); }
+        .mob-active { color: #60a5fa; transform: translateY(-2px); }
         
-        /* Chat Bubbles */
-        .msg-me { background: #2563eb; border-radius: 12px 12px 0 12px; }
-        .msg-other { background: #1e293b; border-radius: 12px 12px 12px 0; border: 1px solid #334155; }
+        /* CHAT BUBBLES */
+        .msg-me { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-radius: 18px 18px 4px 18px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .msg-other { background: #334155; color: #e2e8f0; border-radius: 18px 18px 18px 4px; border: 1px solid #475569; }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-enter { animation: fadeIn 0.4s ease-out forwards; }
         
-        /* Animations */
-        .flower { width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; animation: spin 20s linear infinite; }
-        .petal { position: absolute; width: 50px; height: 50px; background: rgba(96, 165, 250, 0.2); border-radius: 50% 50% 0 50%; border: 1px solid rgba(96, 165, 250, 0.4); }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        .flower { width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; animation: spin 25s linear infinite; }
+        .petal { position: absolute; width: 60px; height: 60px; background: rgba(59, 130, 246, 0.15); border-radius: 50% 50% 0 50%; border: 1px solid rgba(59, 130, 246, 0.3); box-shadow: 0 0 15px rgba(59, 130, 246, 0.1); }
         
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 4px; height: 4px; } 
-        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
+        /* Layout Fixes */
+        #pages { -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
     </style>
 </head>
-<body class="flex flex-col md:flex-row h-full">
+<body class="flex flex-col md:flex-row">
 
-    <div id="auth-screen" class="fixed inset-0 z-[100] bg-[#0f172a] flex flex-col items-center justify-center p-6">
-        <div class="glass w-full max-w-sm rounded-3xl p-8 shadow-2xl relative">
-            <h1 class="text-3xl font-extrabold text-blue-500 mb-2 text-center">PC Master</h1>
+    <div id="auth-screen" class="fixed inset-0 z-[100] bg-[#0f172a] flex flex-col items-center justify-center p-6 animate-enter">
+        <div class="glass w-full max-w-sm rounded-3xl p-8 shadow-2xl relative border border-slate-700/50">
+            <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-blue-600 rounded-full blur-[40px] opacity-50"></div>
+            <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-2 text-center">PC Master</h1>
             <p class="text-slate-400 text-sm mb-6 text-center">Student Portal Access</p>
             
             <div id="reg-fields" class="hidden space-y-3 mb-3">
-                <input id="r-name" type="text" placeholder="Full Name (আপনার নাম)" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-white outline-none">
-                <input id="r-school" type="text" placeholder="School Name" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-white outline-none">
+                <input id="r-name" type="text" placeholder="Your Name" class="w-full bg-slate-900/80 border border-slate-700 p-3 rounded-xl text-white outline-none focus:border-blue-500 transition">
+                <input id="r-school" type="text" placeholder="School / College" class="w-full bg-slate-900/80 border border-slate-700 p-3 rounded-xl text-white outline-none focus:border-blue-500 transition">
             </div>
             
-            <input id="l-email" type="email" placeholder="Email Address" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-white outline-none mb-3">
-            <input id="l-pass" type="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-xl text-white outline-none mb-4">
+            <input id="l-email" type="email" placeholder="Email Address" class="w-full bg-slate-900/80 border border-slate-700 p-3 rounded-xl text-white outline-none mb-3 focus:border-blue-500 transition">
+            <input id="l-pass" type="password" placeholder="Password" class="w-full bg-slate-900/80 border border-slate-700 p-3 rounded-xl text-white outline-none mb-6 focus:border-blue-500 transition">
             
-            <button onclick="handleAuth()" id="auth-btn" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-bold text-white transition shadow-lg">LOG IN</button>
+            <button onclick="handleAuth()" id="auth-btn" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 py-3.5 rounded-xl font-bold text-white transition shadow-lg shadow-blue-500/30">LOG IN</button>
             
-            <div class="flex justify-between mt-4 text-xs text-slate-400 px-1">
-                <span onclick="toggleAuth()" id="auth-switch" class="cursor-pointer hover:text-white">Create Account</span>
-                <span onclick="resetPassword()" class="cursor-pointer hover:text-red-400 text-red-500/80">Forgot Password?</span>
+            <div class="flex justify-between mt-6 text-xs text-slate-400 px-2 font-medium">
+                <span onclick="toggleAuth()" id="auth-switch" class="cursor-pointer hover:text-blue-400 transition">Create Account</span>
+                <span onclick="resetPassword()" class="cursor-pointer hover:text-red-400 transition">Forgot Password?</span>
             </div>
         </div>
     </div>
 
-    <div id="admin-panel" class="hidden fixed inset-0 z-[90] bg-black/95 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-2xl h-[85vh] rounded-2xl p-6 flex flex-col relative">
-            <button onclick="document.getElementById('admin-panel').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
-            <h2 class="text-2xl font-bold text-white mb-6">Admin Dashboard</h2>
+    <div id="admin-panel" class="hidden fixed inset-0 z-[90] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-enter">
+        <div class="glass w-full max-w-4xl h-[90vh] rounded-2xl flex flex-col relative overflow-hidden shadow-2xl shadow-black">
+            <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-900/50">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2"><i class="fas fa-user-shield text-red-500"></i> Admin Panel</h2>
+                    <p class="text-xs text-slate-400 mt-1">Manage content & users</p>
+                </div>
+                <button onclick="document.getElementById('admin-panel').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="px-6 py-3 bg-slate-900/30 flex gap-2 overflow-x-auto scrollbar-hide border-b border-slate-800">
+                <button onclick="switchAdminTab('add')" class="adm-tab whitespace-nowrap px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold shadow-lg shadow-blue-600/20">Add Content</button>
+                <button onclick="switchAdminTab('manage')" class="adm-tab whitespace-nowrap px-4 py-2 bg-slate-800 text-slate-400 rounded-lg text-xs font-bold hover:bg-slate-700 transition">Manage Files</button>
+                <button onclick="switchAdminTab('users')" class="adm-tab whitespace-nowrap px-4 py-2 bg-slate-800 text-slate-400 rounded-lg text-xs font-bold hover:bg-slate-700 transition">Users</button>
+                <button onclick="switchAdminTab('system')" class="adm-tab whitespace-nowrap px-4 py-2 bg-slate-800 text-slate-400 rounded-lg text-xs font-bold hover:bg-slate-700 transition">System</button>
+            </div>
             
-            <div class="overflow-y-auto pr-2 space-y-6">
-                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
-                    <h3 class="text-xs font-bold text-green-400 mb-3 uppercase">🎬 Add New Class</h3>
-                    <div class="grid grid-cols-2 gap-3 mb-3">
-                        <input id="a-sub" placeholder="Subject (e.g. Physics, ICT)" class="bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white">
-                        <input id="a-chap" placeholder="Chapter Name" class="bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white">
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 bg-[#0f172a]">
+                
+                <div id="adm-add" class="space-y-6 animate-enter">
+                    <div class="bg-slate-800/40 p-5 rounded-2xl border border-slate-700/50">
+                        <h3 class="text-xs font-bold text-green-400 mb-4 uppercase tracking-wider">🎬 Add New Class</h3>
+                        <div class="grid grid-cols-2 gap-4 mb-3">
+                            <input id="a-sub" placeholder="Subject (e.g. Physics)" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:border-green-500 outline-none">
+                            <input id="a-chap" placeholder="Chapter Name" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:border-green-500 outline-none">
+                        </div>
+                        <input id="a-title" placeholder="Video Title" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white mb-3 focus:border-green-500 outline-none">
+                        <input id="a-link" placeholder="YouTube Link" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white mb-4 focus:border-green-500 outline-none">
+                        <button onclick="addClass()" class="w-full bg-green-600 hover:bg-green-500 py-3 rounded-lg font-bold text-sm text-white transition shadow-lg shadow-green-600/20">Upload Class</button>
                     </div>
-                    <input id="a-title" placeholder="Video Title" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white mb-2">
-                    <input id="a-link" placeholder="YouTube Link" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white mb-3">
-                    <button onclick="addClass()" class="w-full bg-green-600 py-2 rounded font-bold text-sm">Add Class</button>
+
+                    <div class="bg-slate-800/40 p-5 rounded-2xl border border-slate-700/50">
+                        <h3 class="text-xs font-bold text-blue-400 mb-4 uppercase tracking-wider">📢 Post Notice</h3>
+                        <input id="a-note-title" placeholder="Title" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white mb-3 focus:border-blue-500 outline-none">
+                        <textarea id="a-note-body" placeholder="Notice details..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white mb-4 focus:border-blue-500 outline-none h-24"></textarea>
+                        <button onclick="postNotice()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-lg font-bold text-sm text-white transition shadow-lg shadow-blue-600/20">Publish</button>
+                    </div>
                 </div>
 
-                <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
-                    <h3 class="text-xs font-bold text-blue-400 mb-3 uppercase">📢 Update Notice</h3>
-                    <input id="a-note-title" placeholder="Notice Title" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white mb-2">
-                    <textarea id="a-note-body" placeholder="Details..." class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white mb-3"></textarea>
-                    <button onclick="postNotice()" class="w-full bg-blue-600 py-2 rounded font-bold text-sm">Publish</button>
+                <div id="adm-manage" class="hidden animate-enter">
+                    <h3 class="text-xs font-bold text-slate-400 mb-4 uppercase">All Classes</h3>
+                    <div id="admin-class-list" class="space-y-3">
+                        <div class="text-center text-slate-500 py-10">Loading data...</div>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="resetData('messages')" class="bg-red-500/10 border border-red-500/30 text-red-400 py-3 rounded-xl text-xs font-bold hover:bg-red-600 hover:text-white transition">Clear Chat</button>
-                    <button onclick="resetData('progress')" class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 py-3 rounded-xl text-xs font-bold hover:bg-yellow-500 hover:text-black transition">Reset Ranks</button>
+                <div id="adm-users" class="hidden animate-enter">
+                    <h3 class="text-xs font-bold text-slate-400 mb-4 uppercase">User Database</h3>
+                    <div id="admin-user-list" class="space-y-3">
+                        <div class="text-center text-slate-500 py-10">Loading users...</div>
+                    </div>
                 </div>
+
+                <div id="adm-system" class="hidden animate-enter space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700">
+                            <h3 class="text-xs font-bold text-slate-400 mb-4 uppercase">Analytics</h3>
+                            <canvas id="adminChart"></canvas>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-red-500/5 border border-red-500/20 p-5 rounded-2xl">
+                                <h3 class="text-red-400 font-bold text-sm mb-2">Danger Zone</h3>
+                                <button onclick="resetData('messages')" class="w-full bg-red-500/10 text-red-400 py-3 rounded-lg text-xs font-bold hover:bg-red-600 hover:text-white transition mb-2">Clear Chat History</button>
+                                <button onclick="resetData('progress')" class="w-full bg-yellow-500/10 text-yellow-400 py-3 rounded-lg text-xs font-bold hover:bg-yellow-500 hover:text-black transition">Reset Leaderboards</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <aside class="hidden md:flex w-64 bg-slate-900 border-r border-slate-800 flex-col z-20">
-        <div class="p-6 text-xl font-bold text-blue-500">PC MASTER</div>
-        <nav class="flex-1 px-3 space-y-1 mt-4">
-            <button onclick="nav('home')" id="d-home" class="nav-active w-full text-left px-4 py-3 rounded-lg text-slate-400 font-medium hover:bg-slate-800 transition mb-1"><i class="fas fa-home w-5"></i> Dashboard</button>
-            <button onclick="nav('classes')" id="d-classes" class="w-full text-left px-4 py-3 rounded-lg text-slate-400 font-medium hover:bg-slate-800 transition mb-1"><i class="fas fa-play-circle w-5"></i> Classes</button>
-            <button onclick="nav('study')" id="d-study" class="w-full text-left px-4 py-3 rounded-lg text-slate-400 font-medium hover:bg-slate-800 transition mb-1"><i class="fas fa-clock w-5"></i> Timer</button>
-            <button onclick="nav('leaderboard')" id="d-leaderboard" class="w-full text-left px-4 py-3 rounded-lg text-slate-400 font-medium hover:bg-slate-800 transition mb-1"><i class="fas fa-trophy w-5"></i> Ranking</button>
-            <button onclick="nav('chat')" id="d-chat" class="w-full text-left px-4 py-3 rounded-lg text-slate-400 font-medium hover:bg-slate-800 transition mb-1"><i class="fas fa-comments w-5"></i> Chat</button>
+    <aside class="hidden md:flex w-72 bg-[#0b0e14] border-r border-slate-800 flex-col z-20 shadow-2xl">
+        <div class="p-8">
+            <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">PC MASTER</h1>
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-bold">Pro Learning Portal</p>
+        </div>
+        <nav class="flex-1 px-4 space-y-2 mt-2">
+            <button onclick="nav('home')" id="d-home" class="nav-active w-full text-left px-5 py-4 rounded-xl text-slate-400 font-bold text-sm hover:bg-slate-800/50 transition flex items-center gap-4"><i class="fas fa-home w-5"></i> Dashboard</button>
+            <button onclick="nav('classes')" id="d-classes" class="w-full text-left px-5 py-4 rounded-xl text-slate-400 font-bold text-sm hover:bg-slate-800/50 transition flex items-center gap-4"><i class="fas fa-play-circle w-5"></i> Classes</button>
+            <button onclick="nav('study')" id="d-study" class="w-full text-left px-5 py-4 rounded-xl text-slate-400 font-bold text-sm hover:bg-slate-800/50 transition flex items-center gap-4"><i class="fas fa-clock w-5"></i> Focus Timer</button>
+            <button onclick="nav('leaderboard')" id="d-leaderboard" class="w-full text-left px-5 py-4 rounded-xl text-slate-400 font-bold text-sm hover:bg-slate-800/50 transition flex items-center gap-4"><i class="fas fa-trophy w-5"></i> Ranking</button>
+            <button onclick="nav('chat')" id="d-chat" class="w-full text-left px-5 py-4 rounded-xl text-slate-400 font-bold text-sm hover:bg-slate-800/50 transition flex items-center gap-4"><i class="fas fa-comments w-5"></i> Public Chat</button>
         </nav>
-        <div class="p-4 border-t border-slate-800">
-            <button onclick="adminLogin()" class="w-full py-2 mb-2 text-red-400 text-xs font-bold border border-red-500/20 rounded hover:bg-red-900/20">ADMIN PANEL</button>
-            <button onclick="logout()" class="w-full py-2 text-slate-500 text-xs font-bold hover:text-white">Sign Out</button>
+        <div class="p-6 border-t border-slate-800 bg-slate-900/20">
+            <button onclick="adminLogin()" class="w-full py-3 mb-3 text-red-400 text-xs font-bold bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500 hover:text-white transition">ADMIN PANEL</button>
+            <button onclick="logout()" class="w-full py-3 text-slate-400 text-xs font-bold hover:text-white transition flex items-center justify-center gap-2"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
         </div>
     </aside>
 
     <main class="flex-1 h-full overflow-hidden relative bg-[#0f172a] flex flex-col">
-        <header class="md:hidden shrink-0 h-16 glass flex justify-between items-center px-4 z-30">
-            <span class="font-bold text-lg text-blue-500">PC MASTER</span>
-            <div class="flex gap-3">
-                <button onclick="adminLogin()" class="text-red-400"><i class="fas fa-shield-alt text-lg"></i></button>
-                <button onclick="logout()" class="text-slate-400"><i class="fas fa-power-off text-lg"></i></button>
+        <header class="md:hidden shrink-0 h-16 glass flex justify-between items-center px-5 z-30 sticky top-0">
+            <span class="font-extrabold text-lg text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">PC MASTER</span>
+            <div class="flex gap-4">
+                <button onclick="adminLogin()" class="text-red-400 hover:text-red-300"><i class="fas fa-shield-alt text-lg"></i></button>
+                <button onclick="logout()" class="text-slate-400 hover:text-white"><i class="fas fa-power-off text-lg"></i></button>
             </div>
         </header>
 
-        <div id="pages" class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
+        <div id="pages" class="flex-1 overflow-y-auto p-5 md:p-10 pb-32 md:pb-10 scrollbar-hide">
             
-            <div id="home" class="max-w-4xl mx-auto">
-                <div class="flex justify-between items-end mb-6">
-                    <div><h1 class="text-2xl font-bold">Hi, <span id="u-name" class="text-blue-400">Student</span>!</h1><p class="text-slate-400 text-xs" id="u-school">Loading...</p></div>
-                    <div class="bg-slate-800 px-3 py-1 rounded-full border border-slate-700 text-xs font-bold text-green-400 flex items-center gap-2"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> <span id="live-cnt">0</span> Online</div>
-                </div>
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-slate-800 p-5 rounded-xl border-l-4 border-blue-500 shadow-lg"><div class="text-slate-400 text-xs font-bold uppercase">Total XP</div><div class="text-2xl font-bold mt-1" id="dash-xp">0</div></div>
-                    <div class="bg-slate-800 p-5 rounded-xl border-l-4 border-purple-500 shadow-lg"><div class="text-slate-400 text-xs font-bold uppercase">Time</div><div class="text-2xl font-bold mt-1" id="dash-time">0m</div></div>
-                </div>
-                <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-xl relative overflow-hidden">
-                    <div class="flex justify-between mb-2"><span class="bg-blue-600 text-white text-[10px] px-2 py-1 rounded font-bold">NOTICE BOARD</span></div>
-                    <h3 class="text-lg font-bold text-white mb-1" id="nt-title">No Notices</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed" id="nt-body">Check back later.</p>
-                </div>
-            </div>
-
-            <div id="classes" class="hidden max-w-4xl mx-auto">
-                <h2 class="text-xl font-bold mb-4">Video Library</h2>
-                
-                <div id="subject-tabs" class="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
-                    <div class="text-slate-500 text-xs">Loading subjects...</div>
-                </div>
-
-                <div id="class-container" class="space-y-3">
-                    <div class="text-center text-slate-500 mt-10">Select a subject to view classes</div>
-                </div>
-            </div>
-
-            <div id="study" class="hidden h-full flex flex-col items-center justify-center">
-                <div class="bg-slate-800 w-full max-w-md p-8 rounded-3xl text-center border border-slate-700 shadow-2xl">
-                    <div class="flex justify-center gap-3 mb-8">
-                        <button onclick="setTimer(25)" class="px-4 py-2 bg-slate-900 rounded border border-slate-700 text-xs font-bold hover:bg-blue-600 transition">25m</button>
-                        <button onclick="setTimer(60)" class="px-4 py-2 bg-slate-900 rounded border border-slate-700 text-xs font-bold hover:bg-blue-600 transition">1h</button>
+            <div id="home" class="max-w-5xl mx-auto animate-enter">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+                    <div>
+                        <h1 class="text-3xl font-bold text-white">Welcome, <span id="u-name" class="text-blue-400">Student</span>!</h1>
+                        <p class="text-slate-400 text-sm mt-1 flex items-center gap-2"><i class="fas fa-graduation-cap"></i> <span id="u-school">Loading...</span></p>
                     </div>
-                    <div class="relative w-40 h-40 mx-auto mb-6 flex items-center justify-center">
-                        <div id="flower" class="flower"></div>
-                        <div class="absolute z-10 text-center"><div id="t-disp" class="text-4xl font-bold">25:00</div></div>
+                    <div class="bg-slate-800/80 backdrop-blur px-4 py-2 rounded-full border border-slate-700 text-xs font-bold text-green-400 flex items-center gap-2 shadow-lg">
+                        <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span> <span id="live-cnt">0</span> Active Now
                     </div>
-                    <button onclick="toggleTimer()" id="play-btn" class="w-16 h-16 bg-blue-600 rounded-full text-2xl shadow-lg hover:scale-105 transition"><i class="fas fa-play text-white"></i></button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 md:gap-6 mb-8">
+                    <div class="glass p-6 rounded-2xl border-l-4 border-blue-500 shadow-lg bg-gradient-to-br from-slate-800 to-transparent">
+                        <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Your XP</div>
+                        <div class="text-3xl font-extrabold text-white" id="dash-xp">0</div>
+                    </div>
+                    <div class="glass p-6 rounded-2xl border-l-4 border-purple-500 shadow-lg bg-gradient-to-br from-slate-800 to-transparent">
+                        <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Study Time</div>
+                        <div class="text-3xl font-extrabold text-white" id="dash-time">0m</div>
+                    </div>
+                </div>
+
+                <div class="glass border border-slate-700 p-8 rounded-2xl relative overflow-hidden shadow-xl">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                    <div class="flex justify-between mb-4"><span class="bg-blue-600/20 text-blue-400 border border-blue-500/30 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wide">Notice Board</span></div>
+                    <h3 class="text-xl font-bold text-white mb-2" id="nt-title">No New Notices</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed" id="nt-body">Important updates will appear here.</p>
                 </div>
             </div>
 
-            <div id="leaderboard" class="hidden max-w-3xl mx-auto">
-                <h2 class="text-xl font-bold mb-4 text-yellow-500">Top Students</h2>
-                <div id="rank-list" class="space-y-2"></div>
+            <div id="classes" class="hidden max-w-5xl mx-auto animate-enter">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-3"><i class="fas fa-video text-blue-500"></i> Video Library</h2>
+                
+                <div id="subject-tabs" class="flex gap-3 overflow-x-auto pb-4 mb-4 scrollbar-hide">
+                    <div class="text-slate-500 text-sm animate-pulse">Loading subjects...</div>
+                </div>
+
+                <div id="class-container" class="space-y-4 min-h-[50vh]">
+                    <div class="text-center text-slate-500 mt-20 flex flex-col items-center">
+                        <i class="fas fa-film text-4xl mb-4 opacity-50"></i>
+                        <p>Select a subject to start learning</p>
+                    </div>
+                </div>
             </div>
 
-            <div id="chat" class="hidden h-[calc(100vh-140px)] md:h-[calc(100vh-100px)] flex flex-col max-w-4xl mx-auto relative">
-                <div class="p-3 bg-slate-900 border-b border-slate-800 font-bold rounded-t-xl shrink-0">Chat Room <span class="text-xs text-green-500 ml-2">● Live</span></div>
+            <div id="study" class="hidden h-full flex flex-col items-center justify-center animate-enter -mt-10">
+                <div class="glass w-full max-w-md p-10 rounded-[40px] text-center border border-slate-700/50 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-full bg-blue-500/5 pointer-events-none"></div>
+                    <div class="flex justify-center gap-4 mb-10 relative z-10">
+                        <button onclick="setTimer(25)" class="px-6 py-2 bg-slate-900/80 rounded-full border border-slate-700 text-xs font-bold hover:bg-blue-600 hover:border-blue-500 transition shadow-lg">25m</button>
+                        <button onclick="setTimer(60)" class="px-6 py-2 bg-slate-900/80 rounded-full border border-slate-700 text-xs font-bold hover:bg-blue-600 hover:border-blue-500 transition shadow-lg">60m</button>
+                    </div>
+                    <div class="relative w-56 h-56 mx-auto mb-8 flex items-center justify-center">
+                        <div id="flower" class="flower opacity-80"></div>
+                        <div class="absolute z-10 text-center">
+                            <div id="t-disp" class="text-6xl font-extrabold text-white tracking-tighter drop-shadow-lg">25:00</div>
+                            <div class="text-xs text-blue-400 font-bold uppercase tracking-widest mt-2">Focus Mode</div>
+                        </div>
+                    </div>
+                    <button onclick="toggleTimer()" id="play-btn" class="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-500 rounded-full text-2xl shadow-xl hover:scale-110 hover:shadow-blue-500/50 transition flex items-center justify-center relative z-10 mx-auto"><i class="fas fa-play text-white pl-1"></i></button>
+                </div>
+            </div>
+
+            <div id="leaderboard" class="hidden max-w-3xl mx-auto animate-enter">
+                <div class="flex items-center gap-3 mb-6">
+                    <i class="fas fa-trophy text-yellow-500 text-2xl"></i>
+                    <h2 class="text-2xl font-bold text-white">Leaderboard</h2>
+                </div>
+                <div class="glass rounded-2xl overflow-hidden border border-slate-700">
+                    <div id="rank-list" class="divide-y divide-slate-800"></div>
+                </div>
+            </div>
+
+            <div id="chat" class="hidden h-[calc(100vh-140px)] md:h-[calc(100vh-100px)] flex flex-col max-w-4xl mx-auto relative animate-enter shadow-2xl rounded-2xl overflow-hidden border border-slate-800">
+                <div class="p-4 bg-slate-900/90 backdrop-blur border-b border-slate-800 font-bold text-sm flex justify-between items-center z-10">
+                    <span><i class="fas fa-hashtag text-blue-500 mr-2"></i>Global Chat</span>
+                    <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded-full border border-green-500/20 animate-pulse">● Live</span>
+                </div>
                 
-                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#0b0e14]">
+                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0b0e14]">
                     </div>
                 
-                <div class="p-3 bg-slate-900 border-t border-slate-800 rounded-b-xl shrink-0">
-                    <div class="flex gap-2 items-center">
-                        <label class="cursor-pointer text-slate-400 hover:text-white"><i class="fas fa-image"></i><input type="file" id="chat-img" class="hidden" accept="image/*" onchange="sendImg()"></label>
-                        <input id="chat-in" placeholder="Type message..." class="flex-1 bg-slate-800 border border-slate-700 rounded-full px-4 py-2 text-sm text-white outline-none focus:border-blue-500">
-                        <button onclick="sendMsg()" class="w-10 h-10 bg-blue-600 rounded-full shadow-lg"><i class="fas fa-paper-plane text-xs text-white"></i></button>
+                <div class="p-4 bg-slate-900 border-t border-slate-800 z-10">
+                    <div class="flex gap-3 items-center bg-slate-800/50 p-2 rounded-full border border-slate-700">
+                        <label class="cursor-pointer w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-700 text-slate-400 hover:text-white transition"><i class="fas fa-image"></i><input type="file" id="chat-img" class="hidden" accept="image/*" onchange="sendImg()"></label>
+                        <input id="chat-in" placeholder="Type a message..." class="flex-1 bg-transparent text-sm text-white outline-none px-2" onkeypress="if(event.key==='Enter') sendMsg()">
+                        <button onclick="sendMsg()" class="w-10 h-10 bg-blue-600 rounded-full shadow-lg hover:bg-blue-500 transition flex items-center justify-center"><i class="fas fa-paper-plane text-xs text-white"></i></button>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <nav class="md:hidden fixed bottom-0 w-full bg-slate-900 border-t border-slate-800 z-40 flex justify-around py-3 pb-[env(safe-area-inset-bottom)]">
-        <button onclick="nav('home')" id="m-home" class="mob-active text-slate-400 flex flex-col items-center"><i class="fas fa-home text-lg"></i></button>
-        <button onclick="nav('classes')" id="m-classes" class="text-slate-400 flex flex-col items-center"><i class="fas fa-play-circle text-lg"></i></button>
-        <div class="relative -top-8"><button onclick="nav('study')" class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-lg border-4 border-[#0f172a] text-white"><i class="fas fa-clock text-xl"></i></button></div>
-        <button onclick="nav('leaderboard')" id="m-leaderboard" class="text-slate-400 flex flex-col items-center"><i class="fas fa-trophy text-lg"></i></button>
-        <button onclick="nav('chat')" id="m-chat" class="text-slate-400 flex flex-col items-center"><i class="fas fa-comments text-lg"></i></button>
+    <nav class="md:hidden fixed bottom-0 w-full glass border-t border-slate-700/50 z-40 flex justify-around py-2 pb-[env(safe-area-inset-bottom)] shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
+        <button onclick="nav('home')" id="m-home" class="mob-active text-slate-400 flex flex-col items-center p-2 rounded-xl transition duration-300"><i class="fas fa-home text-xl mb-1"></i><span class="text-[10px] font-bold">Home</span></button>
+        <button onclick="nav('classes')" id="m-classes" class="text-slate-400 flex flex-col items-center p-2 rounded-xl transition duration-300"><i class="fas fa-play-circle text-xl mb-1"></i><span class="text-[10px] font-bold">Class</span></button>
+        <div class="relative -top-8"><button onclick="nav('study')" class="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-500 rounded-full flex items-center justify-center shadow-lg shadow-blue-600/40 border-4 border-[#0f172a] text-white hover:scale-105 transition"><i class="fas fa-clock text-2xl"></i></button></div>
+        <button onclick="nav('leaderboard')" id="m-leaderboard" class="text-slate-400 flex flex-col items-center p-2 rounded-xl transition duration-300"><i class="fas fa-trophy text-xl mb-1"></i><span class="text-[10px] font-bold">Rank</span></button>
+        <button onclick="nav('chat')" id="m-chat" class="text-slate-400 flex flex-col items-center p-2 rounded-xl transition duration-300"><i class="fas fa-comments text-xl mb-1"></i><span class="text-[10px] font-bold">Chat</span></button>
     </nav>
 
     <audio id="audio-alarm" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3"></audio>
@@ -201,25 +285,27 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(); const db = firebase.database();
         let user = null;
-        let allClassesData = []; // Store fetched classes
-        let currentSubject = ''; // Current active tab
+        let allClassesData = [];
+        let currentSubject = '';
 
-        // AUTH
+        // AUTH SYSTEM
         let isReg=false;
-        function toggleAuth(){ isReg=!isReg; document.getElementById('reg-fields').classList.toggle('hidden'); document.getElementById('auth-btn').innerText=isReg?'REGISTER':'LOGIN'; }
+        function toggleAuth(){ isReg=!isReg; document.getElementById('reg-fields').classList.toggle('hidden'); document.getElementById('auth-btn').innerText=isReg?'Create Account':'Log In'; }
         async function handleAuth(){
             const e=document.getElementById('l-email').value, p=document.getElementById('l-pass').value;
+            const btn = document.getElementById('auth-btn'); btn.innerText = "Processing...";
             try {
                 await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
                 if(isReg) {
                     const n=document.getElementById('r-name').value, s=document.getElementById('r-school').value;
+                    if(!n || !s) throw new Error("Please fill all fields");
                     const c=await auth.createUserWithEmailAndPassword(e,p);
                     await c.user.updateProfile({displayName:n});
                     await db.ref('users/'+c.user.uid).set({name:n, school:s, email:e});
                 } else await auth.signInWithEmailAndPassword(e,p);
-            } catch(err){ Swal.fire('Error',err.message,'error'); }
+            } catch(err){ Swal.fire({title:'Oops!',text:err.message,icon:'error',background:'#1e293b',color:'#fff'}); btn.innerText=isReg?'Create Account':'Log In'; }
         }
-        function resetPassword() { Swal.fire({title:'Email for Reset', input:'email', background:'#1e293b', color:'#fff'}).then(r=>{if(r.value) auth.sendPasswordResetEmail(r.value)}); }
+        function resetPassword() { Swal.fire({title:'Reset Password', input:'email', inputPlaceholder:'Enter email', background:'#1e293b', color:'#fff', confirmButtonColor:'#2563eb'}).then(r=>{if(r.value) auth.sendPasswordResetEmail(r.value)}); }
 
         auth.onAuthStateChanged(u=>{
             if(u){
@@ -227,150 +313,158 @@
                 document.getElementById('u-name').innerText=u.displayName?.split(' ')[0]||'User';
                 db.ref('users/'+u.uid).once('value',s=>document.getElementById('u-school').innerText=s.val()?.school||'Student');
                 initApp();
-            } else document.getElementById('auth-screen').classList.remove('hidden');
+            } else { document.getElementById('auth-screen').classList.remove('hidden'); }
         });
         function logout(){ auth.signOut().then(()=>location.reload()); }
 
-        // CORE
+        // APP CORE
         function initApp() { presence(); loadRank(); initClasses(); loadNotice(); loadStats(); loadChat(); createFlower(); }
 
-        // ADMIN
+        // --- ADMIN SYSTEM (PRO) ---
         function adminLogin() {
-            Swal.fire({title:'Admin Password', input:'password', background:'#1e293b', color:'#fff', showCancelButton:true}).then(r=>{
-                if(r.value==='admin123') document.getElementById('admin-panel').classList.remove('hidden');
-                else if(r.value) Swal.fire('Error','Wrong Password','error');
+            Swal.fire({title:'Admin Access', input:'password', background:'#1e293b', color:'#fff', showCancelButton:true, confirmButtonColor:'#ef4444'}).then(r=>{
+                if(r.value==='admin123') {
+                    document.getElementById('admin-panel').classList.remove('hidden');
+                    loadAdminData(); initChart();
+                } else if(r.value) Swal.fire('Error','Access Denied','error');
             });
         }
-        function postNotice(){ db.ref('notice').set({title:document.getElementById('a-note-title').value, body:document.getElementById('a-note-body').value}); Swal.fire('Posted','','success'); }
-        function loadNotice(){ db.ref('notice').on('value',s=>{const d=s.val(); if(d){document.getElementById('nt-title').innerText=d.title; document.getElementById('nt-body').innerText=d.body}}); }
         
+        function switchAdminTab(t) {
+            ['add','manage','users','system'].forEach(id => document.getElementById('adm-'+id).classList.add('hidden'));
+            document.querySelectorAll('.adm-tab').forEach(b => { b.classList.remove('bg-blue-600','text-white'); b.classList.add('bg-slate-800','text-slate-400'); });
+            document.getElementById('adm-'+t).classList.remove('hidden');
+            event.target.classList.remove('bg-slate-800','text-slate-400'); event.target.classList.add('bg-blue-600','text-white');
+        }
+
         function addClass(){
             const s=document.getElementById('a-sub').value.trim(), c=document.getElementById('a-chap').value, t=document.getElementById('a-title').value, l=document.getElementById('a-link').value;
             const vId = l.split('v=')[1]?.split('&')[0] || l.split('/').pop();
-            if(s&&t&&vId) { db.ref('classes').push({subject:s, chapter:c, title:t, link:`https://www.youtube.com/embed/${vId}`}); Swal.fire('Added','','success'); }
+            if(s&&t&&vId) { db.ref('classes').push({subject:s, chapter:c, title:t, link:`https://www.youtube.com/embed/${vId}`}); Swal.fire({title:'Success',icon:'success',toast:true,position:'top-end',timer:2000,showConfirmButton:false}); }
         }
-        function resetData(p){ if(confirm('RESET?')) db.ref(p).remove(); }
+        function postNotice(){ db.ref('notice').set({title:document.getElementById('a-note-title').value, body:document.getElementById('a-note-body').value}); Swal.fire({title:'Published',icon:'success',toast:true,position:'top-end',timer:2000,showConfirmButton:false}); }
+        function loadNotice(){ db.ref('notice').on('value',s=>{const d=s.val(); if(d){document.getElementById('nt-title').innerText=d.title; document.getElementById('nt-body').innerText=d.body}}); }
+        function resetData(p){ if(confirm('⚠️ Are you sure? This is permanent.')) db.ref(p).remove(); }
+        
+        function initChart(){ 
+            const ctx = document.getElementById('adminChart');
+            if(window.myAdminChart) window.myAdminChart.destroy();
+            const counts = {}; allClassesData.forEach(c => { counts[c.subject] = (counts[c.subject] || 0) + 1; });
+            window.myAdminChart = new Chart(ctx,{type:'doughnut',data:{labels:Object.keys(counts),datasets:[{data:Object.values(counts),backgroundColor:['#3b82f6','#a855f7','#22c55e','#f59e0b','#ef4444'],borderWidth:0}]},options:{cutout:'70%',plugins:{legend:{position:'right',labels:{color:'#94a3b8'}}}}}); 
+        }
 
-        // --- NEW DYNAMIC CLASS SYSTEM ---
+        function loadAdminData() {
+            db.ref('classes').on('value', s => {
+                const l = document.getElementById('admin-class-list'); l.innerHTML = '';
+                s.forEach(child => {
+                    const k = child.key, v = child.val();
+                    l.innerHTML += `<div class="bg-slate-900 p-3 rounded-lg flex justify-between items-center border border-slate-700 hover:border-slate-600 transition"><div class="overflow-hidden"><div class="text-sm font-bold text-white truncate">${v.title}</div><div class="text-[10px] text-blue-400 uppercase tracking-wider">${v.subject} • ${v.chapter}</div></div><button onclick="deleteClass('${k}')" class="bg-red-500/10 text-red-500 w-8 h-8 rounded flex items-center justify-center hover:bg-red-500 hover:text-white transition"><i class="fas fa-trash text-xs"></i></button></div>`;
+                });
+            });
+            db.ref('users').on('value', s => {
+                const l = document.getElementById('admin-user-list'); l.innerHTML = '';
+                s.forEach(child => {
+                    const uid = child.key, v = child.val();
+                    l.innerHTML += `<div class="bg-slate-900 p-3 rounded-lg flex justify-between items-center border border-slate-700"><div class="flex items-center gap-3"><div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold">${v.name[0]}</div><div><div class="text-sm font-bold text-white">${v.name}</div><div class="text-[10px] text-slate-500">${v.school}</div></div></div><button onclick="banUser('${uid}')" class="text-xs text-red-400 hover:text-white border border-red-500/20 hover:bg-red-500 px-3 py-1 rounded transition">Ban</button></div>`;
+                });
+            });
+        }
+        function deleteClass(k) { if(confirm('Delete?')) db.ref('classes/'+k).remove(); }
+        function banUser(uid) { if(confirm('Ban User?')) { db.ref('users/'+uid).remove(); db.ref('progress/'+uid).remove(); } }
+
+        // --- CLIENT CLASSES ---
         function initClasses() {
             db.ref('classes').on('value', s => {
                 allClassesData = Object.values(s.val() || {});
                 renderSubjects();
             });
         }
-
         function renderSubjects() {
-            const tabsContainer = document.getElementById('subject-tabs');
-            tabsContainer.innerHTML = '';
-            
-            // Get unique subjects
-            const subjects = [...new Set(allClassesData.map(c => c.subject))];
-            
-            if(subjects.length === 0) {
-                tabsContainer.innerHTML = '<div class="text-slate-500 text-xs">No classes found</div>';
-                return;
-            }
-
-            // If currentSubject is invalid/empty, set to first one
-            if(!currentSubject || !subjects.includes(currentSubject)) currentSubject = subjects[0];
-
-            subjects.forEach(sub => {
+            const tabs = document.getElementById('subject-tabs'); tabs.innerHTML = '';
+            const subs = [...new Set(allClassesData.map(c => c.subject))];
+            if(!subs.length) { tabs.innerHTML = '<div class="text-slate-500 text-xs pl-2">Library Empty</div>'; return; }
+            if(!currentSubject || !subs.includes(currentSubject)) currentSubject = subs[0];
+            subs.forEach(sub => {
                 const btn = document.createElement('button');
-                const isActive = sub === currentSubject;
-                btn.className = isActive 
-                    ? "bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg whitespace-nowrap" 
-                    : "bg-slate-800 text-slate-300 px-4 py-2 rounded-lg text-xs font-bold border border-slate-700 whitespace-nowrap hover:bg-slate-700";
+                const active = sub === currentSubject;
+                btn.className = active ? "bg-blue-600 text-white px-5 py-2 rounded-full text-xs font-bold shadow-lg shadow-blue-600/30 whitespace-nowrap transition transform scale-105" : "bg-slate-800 text-slate-400 px-5 py-2 rounded-full text-xs font-bold border border-slate-700 whitespace-nowrap hover:bg-slate-700 hover:text-white transition";
                 btn.innerText = sub;
                 btn.onclick = () => { currentSubject = sub; renderSubjects(); renderClasses(); };
-                tabsContainer.appendChild(btn);
+                tabs.appendChild(btn);
             });
             renderClasses();
         }
-
         function renderClasses() {
-            const cContainer = document.getElementById('class-container');
-            cContainer.innerHTML = '';
-            
-            const filtered = allClassesData.filter(x => x.subject === currentSubject);
-            
-            if(!filtered.length) {
-                cContainer.innerHTML = '<div class="text-center text-slate-500 mt-10">No classes in this subject</div>';
-                return;
-            }
-
-            const grp = filtered.reduce((a,i)=>{a[i.chapter]=a[i.chapter]||[];a[i.chapter].push(i);return a},{});
-            
-            Object.keys(grp).forEach(ch => {
-                let h = `<div class="mb-4 animate-fade-in"><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase border-b border-slate-800 pb-1">${ch}</h3><div class="grid gap-2">`;
-                grp[ch].forEach(v => {
-                    h += `<div onclick="playVid('${v.link}')" class="bg-slate-800 p-3 rounded-lg flex items-center gap-3 cursor-pointer hover:bg-slate-700 transition"><div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white shrink-0"><i class="fas fa-play text-xs"></i></div><div><div class="font-bold text-sm text-white">${v.title}</div></div></div>`;
-                });
-                h += `</div></div>`;
-                cContainer.innerHTML += h;
+            const c = document.getElementById('class-container'); c.innerHTML = '';
+            const f = allClassesData.filter(x => x.subject === currentSubject);
+            if(!f.length) { c.innerHTML = '<div class="text-center text-slate-500 mt-10">No videos available</div>'; return; }
+            const grp = f.reduce((a,i)=>{a[i.chapter]=a[i.chapter]||[];a[i.chapter].push(i);return a},{});
+            Object.keys(grp).forEach((ch, idx) => {
+                let h = `<div class="mb-6 animate-enter" style="animation-delay: ${idx*0.1}s"><h3 class="text-xs font-extrabold text-slate-500 mb-3 uppercase tracking-widest pl-1">${ch}</h3><div class="grid gap-3">`;
+                grp[ch].forEach(v => { h += `<div onclick="playVid('${v.link}')" class="bg-slate-800/60 p-4 rounded-xl flex items-center gap-4 cursor-pointer hover:bg-slate-800 border border-slate-700/50 hover:border-blue-500/50 transition group"><div class="w-10 h-10 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 group-hover:bg-red-600 group-hover:text-white transition shrink-0"><i class="fas fa-play text-xs"></i></div><div class="flex-1"><div class="font-bold text-sm text-slate-200 group-hover:text-white transition">${v.title}</div></div><i class="fas fa-chevron-right text-slate-600 text-xs"></i></div>`; });
+                h += `</div></div>`; c.innerHTML += h;
             });
         }
-        
-        function playVid(l){ Swal.fire({html:`<iframe width="100%" height="250" src="${l}" frameborder="0" allowfullscreen></iframe>`, showConfirmButton:false, background:'#0f172a', width:600}); }
+        function playVid(l){ Swal.fire({html:`<div class="rounded-xl overflow-hidden shadow-2xl"><iframe width="100%" height="250" src="${l}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>`, showConfirmButton:false, background:'transparent', width:650, padding:0, showCloseButton:true}); }
 
-        // CHAT
+        // --- CHAT & FEATURES ---
         function loadChat(){
             const b=document.getElementById('chat-box'); b.innerHTML='';
             db.ref('messages').limitToLast(50).on('child_added',s=>{
                 const m=s.val(), me=m.uid===user.uid;
                 const d=document.createElement('div');
-                d.className=`p-3 text-sm max-w-[85%] rounded-xl mb-2 ${me?'msg-me self-end text-white':'msg-other self-start text-slate-300'}`;
-                if(m.img) d.innerHTML = (me?'':`<div class="text-[10px] text-blue-400 font-bold mb-1">${m.name}</div>`) + `<img src="${m.img}" class="rounded-lg w-full">`;
-                else d.innerHTML = me ? m.text : `<div class="text-[10px] text-blue-400 font-bold mb-1">${m.name}</div>${m.text}`;
+                d.className=`p-3 text-sm max-w-[85%] mb-3 animate-enter ${me?'msg-me self-end':'msg-other self-start'}`;
+                if(m.img) d.innerHTML = (me?'':`<div class="text-[10px] text-blue-400 font-bold mb-1 opacity-75">${m.name}</div>`) + `<img src="${m.img}" class="rounded-lg w-full mt-1 border border-white/10">`;
+                else d.innerHTML = me ? m.text : `<div class="text-[10px] text-blue-400 font-bold mb-1 opacity-75">${m.name}</div>${m.text}`;
                 if(me) d.style.alignSelf='flex-end';
-                b.appendChild(d); b.scrollTop=b.scrollHeight;
+                b.appendChild(d); b.scrollTo({top:b.scrollHeight, behavior:'smooth'});
             });
-            db.ref('messages').on('child_removed', ()=>b.innerHTML='');
         }
         function sendMsg(){ const i=document.getElementById('chat-in'); if(i.value.trim()){ db.ref('messages').push({text:i.value, uid:user.uid, name:user.displayName||"User", time:Date.now()}); i.value=''; } }
-        function sendImg(){
-            const f=document.getElementById('chat-img').files[0];
-            if(f){
-                const r=new FileReader();
-                r.onload=e=>db.ref('messages').push({img:e.target.result, uid:user.uid, name:user.displayName||"User", time:Date.now()});
-                r.readAsDataURL(f);
-            }
-        }
+        function sendImg(){ const f=document.getElementById('chat-img').files[0]; if(f){ const r=new FileReader(); r.onload=e=>db.ref('messages').push({img:e.target.result, uid:user.uid, name:user.displayName||"User", time:Date.now()}); r.readAsDataURL(f); } }
 
-        // STATS & RANK
         function loadStats(){ db.ref('progress/'+user.uid).on('value',s=>{ let xp=0,m=0; Object.values(s.val()||{}).forEach(x=>{if(x.xp)xp+=x.xp;if(x.time)m+=x.time}); document.getElementById('dash-xp').innerText=xp; document.getElementById('dash-time').innerText=Math.floor(m/60)+'h'; }); }
         function loadRank(){
             db.ref('users').once('value',uS=>{ db.ref('progress').once('value',pS=>{
                 const us=uS.val()||{}, pr=pS.val()||{}, l=[];
                 Object.keys(us).forEach(id=>{ let xp=0; if(pr[id]) Object.values(pr[id]).forEach(x=>{if(x.xp)xp+=x.xp}); l.push({n:us[id].name, s:us[id].school, xp, id}); });
                 l.sort((a,b)=>b.xp-a.xp);
-                document.getElementById('rank-list').innerHTML=l.map((d,i)=>`<div class="bg-slate-800 p-3 rounded-lg flex justify-between mb-2 border border-slate-700 ${d.id===user.uid?'border-blue-500':''}"><div class="flex gap-3"><span class="font-bold text-slate-500 w-5">#${i+1}</span><div><div class="font-bold text-sm text-white">${d.n}</div><div class="text-[10px] text-slate-500">${d.s}</div></div></div><div class="font-bold text-blue-400 text-sm">${d.xp} XP</div></div>`).join('');
+                document.getElementById('rank-list').innerHTML=l.map((d,i)=>`<div class="p-4 flex justify-between items-center hover:bg-slate-800/50 transition ${d.id===user.uid?'bg-blue-600/10 border-l-2 border-blue-500':''}"><div class="flex gap-4 items-center"><div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-500 text-xs">#${i+1}</div><div><div class="font-bold text-sm text-white">${d.n}</div><div class="text-[10px] text-slate-500 uppercase">${d.s}</div></div></div><div class="font-bold text-blue-400 text-sm">${d.xp} XP</div></div>`).join('');
             })});
         }
         function presence(){ const c=db.ref(".info/connected"),s=db.ref("/status/"+user.uid); c.on("value",v=>{if(v.val())s.onDisconnect().set({st:'off'}).then(()=>s.set({st:'on'}))}); db.ref('status').on('value',v=>{let c=0;v.forEach(x=>{if(x.val().st==='on')c++});document.getElementById('live-cnt').innerText=c}); }
 
-        // TIMER
+        // TIMER & NAV
         let tmr, time=1500, run=false, dur=25;
-        function createFlower(){const f=document.getElementById('flower');for(let i=0;i<6;i++){const p=document.createElement('div');p.className='petal';p.style.setProperty('--r',(i*60)+'deg');f.appendChild(p)}}
-        function setTimer(m){clearInterval(tmr);run=false;dur=m;time=m*60;updT();document.getElementById('play-btn').innerHTML='<i class="fas fa-play"></i>';}
+        function createFlower(){const f=document.getElementById('flower');f.innerHTML='';for(let i=0;i<6;i++){const p=document.createElement('div');p.className='petal';p.style.setProperty('--r',(i*60)+'deg');f.appendChild(p)}}
+        function setTimer(m){clearInterval(tmr);run=false;dur=m;time=m*60;updT();document.getElementById('play-btn').innerHTML='<i class="fas fa-play text-white pl-1"></i>';}
         function toggleTimer(){
-            if(run){clearInterval(tmr);run=false;document.getElementById('play-btn').innerHTML='<i class="fas fa-play"></i>';}
+            if(run){clearInterval(tmr);run=false;document.getElementById('play-btn').innerHTML='<i class="fas fa-play text-white pl-1"></i>';}
             else{
-                run=true;document.getElementById('play-btn').innerHTML='<i class="fas fa-pause"></i>';
+                run=true;document.getElementById('play-btn').innerHTML='<i class="fas fa-pause text-white"></i>';
                 tmr=setInterval(()=>{
                     if(time>0){time--;updT()}else{
                         clearInterval(tmr);run=false;document.getElementById('audio-alarm').play();
                         db.ref(`progress/${user.uid}/${Date.now()}`).set({xp:50, time:dur});
-                        Swal.fire({title:'Time Up!',icon:'success'});setTimer(25);
+                        Swal.fire({title:'Time Up!',text:'+50 XP Earned',icon:'success'});setTimer(25);
                     }
                 },1000);
             }
         }
         function updT(){const m=Math.floor(time/60),s=Math.floor(time%60);document.getElementById('t-disp').innerText=`${m}:${s<10?'0'+s:s}`}
-
-        // NAV
+        
         function nav(p){
-            ['home','study','classes','leaderboard','chat'].forEach(i=>{document.getElementById(i).classList.add('hidden');document.getElementById('d-'+i)?.classList.remove('nav-active');document.getElementById('m-'+i)?.classList.remove('mob-active')});
-            document.getElementById(p).classList.remove('hidden'); document.getElementById('d-'+p)?.classList.add('nav-active'); document.getElementById('m-'+p)?.classList.add('mob-active');
+            ['home','study','classes','leaderboard','chat'].forEach(i=>{
+                document.getElementById(i).classList.add('hidden');
+                document.getElementById('d-'+i)?.classList.remove('nav-active');
+                document.getElementById('m-'+i)?.classList.remove('mob-active','text-blue-500');
+                document.getElementById('m-'+i)?.classList.add('text-slate-400');
+            });
+            const pg = document.getElementById(p);
+            pg.classList.remove('hidden'); pg.classList.add('animate-enter');
+            document.getElementById('d-'+p)?.classList.add('nav-active');
+            const mob = document.getElementById('m-'+p);
+            if(mob){ mob.classList.add('mob-active','text-blue-500'); mob.classList.remove('text-slate-400'); }
         }
     </script>
 </body>
