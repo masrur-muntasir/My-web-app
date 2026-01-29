@@ -1,269 +1,347 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SSC-26 Study Platform</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PC Master Academy | Premium</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; background: #0b1121; color: #fff; -webkit-tap-highlight-color: transparent; }
+        
+        /* Butter Smooth Animations */
+        .page-transition { animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(20px) scale(0.98); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
 
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+        /* Premium Glass Effect */
+        .glass { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
 
-  <!-- Firebase v9 COMPAT -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+        /* Active State for Nav */
+        .nav-active { color: #60a5fa; position: relative; }
+        .nav-active::after {
+            content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+            width: 5px; height: 5px; background: #60a5fa; border-radius: 50%;
+            box-shadow: 0 0 10px #60a5fa;
+        }
 
-  <style>
-    body { font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; }
-    .glass { backdrop-filter: blur(12px); background: rgba(255,255,255,0.08); }
-    .active { background:#22c55e !important; color:#000 !important; }
-  </style>
+        /* Mobile Adjustments */
+        .safe-area-bottom { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+    </style>
 </head>
+<body class="h-screen flex flex-col md:flex-row overflow-hidden">
 
-<body class="bg-slate-900 text-white min-h-screen">
-
-<div id="app" class="hidden">
-
-  <!-- Desktop Sidebar -->
-  <aside class="hidden md:flex fixed left-0 top-0 h-full w-56 bg-slate-950 p-4 flex-col gap-2">
-    <h1 class="text-xl font-bold text-green-400">SSC-26</h1>
-    <button onclick="nav('home')" class="navBtn">Home</button>
-    <button onclick="nav('study')" class="navBtn">Study</button>
-    <button onclick="nav('leaderboard')" class="navBtn">Leaderboard</button>
-    <button onclick="nav('chat')" class="navBtn">Chat</button>
-    <button onclick="nav('profile')" class="navBtn">Profile</button>
-  </aside>
-
-  <!-- Mobile Bottom Nav -->
-  <nav class="md:hidden fixed bottom-0 w-full bg-slate-950 flex justify-around py-2">
-    <button onclick="nav('home')">Home</button>
-    <button onclick="nav('study')">Study</button>
-    <button onclick="nav('leaderboard')">Rank</button>
-    <button onclick="nav('chat')">Chat</button>
-    <button onclick="nav('profile')">Me</button>
-  </nav>
-
-  <!-- Main Content -->
-  <main class="md:ml-56 pb-20 p-4">
-
-    <!-- HOME -->
-    <section id="home" class="page">
-      <div class="glass rounded-xl p-4 space-y-2">
-        <h2 id="greet" class="text-xl font-bold"></h2>
-        <p id="school"></p>
-        <p>Online: <span id="onlineCount">0</span></p>
-        <p>মোট পড়াশোনা সময়: <span id="totalTime">0</span> মিনিট</p>
-        <p>XP: <span id="xp">0</span></p>
-        <p>Rank: <span id="rank">-</span></p>
-        <div class="mt-2">
-          <p class="font-semibold">নোটিস:</p>
-          <p id="notice">লোড হচ্ছে...</p>
+    <div id="login-screen" class="fixed inset-0 z-50 bg-[#0b1121] flex flex-col items-center justify-center p-6 transition-all duration-500">
+        <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-3xl mb-6 shadow-[0_0_30px_rgba(37,99,235,0.5)] animate-bounce">
+            <i class="fas fa-graduation-cap text-white"></i>
         </div>
-      </div>
-    </section>
+        <h1 class="text-3xl font-bold mb-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">PC Master Academy</h1>
+        <p class="text-slate-400 mb-8 text-sm">Learning is Future</p>
+        
+        <div class="w-full max-w-sm glass rounded-3xl p-6 space-y-4">
+            <input type="email" placeholder="Email Address" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-5 py-4 outline-none focus:border-blue-500 focus:bg-slate-800 transition">
+            <input type="password" placeholder="Password" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-5 py-4 outline-none focus:border-blue-500 focus:bg-slate-800 transition">
+            <button onclick="appLogin()" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 py-4 rounded-xl font-bold shadow-lg shadow-blue-600/30 active:scale-95 transition">লগইন করুন</button>
+        </div>
+    </div>
 
-    <!-- STUDY -->
-    <section id="study" class="page hidden space-y-4">
-      <select id="subject" class="w-full p-2 text-black rounded">
-        <option>Physics</option>
-        <option>Chemistry</option>
-        <option>Biology</option>
-        <option>Math</option>
-      </select>
-      <select id="chapter" class="w-full p-2 text-black rounded">
-        <option>ক</option><option>খ</option><option>গ</option><option>ঘ</option><option>MCQ</option>
-      </select>
-      <div class="text-center text-4xl" id="timer">00:00</div>
-      <div class="flex gap-2 justify-center">
-        <button onclick="startTimer()" class="bg-green-500 px-4 py-2 rounded">Start</button>
-        <button onclick="pauseTimer()" class="bg-yellow-500 px-4 py-2 rounded">Pause</button>
-        <button onclick="resetTimer()" class="bg-red-500 px-4 py-2 rounded">Reset</button>
-      </div>
-    </section>
+    <aside class="hidden md:flex flex-col w-72 glass border-r border-slate-700/50 z-20">
+        <div class="p-8">
+            <h2 class="text-2xl font-bold text-blue-500 flex items-center gap-2">
+                <i class="fas fa-atom"></i> PC MASTER
+            </h2>
+        </div>
+        <nav class="flex-1 px-4 space-y-2">
+            <button onclick="nav('home')" id="d-home" class="w-full text-left px-6 py-4 rounded-xl hover:bg-slate-800/50 transition flex items-center gap-4 text-slate-400 nav-active">
+                <i class="fas fa-home text-xl"></i> ড্যাশবোর্ড
+            </button>
+            <button onclick="nav('study')" id="d-study" class="w-full text-left px-6 py-4 rounded-xl hover:bg-slate-800/50 transition flex items-center gap-4 text-slate-400">
+                <i class="fas fa-stopwatch text-xl"></i> স্টাডি টাইমার
+            </button>
+            <button onclick="nav('leaderboard')" id="d-leaderboard" class="w-full text-left px-6 py-4 rounded-xl hover:bg-slate-800/50 transition flex items-center gap-4 text-slate-400">
+                <i class="fas fa-trophy text-xl"></i> লিডারবোর্ড
+            </button>
+            <button onclick="nav('chat')" id="d-chat" class="w-full text-left px-6 py-4 rounded-xl hover:bg-slate-800/50 transition flex items-center gap-4 text-slate-400">
+                <i class="fas fa-comments text-xl"></i> ডিসকাশন
+            </button>
+        </nav>
+        <div class="p-6">
+            <div class="glass p-4 rounded-2xl flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-500 to-yellow-500 flex items-center justify-center shadow-lg"><i class="fas fa-fire"></i></div>
+                <div>
+                    <div class="text-xs text-slate-400">Daily Streak</div>
+                    <div class="font-bold">12 Days 🔥</div>
+                </div>
+            </div>
+        </div>
+    </aside>
 
-    <!-- LEADERBOARD -->
-    <section id="leaderboard" class="page hidden space-y-2"></section>
+    <main class="flex-1 overflow-y-auto relative bg-[#0b1121] safe-area-bottom">
+        
+        <header class="md:hidden sticky top-0 z-10 glass px-6 py-4 flex justify-between items-center">
+            <div class="font-bold text-lg text-blue-400"><i class="fas fa-atom"></i> PC MASTER</div>
+            <div class="w-8 h-8 rounded-full bg-slate-700 border border-slate-600 overflow-hidden">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User">
+            </div>
+        </header>
 
-    <!-- CHAT -->
-    <section id="chat" class="page hidden flex flex-col h-[70vh]">
-      <div id="messages" class="flex-1 overflow-y-auto space-y-2"></div>
-      <div class="flex gap-2">
-        <input id="msgInput" class="flex-1 text-black p-2 rounded" placeholder="বার্তা লিখুন"/>
-        <input type="file" id="imgInput" />
-        <button onclick="sendMsg()" class="bg-green-500 px-4 rounded">Send</button>
-      </div>
-    </section>
+        <div id="p-home" class="p-6 md:p-10 page-transition">
+            <div class="mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold mb-1" id="greeting">Welcome Back!</h1>
+                <p class="text-slate-400">আপনার আজকের লক্ষ্য: ৫ ঘণ্টা পড়াশোনা</p>
+            </div>
 
-    <!-- PROFILE -->
-    <section id="profile" class="page hidden glass p-4 space-y-2">
-      <p id="pName"></p>
-      <p id="pSchool"></p>
-      <p id="pTime"></p>
-      <p id="pStatus"></p>
-    </section>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="glass p-5 rounded-3xl">
+                    <div class="text-blue-400 text-2xl mb-2"><i class="fas fa-clock"></i></div>
+                    <div class="text-2xl font-bold">১২.৫</div>
+                    <div class="text-xs text-slate-400">ঘণ্টা (সাপ্তাহিক)</div>
+                </div>
+                <div class="glass p-5 rounded-3xl">
+                    <div class="text-purple-400 text-2xl mb-2"><i class="fas fa-book"></i></div>
+                    <div class="text-2xl font-bold">৪টি</div>
+                    <div class="text-xs text-slate-400">মডিউল সম্পন্ন</div>
+                </div>
+            </div>
 
-    <!-- ADMIN -->
-    <section id="admin" class="page hidden glass p-4 space-y-2">
-      <h2 class="font-bold text-lg">Admin Panel</h2>
-      <input id="adminNotice" class="text-black p-2 w-full rounded" placeholder="নোটিস লিখুন"/>
-      <button onclick="postNotice()" class="bg-green-500 px-4 py-2 rounded">Post Notice</button>
-      <button onclick="clearChat()" class="bg-red-500 px-4 py-2 rounded">Clear Chat</button>
-    </section>
+            <div class="glass rounded-3xl p-6 mb-8 border-l-4 border-blue-500 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-blue-500/20 transition"></div>
+                <div class="flex justify-between items-start mb-2">
+                    <span class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-xs font-bold">LATEST UPDATE</span>
+                    <i class="fas fa-thumbtack text-slate-500"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">ফিজিক্স ২য় পত্র - এক্সাম রুটিন</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">আগামী শুক্রবার সন্ধ্যা ৭টায় চ্যাপ্টার ৩ এর উপর মেগা এক্সাম হবে। সবাই প্রস্তুতি নিয়ে রেখো।</p>
+            </div>
 
-  </main>
-</div>
+            <div class="glass rounded-3xl p-6">
+                <h3 class="font-bold mb-4">সাবজেক্ট পারফরম্যান্স</h3>
+                <div class="h-64 md:h-80">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+        </div>
 
-<!-- AUTH -->
-<div id="auth" class="min-h-screen flex items-center justify-center">
-  <div class="glass p-6 rounded-xl w-full max-w-sm space-y-2">
-    <h2 class="text-xl font-bold text-center">SSC-26 Login</h2>
-    <input id="name" placeholder="Full Name" class="w-full p-2 text-black rounded"/>
-    <input id="schoolInput" placeholder="School Name" class="w-full p-2 text-black rounded"/>
-    <input id="email" placeholder="Email" class="w-full p-2 text-black rounded"/>
-    <input id="pass" type="password" placeholder="Password" class="w-full p-2 text-black rounded"/>
-    <button onclick="register()" class="w-full bg-green-500 py-2 rounded">Register</button>
-    <button onclick="login()" class="w-full bg-blue-500 py-2 rounded">Login</button>
-  </div>
-</div>
+        <div id="p-study" class="p-6 md:p-10 hidden page-transition h-full">
+            <div class="h-full flex flex-col items-center justify-center max-w-lg mx-auto">
+                <div class="grid grid-cols-4 gap-3 w-full mb-8">
+                    <button class="bg-blue-600 text-white p-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/30">Phy</button>
+                    <button class="glass text-slate-400 p-3 rounded-xl font-bold text-sm">Chem</button>
+                    <button class="glass text-slate-400 p-3 rounded-xl font-bold text-sm">Bio</button>
+                    <button class="glass text-slate-400 p-3 rounded-xl font-bold text-sm">Math</button>
+                </div>
 
-<script>
-/* Firebase Init */
-const firebaseConfig = {
-  apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ",
-  authDomain: "masrur-app-dccc1.firebaseapp.com",
-  databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com",
-  projectId: "masrur-app-dccc1",
-  storageBucket: "masrur-app-dccc1.firebasestorage.app",
-  messagingSenderId: "54049170636",
-  appId: "1:54049170636:web:0d0fd5f530027e72688e69"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-const storage = firebase.storage();
+                <div class="relative w-72 h-72 md:w-80 md:h-80 glass rounded-full flex items-center justify-center mb-10 shadow-[0_0_50px_rgba(37,99,235,0.1)] border-4 border-slate-700/30">
+                    <svg class="absolute inset-0 w-full h-full transform -rotate-90">
+                        <circle cx="50%" cy="50%" r="45%" stroke="#1e293b" stroke-width="15" fill="none"/>
+                        <circle cx="50%" cy="50%" r="45%" stroke="#3b82f6" stroke-width="15" fill="none" stroke-dasharray="880" stroke-dashoffset="220" stroke-linecap="round" class="transition-all duration-1000"/>
+                    </svg>
+                    <div class="text-center z-10">
+                        <div id="timer" class="text-6xl md:text-7xl font-bold tracking-tighter tabular-nums">25:00</div>
+                        <div id="status" class="text-blue-400 font-medium mt-2 animate-pulse">Ready to Focus</div>
+                    </div>
+                </div>
 
-let user, timerInt, seconds=0;
+                <div class="flex gap-6 items-center">
+                    <button class="w-14 h-14 rounded-full glass flex items-center justify-center text-slate-300 hover:text-white transition"><i class="fas fa-music"></i></button>
+                    <button onclick="toggleTimer()" id="playBtn" class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-3xl shadow-[0_10px_30px_rgba(37,99,235,0.4)] hover:scale-105 active:scale-95 transition"><i class="fas fa-play ml-1"></i></button>
+                    <button class="w-14 h-14 rounded-full glass flex items-center justify-center text-slate-300 hover:text-white transition"><i class="fas fa-expand"></i></button>
+                </div>
+            </div>
+        </div>
 
-/* AUTH */
-function register(){
-  auth.createUserWithEmailAndPassword(email.value, pass.value).then(res=>{
-    user=res.user;
-    db.ref('users/'+user.uid).set({
-      name:name.value, school:schoolInput.value,
-      time:0, xp:0, online:true, last:Date.now()
-    });
-  });
-}
-function login(){
-  auth.signInWithEmailAndPassword(email.value, pass.value);
-}
-auth.onAuthStateChanged(u=>{
-  if(u){
-    user=u;
-    authDiv(false);
-    initUser();
-  }
-});
+        <div id="p-leaderboard" class="p-6 md:p-10 hidden page-transition">
+            <div class="flex justify-between items-end mb-6">
+                <h2 class="text-2xl font-bold">Top Learners</h2>
+                <span class="text-xs font-bold bg-green-500/20 text-green-400 px-3 py-1 rounded-full animate-pulse">● Live Updating</span>
+            </div>
+            
+            <div class="space-y-4" id="rank-list">
+                </div>
+        </div>
 
-/* UI */
-function authDiv(show){
-  auth.style.display=show?'flex':'none';
-  app.style.display=show?'none':'block';
-}
-function nav(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
-}
+        <div id="p-chat" class="hidden page-transition flex flex-col h-full absolute inset-0 pt-20 pb-24 md:pb-10 md:pt-10 px-4 md:px-10">
+            <div class="flex-1 overflow-y-auto space-y-4 pb-4" id="chat-container">
+                <div class="flex gap-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs">P</div>
+                    <div class="glass px-4 py-2 rounded-2xl rounded-tl-none max-w-[80%] text-sm leading-relaxed">
+                        <span class="text-blue-400 text-xs font-bold block mb-1">Pial Bhaiya (Admin)</span>
+                        আজকের ক্লাসের নোটগুলো পিন করা হয়েছে। সবাই দেখে নিও।
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass p-2 rounded-full flex gap-2 items-center mt-2">
+                <button class="w-10 h-10 rounded-full bg-slate-700/50 flex items-center justify-center text-slate-400"><i class="fas fa-image"></i></button>
+                <input type="text" placeholder="Type a message..." class="flex-1 bg-transparent border-none outline-none text-white px-2">
+                <button class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-sm"></i></button>
+            </div>
+        </div>
 
-/* USER INIT */
-function initUser(){
-  const ref=db.ref('users/'+user.uid);
-  ref.on('value',s=>{
-    const d=s.val();
-    greet.innerText='Hi, '+d.name.split(' ')[0];
-    school.innerText=d.school;
-    totalTime.innerText=d.time;
-    xp.innerText=d.xp;
-    pName.innerText=d.name;
-    pSchool.innerText=d.school;
-    pTime.innerText='মোট সময়: '+d.time;
-    pStatus.innerText=d.online?'Online':'Offline';
-  });
-  db.ref('presence/'+user.uid).onDisconnect().set({online:false,last:Date.now()});
-  db.ref('presence/'+user.uid).set({online:true,last:Date.now()});
-}
+    </main>
 
-/* TIMER */
-function startTimer(){
-  if(timerInt) return;
-  timerInt=setInterval(()=>{
-    seconds++;
-    timer.innerText=new Date(seconds*1000).toISOString().substr(14,5);
-  },1000);
-}
-function pauseTimer(){
-  clearInterval(timerInt); timerInt=null;
-}
-function resetTimer(){
-  pauseTimer();
-  db.ref('users/'+user.uid+'/time').transaction(t=>(t||0)+Math.floor(seconds/60));
-  db.ref('users/'+user.uid+'/xp').transaction(x=>(x||0)+Math.floor(seconds/60));
-  seconds=0; timer.innerText='00:00';
-}
+    <nav class="md:hidden fixed bottom-0 left-0 w-full glass z-40 pb-[env(safe-area-inset-bottom)]">
+        <div class="flex justify-around items-center h-16">
+            <button onclick="nav('home')" id="m-home" class="flex flex-col items-center justify-center w-full h-full text-slate-400 nav-active transition">
+                <i class="fas fa-home text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">Home</span>
+            </button>
+            <button onclick="nav('study')" id="m-study" class="flex flex-col items-center justify-center w-full h-full text-slate-400 transition">
+                <i class="fas fa-stopwatch text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">Study</span>
+            </button>
+            <div class="relative -top-6">
+                <button onclick="nav('study')" class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(37,99,235,0.5)] border-4 border-[#0b1121]">
+                    <i class="fas fa-play text-white text-lg"></i>
+                </button>
+            </div>
+            <button onclick="nav('leaderboard')" id="m-leaderboard" class="flex flex-col items-center justify-center w-full h-full text-slate-400 transition">
+                <i class="fas fa-trophy text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">Rank</span>
+            </button>
+            <button onclick="nav('chat')" id="m-chat" class="flex flex-col items-center justify-center w-full h-full text-slate-400 transition">
+                <i class="fas fa-comments text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">Chat</span>
+            </button>
+        </div>
+    </nav>
 
-/* LEADERBOARD */
-db.ref('users').on('value',s=>{
-  leaderboard.innerHTML='';
-  const arr=Object.entries(s.val()||{}).sort((a,b)=>b[1].time-a[1].time);
-  arr.forEach((u,i)=>{
-    const d=u[1];
-    leaderboard.innerHTML+=`<div class="glass p-2">${i+1}. ${d.name} - ${d.time}m</div>`;
-    if(u[0]==user.uid) rank.innerText=i+1;
-  });
-});
+    <script>
+        // 1. SMART GREETING
+        const hours = new Date().getHours();
+        const greetText = hours < 12 ? 'Good Morning' : hours < 18 ? 'Good Afternoon' : 'Good Evening';
+        document.getElementById('greeting').innerText = `${greetText}, Champ!`;
 
-/* CHAT */
-function sendMsg(){
-  if(imgInput.files[0]){
-    const ref=storage.ref('chat/'+Date.now());
-    ref.put(imgInput.files[0]).then(r=>r.ref.getDownloadURL().then(url=>{
-      db.ref('chat').push({uid:user.uid,img:url});
-    }));
-  }else{
-    db.ref('chat').push({uid:user.uid,text:msgInput.value});
-  }
-  msgInput.value='';
-}
-db.ref('chat').limitToLast(50).on('child_added',s=>{
-  const m=s.val();
-  messages.innerHTML+=`<div class="glass p-2">${m.text||'<img src="'+m.img+'" class="max-w-xs"/>'}</div>`;
-});
+        // 2. SMOOTH NAVIGATION
+        function nav(page) {
+            // Hide all pages
+            ['home', 'study', 'leaderboard', 'chat'].forEach(p => {
+                document.getElementById('p-'+p).classList.add('hidden');
+                // Remove active styles desktop
+                const dBtn = document.getElementById('d-'+p);
+                if(dBtn) {
+                    dBtn.classList.remove('nav-active', 'text-blue-400', 'bg-slate-800/50'); 
+                    dBtn.classList.add('text-slate-400');
+                }
+                // Remove active styles mobile
+                const mBtn = document.getElementById('m-'+p);
+                if(mBtn) { mBtn.classList.remove('nav-active', 'text-blue-400'); mBtn.classList.add('text-slate-400'); }
+            });
 
-/* ADMIN */
-document.addEventListener('keydown',e=>{
-  if(e.ctrlKey&&e.key==='a'){
-    const p=prompt('Admin password');
-    if(p==='admin123') nav('admin');
-  }
-});
-function postNotice(){
-  db.ref('notice').set(adminNotice.value);
-}
-db.ref('notice').on('value',s=>notice.innerText=s.val()||'');
-function clearChat(){
-  db.ref('chat').remove();
-  messages.innerHTML='';
-}
+            // Show selected page
+            document.getElementById('p-'+page).classList.remove('hidden');
 
-/* ONLINE COUNT */
-db.ref('presence').on('value',s=>{
-  let c=0; s.forEach(x=>x.val().online&&c++);
-  onlineCount.innerText=c;
-});
-</script>
+            // Add active styles desktop
+            const activeDBtn = document.getElementById('d-'+page);
+            if(activeDBtn) {
+                activeDBtn.classList.add('nav-active', 'text-blue-400', 'bg-slate-800/50');
+                activeDBtn.classList.remove('text-slate-400');
+            }
+            
+            // Add active styles mobile
+            const activeMBtn = document.getElementById('m-'+page);
+            if(activeMBtn) {
+                activeMBtn.classList.add('nav-active', 'text-blue-400');
+                activeMBtn.classList.remove('text-slate-400');
+            }
+        }
+
+        // 3. LOGIN ANIMATION
+        function appLogin() {
+            const screen = document.getElementById('login-screen');
+            screen.style.opacity = '0';
+            screen.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                screen.classList.add('hidden');
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            }, 500);
+        }
+
+        // 4. CHART.JS
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+                datasets: [{
+                    label: 'Study Hours',
+                    data: [4, 6, 3, 7, 5, 8, 6],
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // 5. MOCK LEADERBOARD DATA
+        const users = [
+            { n: "Masrur M.", s: "Math", h: "8.5h", img: "Felix" },
+            { n: "Sadia I.", s: "Bio", h: "7.2h", img: "Aneka" },
+            { n: "Rahim K.", s: "Phy", h: "6.8h", img: "Jude" },
+        ];
+        document.getElementById('rank-list').innerHTML = users.map((u, i) => `
+            <div class="glass p-4 rounded-2xl flex items-center justify-between border border-white/5">
+                <div class="flex items-center gap-4">
+                    <div class="font-bold text-slate-500 text-lg w-6">#${i+1}</div>
+                    <div class="w-10 h-10 rounded-full bg-slate-700 overflow-hidden">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${u.img}" alt="Avatar">
+                    </div>
+                    <div>
+                        <div class="font-bold text-sm">${u.n}</div>
+                        <div class="text-xs text-blue-400">Reading: ${u.s}</div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="font-bold text-lg">${u.h}</div>
+                    <div class="text-[10px] text-green-400 font-bold tracking-wider">ONLINE</div>
+                </div>
+            </div>
+        `).join('');
+
+        // 6. TIMER LOGIC
+        let isRunning = false;
+        function toggleTimer() {
+            const btn = document.getElementById('playBtn');
+            const status = document.getElementById('status');
+            if(!isRunning) {
+                btn.innerHTML = '<i class="fas fa-pause"></i>';
+                btn.classList.add('animate-pulse');
+                status.innerText = "Focus Mode On";
+                status.classList.remove('animate-pulse');
+            } else {
+                btn.innerHTML = '<i class="fas fa-play ml-1"></i>';
+                btn.classList.remove('animate-pulse');
+                status.innerText = "Paused";
+            }
+            isRunning = !isRunning;
+        }
+    </script>
 </body>
 </html>
