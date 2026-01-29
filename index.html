@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PC Master Academy | Final Pro</title>
+    <title>PC Master Academy | Fixed Chat</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -18,253 +18,195 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Mobile Viewport Height Fix */
-        body { font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; background: #0f172a; color: #fff; -webkit-tap-highlight-color: transparent; height: 100dvh; overflow: hidden; }
-        
-        .glass { 
-            background: rgba(30, 41, 59, 0.85); 
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Nav Active States */
+        body { font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; background: #0f172a; color: #fff; height: 100dvh; overflow: hidden; }
+        .glass { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .nav-active { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-left: 3px solid #60a5fa; }
-        .mob-active { color: #60a5fa; transform: translateY(-5px); }
-        .mob-active::after { content: ''; display: block; width: 4px; height: 4px; background: #60a5fa; border-radius: 50%; margin: 2px auto 0; }
+        .mob-active { color: #60a5fa; transform: translateY(-3px); }
+        
+        /* Chat Styles */
+        .msg-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: flex-end; }
+        .msg-row.me { flex-direction: row-reverse; }
+        
+        .msg-bubble { padding: 8px 12px; font-size: 14px; line-height: 1.4; max-width: 75%; position: relative; word-wrap: break-word; }
+        .msg-row.me .msg-bubble { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border-radius: 18px 18px 0 18px; }
+        .msg-row.other .msg-bubble { background: #1e293b; color: #e2e8f0; border-radius: 18px 18px 18px 0; border: 1px solid rgba(255,255,255,0.1); }
+        
+        .avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; flex-shrink: 0; }
+        .avatar.me { background: #3b82f6; color: white; display: none; /* Hide my avatar to save space */ } 
+        .avatar.other { background: #475569; color: #cbd5e1; border: 1px solid #64748b; }
 
-        /* Animations */
+        .sender-name { font-size: 10px; color: #fbbf24; font-weight: bold; margin-bottom: 2px; display: block; }
+        
+        /* Flower Animation */
         .flower { position: relative; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; animation: spin 20s linear infinite; }
         .petal { position: absolute; width: 50px; height: 50px; background: rgba(96, 165, 250, 0.2); border-radius: 50% 50% 0 50%; border: 1px solid rgba(96, 165, 250, 0.4); }
         .flower.breathing .petal { animation: breathe 3s ease-in-out infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes breathe { 0%, 100% { transform: scale(1) rotate(var(--r)); } 50% { transform: scale(1.15) rotate(var(--r)); background: rgba(96, 165, 250, 0.5); box-shadow: 0 0 15px rgba(96, 165, 250, 0.4); } }
-
-        /* Chat & Scroll */
-        .msg-me { background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 18px 18px 0 18px; }
-        .msg-other { background: #1e293b; border-radius: 18px 18px 18px 0; border: 1px solid rgba(255,255,255,0.1); }
+        @keyframes breathe { 0%, 100% { transform: scale(1) rotate(var(--r)); } 50% { transform: scale(1.15) rotate(var(--r)); background: rgba(96, 165, 250, 0.5); } }
+        
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
-        
-        /* Video Card Hover */
-        .vid-card:active { transform: scale(0.98); }
     </style>
 </head>
 <body class="flex flex-col md:flex-row h-full">
 
-    <div id="auth-screen" class="fixed inset-0 z-[100] bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-all duration-500">
-        <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-3xl mb-6 shadow-[0_0_40px_rgba(37,99,235,0.6)] animate-pulse">
-            <i class="fas fa-graduation-cap text-white"></i>
-        </div>
-        <h1 class="text-3xl font-bold mb-1 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">PC Master Academy</h1>
-        <p class="text-slate-400 mb-8 text-sm">Empowering Students 🚀</p>
-        
-        <div class="w-full max-w-sm glass rounded-3xl p-8 space-y-4 shadow-2xl">
-            <div id="reg-fields" class="hidden space-y-4">
-                <input type="text" id="reg-name" placeholder="Full Name (আপনার নাম)" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-5 py-4 outline-none focus:border-blue-500 transition">
-                <input type="text" id="reg-school" placeholder="School/College Name" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-5 py-4 outline-none focus:border-blue-500 transition">
+    <div id="auth-screen" class="fixed inset-0 z-[100] bg-[#0f172a] flex flex-col items-center justify-center p-6">
+        <div class="glass w-full max-w-sm rounded-3xl p-8 space-y-4">
+            <h1 class="text-2xl font-bold text-center text-blue-400">PC Master Academy</h1>
+            
+            <div id="reg-fields" class="hidden space-y-3">
+                <input type="text" id="reg-name" placeholder="Full Name (নাম লিখুন)" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-white outline-none">
+                <input type="text" id="reg-school" placeholder="School Name" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-white outline-none">
             </div>
             
-            <input type="email" id="email" placeholder="Email Address" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-5 py-4 outline-none focus:border-blue-500 transition">
-            <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-5 py-4 outline-none focus:border-blue-500 transition">
+            <input type="email" id="email" placeholder="Email" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-white outline-none">
+            <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-white outline-none">
             
-            <button onclick="handleAuth()" id="auth-btn" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 py-4 rounded-xl font-bold shadow-lg shadow-blue-600/30 active:scale-95 transition text-lg">LOG IN</button>
+            <button onclick="handleAuth()" id="auth-btn" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold shadow-lg">LOG IN</button>
             
-            <div class="flex justify-between text-xs text-slate-400 mt-4 px-2">
-                <span class="cursor-pointer hover:text-white" onclick="toggleAuthMode()" id="auth-toggle">New here? <b class="text-blue-400">Register</b></span>
-                <span class="cursor-pointer hover:text-red-400" onclick="forgotPass()">Forgot Password?</span>
-            </div>
-        </div>
-        <div class="absolute bottom-6 text-[10px] text-slate-600">Dev by Masrur Muntasir (DIU)</div>
-    </div>
-
-    <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="glass w-full max-w-lg p-6 rounded-3xl relative animate-[fadeIn_0.3s] max-h-[85vh] overflow-y-auto">
-            <button onclick="document.getElementById('admin-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 w-8 h-8 rounded-full"><i class="fas fa-times"></i></button>
-            
-            <h2 class="text-xl font-bold text-red-500 mb-4 flex items-center gap-2"><i class="fas fa-user-shield"></i> Admin Panel</h2>
-
-            <div class="flex gap-2 mb-4 border-b border-slate-700 pb-2">
-                <button onclick="switchAdminTab('mgmt')" class="text-sm font-bold text-blue-400 hover:bg-slate-800 px-3 py-1 rounded">Management</button>
-                <button onclick="switchAdminTab('stats')" class="text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-800 px-3 py-1 rounded">Analytics 📊</button>
-            </div>
-
-            <div id="adm-mgmt">
-                <div class="bg-slate-800/50 p-4 rounded-xl border border-white/5 mb-4">
-                    <h3 class="text-xs font-bold text-green-400 mb-2 uppercase tracking-wider">🎬 Add Class</h3>
-                    <select id="adm-sub" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs mb-2 text-white">
-                        <option value="Physics">Physics</option><option value="Chemistry">Chemistry</option><option value="Biology">Biology</option><option value="Math">Math</option>
-                    </select>
-                    <input id="adm-chap" type="text" placeholder="Chapter Name" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs mb-2 text-white outline-none">
-                    <input id="adm-vid-title" type="text" placeholder="Video Title" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs mb-2 text-white outline-none">
-                    <input id="adm-vid-link" type="text" placeholder="YouTube Embed Link" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs mb-2 text-white outline-none">
-                    <button onclick="addClass()" class="w-full bg-green-600 hover:bg-green-700 py-2 rounded-lg text-xs font-bold shadow-lg">Save Class</button>
-                </div>
-
-                <div class="bg-slate-800/50 p-4 rounded-xl border border-white/5 mb-4">
-                    <h3 class="text-xs font-bold text-blue-400 mb-2 uppercase tracking-wider">📢 Notice Board</h3>
-                    <input id="admin-notice-title" type="text" placeholder="Title" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs mb-2 text-white outline-none">
-                    <textarea id="admin-notice-body" placeholder="Details..." rows="2" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-white outline-none"></textarea>
-                    <button onclick="postNotice()" class="w-full mt-2 bg-blue-600 hover:bg-blue-700 py-2 rounded-lg text-xs font-bold shadow-lg">Post Notice</button>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="resetData('messages')" class="bg-red-500/10 text-red-400 border border-red-500/20 py-3 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white transition">Reset Chat</button>
-                    <button onclick="resetData('progress')" class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 py-3 rounded-xl text-xs font-bold hover:bg-yellow-500 hover:text-black transition">Reset Ranks</button>
-                </div>
-            </div>
-
-            <div id="adm-stats" class="hidden">
-                <div class="bg-slate-800 p-4 rounded-xl mb-4 shadow-inner">
-                    <h3 class="text-xs font-bold mb-4 uppercase text-slate-400">Visitor Engagement</h3>
-                    <canvas id="adminChart"></canvas>
-                </div>
-                <div class="text-center text-xs text-slate-500">Live data from database</div>
+            <div class="flex justify-between text-xs text-slate-400 mt-2">
+                <span onclick="toggleAuthMode()" id="auth-toggle" class="cursor-pointer hover:text-white">Create Account</span>
+                <span onclick="forgotPass()" class="cursor-pointer hover:text-red-400">Forgot Password?</span>
             </div>
         </div>
     </div>
 
-    <aside class="hidden md:flex w-64 glass flex-col justify-between border-r border-slate-700/50 z-20">
+    <div id="admin-login-modal" class="hidden fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-sm p-6 rounded-2xl relative">
+            <button onclick="document.getElementById('admin-login-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400"><i class="fas fa-times"></i></button>
+            <h2 class="text-xl font-bold text-white mb-4">Admin Login</h2>
+            <input id="adm-email-in" type="email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 mb-3 text-white">
+            <input id="adm-pass-in" type="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 mb-3 text-white">
+            <button onclick="verifyAdmin()" class="w-full bg-red-600 py-2 rounded-lg font-bold">Unlock</button>
+        </div>
+    </div>
+
+    <div id="admin-panel-modal" class="hidden fixed inset-0 z-[55] bg-black/90 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-lg p-6 rounded-3xl h-[80vh] overflow-y-auto relative">
+            <button onclick="document.getElementById('admin-panel-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400"><i class="fas fa-times"></i></button>
+            <h2 class="text-xl font-bold mb-6 text-red-400">Admin Controls</h2>
+
+            <div class="bg-slate-800 p-4 rounded-xl mb-4">
+                <h3 class="text-xs font-bold text-blue-400 mb-2">UPDATE NOTICE</h3>
+                <input id="adm-note-title" type="text" placeholder="Title" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm mb-2 text-white">
+                <textarea id="adm-note-body" placeholder="Details..." class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white"></textarea>
+                <button onclick="postNotice()" class="w-full mt-2 bg-blue-600 py-2 rounded text-xs font-bold">Post</button>
+            </div>
+
+            <div class="bg-slate-800 p-4 rounded-xl mb-4">
+                <h3 class="text-xs font-bold text-green-400 mb-2">ADD CLASS</h3>
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <select id="adm-sub" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs text-white"><option>Physics</option><option>Chemistry</option><option>Biology</option><option>Math</option></select>
+                    <input id="adm-chap" type="text" placeholder="Chapter" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs text-white">
+                </div>
+                <input id="adm-vid-title" type="text" placeholder="Title" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs mb-2 text-white">
+                <input id="adm-vid-link" type="text" placeholder="YouTube Embed URL" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs mb-2 text-white">
+                <button onclick="addClass()" class="w-full bg-green-600 py-2 rounded text-xs font-bold">Add</button>
+            </div>
+
+            <div class="bg-slate-800 p-4 rounded-xl mb-4">
+                <h3 class="text-xs font-bold mb-2">ANALYTICS</h3>
+                <canvas id="adminChart"></canvas>
+            </div>
+
+            <button onclick="resetData()" class="w-full bg-red-500/20 text-red-400 py-3 rounded-xl text-xs font-bold border border-red-500/50">RESET DATABASE</button>
+        </div>
+    </div>
+
+    <aside class="hidden md:flex w-64 glass flex-col justify-between border-r border-slate-700/30 z-20">
         <div>
-            <div class="p-6 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 flex items-center gap-2">
-                <i class="fas fa-atom text-blue-500"></i> PC MASTER
-            </div>
+            <div class="p-6 text-xl font-bold text-blue-400">PC MASTER</div>
             <nav class="flex flex-col gap-2 px-3 mt-2">
-                <button onclick="nav('home')" id="d-home" class="nav-active text-left px-4 py-3 rounded-xl text-slate-400 font-medium transition flex items-center gap-3"><i class="fas fa-home w-5"></i> Dashboard</button>
-                <button onclick="nav('study')" id="d-study" class="text-left px-4 py-3 rounded-xl text-slate-400 font-medium transition flex items-center gap-3 hover:bg-slate-800"><i class="fas fa-stopwatch w-5"></i> Timer</button>
-                <button onclick="nav('classes')" id="d-classes" class="text-left px-4 py-3 rounded-xl text-slate-400 font-medium transition flex items-center gap-3 hover:bg-slate-800"><i class="fas fa-play-circle w-5"></i> Classes</button>
-                <button onclick="nav('leaderboard')" id="d-leaderboard" class="text-left px-4 py-3 rounded-xl text-slate-400 font-medium transition flex items-center gap-3 hover:bg-slate-800"><i class="fas fa-trophy w-5"></i> Leaderboard</button>
-                <button onclick="nav('chat')" id="d-chat" class="text-left px-4 py-3 rounded-xl text-slate-400 font-medium transition flex items-center gap-3 hover:bg-slate-800"><i class="fas fa-comments w-5"></i> Chat</button>
-                <button onclick="openAdmin()" class="text-left px-4 py-3 rounded-xl text-red-400 font-medium transition flex items-center gap-3 hover:bg-red-500/10 mt-4"><i class="fas fa-chart-pie w-5"></i> Admin</button>
+                <button onclick="nav('home')" id="d-home" class="nav-active text-left px-4 py-3 rounded-xl text-slate-300 font-medium hover:bg-slate-800 transition">Dashboard</button>
+                <button onclick="nav('study')" id="d-study" class="text-left px-4 py-3 rounded-xl text-slate-300 font-medium hover:bg-slate-800 transition">Timer</button>
+                <button onclick="nav('classes')" id="d-classes" class="text-left px-4 py-3 rounded-xl text-slate-300 font-medium hover:bg-slate-800 transition">Classes</button>
+                <button onclick="nav('leaderboard')" id="d-leaderboard" class="text-left px-4 py-3 rounded-xl text-slate-300 font-medium hover:bg-slate-800 transition">Leaderboard</button>
+                <button onclick="nav('chat')" id="d-chat" class="text-left px-4 py-3 rounded-xl text-slate-300 font-medium hover:bg-slate-800 transition">Chat</button>
             </nav>
         </div>
         <div class="p-4">
-            <button onclick="logout()" class="w-full py-2 bg-slate-800 text-red-400 text-xs font-bold hover:bg-red-500 hover:text-white rounded-lg transition">Sign Out</button>
+            <button onclick="openAdmin()" class="w-full mb-2 text-xs text-slate-400 font-bold">ADMIN PANEL</button>
+            <button onclick="logout()" class="w-full py-2 bg-red-500/10 text-red-400 text-xs font-bold rounded-lg">Log Out</button>
         </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto bg-[#0f172a] relative pb-20 md:pb-0 scroll-smooth">
-        
-        <header class="md:hidden sticky top-0 z-30 glass px-5 py-4 flex justify-between items-center shadow-lg">
-            <div class="font-bold text-lg text-blue-500 flex items-center gap-2"><i class="fas fa-atom"></i> PC MASTER</div>
-            <div class="flex gap-4 text-xl">
-                <button onclick="openAdmin()" class="text-slate-400 hover:text-white"><i class="fas fa-user-cog"></i></button>
+    <main class="flex-1 overflow-y-auto relative">
+        <header class="md:hidden sticky top-0 z-30 glass px-5 py-4 flex justify-between items-center">
+            <div class="font-bold text-lg text-blue-500">PC MASTER</div>
+            <div class="flex gap-4">
+                <button onclick="openAdmin()" class="text-slate-400"><i class="fas fa-cog"></i></button>
                 <button onclick="logout()" class="text-red-400"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </header>
 
-        <div id="home" class="p-6 md:p-10 animate-[fadeIn_0.5s]">
+        <div id="home" class="p-6 md:p-10">
             <div class="flex justify-between items-end mb-8">
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-bold mb-1" id="greeting">Welcome Back!</h1>
-                    <p class="text-slate-400 text-sm" id="user-school">Loading...</p>
-                </div>
-                <div class="glass px-4 py-2 rounded-full flex items-center gap-2 border border-slate-700">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    <span class="text-xs font-bold text-slate-300"><span id="live-count">0</span> Online</span>
-                </div>
+                <div><h1 class="text-2xl font-bold mb-1">Hi, <span id="u-name" class="text-blue-400">Student</span>!</h1><p class="text-slate-400 text-xs" id="u-school">...</p></div>
+                <div class="glass px-3 py-1 rounded-full flex items-center gap-2 border border-slate-700"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span><span class="text-xs font-bold"><span id="live-cnt">0</span> Online</span></div>
             </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="glass p-5 rounded-2xl border-b-4 border-blue-500">
-                    <div class="text-slate-400 text-[10px] uppercase font-bold mb-1">Total XP</div>
-                    <div class="text-2xl font-bold" id="dash-xp">0</div>
-                </div>
-                <div class="glass p-5 rounded-2xl border-b-4 border-purple-500">
-                    <div class="text-slate-400 text-[10px] uppercase font-bold mb-1">Status</div>
-                    <div class="text-lg font-bold text-green-400">Active</div>
-                </div>
-                </div>
-
-            <div class="glass rounded-2xl p-6 relative overflow-hidden border-l-4 border-blue-500 shadow-xl">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500 blur-[60px] opacity-20"></div>
-                <div class="flex justify-between items-center mb-3">
-                    <span class="bg-blue-600/20 text-blue-400 text-[10px] px-3 py-1 rounded-full font-bold">NOTICE BOARD</span>
-                    <i class="fas fa-thumbtack text-slate-500 rotate-45"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-2 text-white" id="notice-t">No Notices</h3>
-                <p class="text-slate-400 text-sm leading-relaxed" id="notice-b">Check back later for updates from admin.</p>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><div class="text-slate-400 text-[10px] font-bold">XP Earned</div><div class="text-2xl font-bold" id="my-xp">0</div></div>
+                <div class="glass p-5 rounded-2xl border-l-4 border-purple-500"><div class="text-slate-400 text-[10px] font-bold">Study Time</div><div class="text-xl font-bold" id="my-time">0m</div></div>
+            </div>
+            <div class="glass rounded-2xl p-6 border border-blue-500/30">
+                <h3 class="text-lg font-bold mb-2 text-white" id="nt-title">Loading...</h3>
+                <p class="text-slate-400 text-sm" id="nt-body">Please wait...</p>
             </div>
         </div>
 
-        <div id="study" class="hidden h-full flex flex-col items-center justify-center p-6 animate-[fadeIn_0.5s]">
-            <div class="glass w-full max-w-lg p-8 rounded-[40px] text-center relative shadow-2xl">
-                
-                <div class="flex justify-center gap-2 mb-8 overflow-x-auto pb-2">
-                    <button onclick="setTimer(25)" class="px-5 py-2 rounded-xl bg-slate-800 text-xs font-bold hover:bg-blue-600 transition border border-slate-700">25m</button>
-                    <button onclick="setTimer(60)" class="px-5 py-2 rounded-xl bg-slate-800 text-xs font-bold hover:bg-blue-600 transition border border-slate-700">1h</button>
-                    <button onclick="setTimer(120)" class="px-5 py-2 rounded-xl bg-slate-800 text-xs font-bold hover:bg-blue-600 transition border border-slate-700">2h</button>
-                    <button onclick="setTimer(0.1)" class="px-5 py-2 rounded-xl bg-slate-800 text-xs font-bold hover:bg-green-600 transition border border-green-500/30 text-green-400">Test</button>
+        <div id="study" class="hidden h-full flex flex-col items-center justify-center p-6">
+            <div class="glass w-full max-w-md p-8 rounded-[40px] text-center relative">
+                <div class="flex justify-center gap-2 mb-8">
+                    <button onclick="setTimer(25)" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold">25m</button>
+                    <button onclick="setTimer(60)" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold">1h</button>
+                    <button onclick="setTimer(0.1)" class="px-4 py-2 rounded-xl bg-slate-800 text-green-400 text-xs font-bold border border-green-500/30">Test</button>
                 </div>
-
                 <div class="relative w-64 h-64 mx-auto mb-8 flex items-center justify-center">
                     <div id="flower" class="flower"></div>
-                    <div class="absolute z-10 text-center pointer-events-none">
-                        <div id="timer-display" class="text-6xl font-bold tabular-nums tracking-tight text-white drop-shadow-lg">25:00</div>
-                        <div id="timer-status" class="text-xs font-bold text-blue-400 mt-2 uppercase tracking-widest">Ready to Focus</div>
-                    </div>
+                    <div class="absolute z-10 text-center"><div id="timer-display" class="text-6xl font-bold">25:00</div><div id="timer-status" class="text-xs font-bold text-blue-400 mt-2">Ready</div></div>
                 </div>
-
                 <div class="flex justify-center gap-8 items-center">
-                    <button onclick="toggleSound('rain')" class="text-slate-400 hover:text-blue-400 transition transform hover:scale-110" title="Rain Sound"><i class="fas fa-cloud-showers-heavy text-2xl"></i></button>
-                    <button onclick="toggleTimer()" id="play-btn" class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white text-3xl shadow-xl shadow-blue-600/40 hover:scale-105 active:scale-95 transition flex items-center justify-center"><i class="fas fa-play ml-1"></i></button>
-                    <button onclick="toggleSound('forest')" class="text-slate-400 hover:text-green-400 transition transform hover:scale-110" title="Forest Sound"><i class="fas fa-tree text-2xl"></i></button>
+                    <button onclick="toggleSound('rain')" class="text-slate-400 hover:text-blue-400"><i class="fas fa-cloud-showers-heavy text-2xl"></i></button>
+                    <button onclick="toggleTimer()" id="play-btn" class="w-16 h-16 rounded-full bg-blue-600 text-white text-2xl flex items-center justify-center shadow-lg"><i class="fas fa-play ml-1"></i></button>
+                    <button onclick="toggleSound('forest')" class="text-slate-400 hover:text-green-400"><i class="fas fa-tree text-2xl"></i></button>
                 </div>
             </div>
         </div>
 
-        <div id="classes" class="hidden p-6 md:p-10 animate-[fadeIn_0.5s]">
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i class="fas fa-play-circle text-red-500"></i> Video Library</h2>
-            
+        <div id="classes" class="hidden p-6 md:p-10">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">Video Library</h2>
             <div class="flex gap-2 overflow-x-auto pb-4 mb-4">
-                <button onclick="renderClasses('Physics')" class="bg-blue-600 text-white px-6 py-2 rounded-full text-xs font-bold shadow-lg whitespace-nowrap">Physics</button>
-                <button onclick="renderClasses('Chemistry')" class="bg-slate-800 text-slate-400 px-6 py-2 rounded-full text-xs font-bold hover:bg-slate-700 whitespace-nowrap">Chemistry</button>
-                <button onclick="renderClasses('Biology')" class="bg-slate-800 text-slate-400 px-6 py-2 rounded-full text-xs font-bold hover:bg-slate-700 whitespace-nowrap">Biology</button>
-                <button onclick="renderClasses('Math')" class="bg-slate-800 text-slate-400 px-6 py-2 rounded-full text-xs font-bold hover:bg-slate-700 whitespace-nowrap">Math</button>
+                <button onclick="loadClasses('Physics')" class="bg-blue-600 text-white px-5 py-2 rounded-full text-xs font-bold">Physics</button>
+                <button onclick="loadClasses('Chemistry')" class="bg-slate-800 text-slate-300 px-5 py-2 rounded-full text-xs font-bold">Chemistry</button>
+                <button onclick="loadClasses('Biology')" class="bg-slate-800 text-slate-300 px-5 py-2 rounded-full text-xs font-bold">Biology</button>
+                <button onclick="loadClasses('Math')" class="bg-slate-800 text-slate-300 px-5 py-2 rounded-full text-xs font-bold">Math</button>
             </div>
-
-            <div id="class-container" class="space-y-6 pb-20">
-                </div>
+            <div id="class-container" class="space-y-4 pb-20"></div>
         </div>
 
-        <div id="leaderboard" class="hidden p-6 md:p-10 animate-[fadeIn_0.5s]">
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i class="fas fa-trophy text-yellow-500"></i> Leaderboard</h2>
-            <div id="rank-list" class="space-y-3 pb-20">
-                <div class="text-center text-slate-500 mt-10">Loading ranks...</div>
-            </div>
+        <div id="leaderboard" class="hidden p-6 md:p-10">
+            <h2 class="text-xl font-bold mb-6">Top Learners</h2>
+            <div id="rank-list" class="space-y-3 pb-20"></div>
         </div>
 
-        <div id="chat" class="hidden h-full flex flex-col relative animate-[fadeIn_0.5s]">
-            <div class="p-4 glass border-b border-white/5 flex justify-between items-center sticky top-0 z-10 shadow-sm">
-                <span class="font-bold flex items-center gap-2"><i class="fas fa-hashtag text-slate-400"></i> Discussion</span>
-                <span class="text-[10px] bg-green-500/10 text-green-400 px-2 py-1 rounded-full border border-green-500/20">Live</span>
-            </div>
-            
-            <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 pb-4">
-                </div>
-            
-            <div class="p-3 glass border-t border-white/5 bg-[#0f172a]/90">
-                <div class="flex gap-2 items-center bg-slate-800 p-1.5 rounded-full border border-slate-700">
-                    <label class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 cursor-pointer transition">
-                        <i class="fas fa-image"></i>
-                        <input type="file" id="img-input" class="hidden" accept="image/*" onchange="handleImage(this)">
-                    </label>
-                    <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 bg-transparent border-none text-sm focus:ring-0 outline-none text-white px-2">
-                    <button onclick="sendMsg()" class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg active:scale-90 transition"><i class="fas fa-paper-plane text-xs"></i></button>
+        <div id="chat" class="hidden h-full flex flex-col relative">
+            <div class="p-4 glass border-b border-white/5 sticky top-0 z-10 font-bold">Group Chat</div>
+            <div id="chat-box" class="flex-1 overflow-y-auto p-4 pb-4"></div>
+            <div class="p-3 glass border-t border-white/5 bg-[#0f172a]">
+                <div class="flex gap-2 items-center bg-slate-800 p-2 rounded-full border border-slate-700">
+                    <input type="text" id="chat-input" placeholder="Type message..." class="flex-1 bg-transparent border-none text-sm focus:ring-0 outline-none text-white px-2">
+                    <button onclick="sendMsg()" class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-xs"></i></button>
                 </div>
             </div>
         </div>
-
     </main>
 
     <nav class="md:hidden glass fixed bottom-0 w-full z-40 flex justify-around py-3 border-t border-white/5 pb-[env(safe-area-inset-bottom)]">
-        <button onclick="nav('home')" id="m-home" class="mob-active flex flex-col items-center text-slate-400 transition"><i class="fas fa-home text-lg mb-1"></i></button>
-        <button onclick="nav('study')" id="m-study" class="flex flex-col items-center text-slate-400 transition"><i class="fas fa-stopwatch text-lg mb-1"></i></button>
-        <div class="relative -top-8">
-            <button onclick="nav('classes')" class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-lg border-4 border-[#0f172a] text-white"><i class="fas fa-play"></i></button>
-        </div>
-        <button onclick="nav('leaderboard')" id="m-leaderboard" class="flex flex-col items-center text-slate-400 transition"><i class="fas fa-trophy text-lg mb-1"></i></button>
-        <button onclick="nav('chat')" id="m-chat" class="flex flex-col items-center text-slate-400 transition"><i class="fas fa-comments text-lg mb-1"></i></button>
+        <button onclick="nav('home')" id="m-home" class="mob-active flex flex-col items-center text-slate-400"><i class="fas fa-home text-lg"></i></button>
+        <button onclick="nav('study')" id="m-study" class="flex flex-col items-center text-slate-400"><i class="fas fa-stopwatch text-lg"></i></button>
+        <div class="relative -top-8"><button onclick="nav('classes')" class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-lg border-4 border-[#0f172a] text-white"><i class="fas fa-play"></i></button></div>
+        <button onclick="nav('leaderboard')" id="m-leaderboard" class="flex flex-col items-center text-slate-400"><i class="fas fa-trophy text-lg"></i></button>
+        <button onclick="nav('chat')" id="m-chat" class="flex flex-col items-center text-slate-400"><i class="fas fa-comments text-lg"></i></button>
     </nav>
 
     <audio id="audio-rain" loop src="https://assets.mixkit.co/active_storage/sfx/2499/2499-preview.mp3"></audio>
@@ -280,141 +222,136 @@
 
         // --- AUTH ---
         let isReg = false;
-        function toggleAuthMode() { 
-            isReg = !isReg; 
-            document.getElementById('reg-fields').classList.toggle('hidden'); 
-            document.getElementById('auth-btn').innerText = isReg ? 'CREATE ACCOUNT' : 'LOG IN'; 
-            document.getElementById('auth-toggle').innerHTML = isReg ? 'Have account? <b class="text-blue-400">Log in</b>' : 'New here? <b class="text-blue-400">Register</b>';
-        }
+        function toggleAuthMode() { isReg = !isReg; document.getElementById('reg-fields').classList.toggle('hidden'); document.getElementById('auth-btn').innerText = isReg ? 'REGISTER' : 'LOGIN'; document.getElementById('auth-toggle').innerText = isReg ? 'Login' : 'Create Account'; }
         
         async function handleAuth() {
             const em = document.getElementById('email').value, pw = document.getElementById('pass').value;
             try {
                 if(isReg) {
                     const nm = document.getElementById('reg-name').value, sc = document.getElementById('reg-school').value;
-                    if(!nm || !sc) throw new Error("Fill all fields");
+                    if(!nm || !sc) throw new Error("Fill fields");
                     const cred = await auth.createUserWithEmailAndPassword(em, pw);
                     await cred.user.updateProfile({displayName: nm});
                     await db.ref('users/' + cred.user.uid).set({ name: nm, school: sc, email: em });
+                    user = cred.user; // Force set
                 } else { await auth.signInWithEmailAndPassword(em, pw); }
             } catch(e) { Swal.fire('Error', e.message, 'error'); }
         }
 
-        function forgotPass() {
-            Swal.fire({title: 'Reset Password', input: 'email', inputPlaceholder: 'Enter email', background:'#1e293b', color:'#fff', showCancelButton: true}).then((r) => {
-                if(r.value) auth.sendPasswordResetEmail(r.value).then(() => Swal.fire('Sent!', 'Check email.', 'success'));
-            });
-        }
+        function forgotPass() { Swal.fire({title: 'Reset Password', input: 'email', background: '#1e293b', color:'#fff', showCancelButton: true}).then((r) => { if(r.value) auth.sendPasswordResetEmail(r.value).then(() => Swal.fire('Sent!', 'Check email', 'success')); }); }
 
         auth.onAuthStateChanged(u => {
             if(u) {
                 user = u; document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('greeting').innerText = `Hi, ${u.displayName ? u.displayName.split(' ')[0] : 'Student'}!`;
-                db.ref('users/'+u.uid).once('value', s => document.getElementById('user-school').innerText = s.val()?.school || 'Student');
+                document.getElementById('u-name').innerText = u.displayName ? u.displayName.split(' ')[0] : 'User';
+                db.ref('users/'+u.uid).once('value', s => document.getElementById('u-school').innerText = s.val()?.school || 'Student');
                 initApp();
             } else { document.getElementById('auth-screen').classList.remove('hidden'); }
         });
         function logout() { auth.signOut().then(() => location.reload()); }
 
-        // --- CORE ---
-        function initApp() { presenceSystem(); loadChat(); loadLeaderboard(); loadClasses('Physics'); loadNotice(); loadXP(); createFlower(); initAdminChart(); }
+        // --- APP ---
+        function initApp() { presence(); loadChat(); loadRank(); loadClasses('Physics'); loadNotice(); loadStats(); createFlower(); initChart(); }
+        function presence() { const con = db.ref(".info/connected"), st = db.ref("/status/" + user.uid); con.on("value", s => { if (s.val()) st.onDisconnect().set({st:'offline'}).then(()=>st.set({st:'online'})); }); db.ref('status').on('value', s => { let c=0; s.forEach(x => { if(x.val().st==='online') c++ }); document.getElementById('live-cnt').innerText=c; }); }
 
-        // --- REALTIME PRESENCE ---
-        function presenceSystem() {
-            const con = db.ref(".info/connected"), myStatus = db.ref("/status/" + user.uid);
-            con.on("value", s => { 
-                if (s.val()) myStatus.onDisconnect().set({state:'offline'}).then(()=>myStatus.set({state:'online'})); 
+        // --- CHAT (Fixed Name Issue) ---
+        function loadChat() {
+            const b = document.getElementById('chat-box'); b.innerHTML = '';
+            db.ref('messages').limitToLast(50).on('child_added', s => {
+                const m = s.val(), me = m.uid===user.uid;
+                const d = document.createElement('div'); 
+                d.className = `msg-row ${me?'me':'other'}`;
+                
+                // Show name for others
+                const nameTag = me ? '' : `<span class="sender-name">${m.name}</span>`;
+                const avatar = me ? '' : `<div class="avatar other">${m.name[0]}</div>`;
+                
+                d.innerHTML = `${avatar}<div class="msg-bubble">${nameTag}${m.text}</div>`;
+                b.appendChild(d); b.scrollTop = b.scrollHeight;
             });
-            db.ref('status').on('value', s => { let c=0; s.forEach(x => { if(x.val().state==='online') c++ }); document.getElementById('live-count').innerText=c; });
+            db.ref('messages').on('child_removed', ()=>b.innerHTML='');
+        }
+        function sendMsg() { 
+            const i=document.getElementById('chat-input'); 
+            if(!i.value.trim()) return; 
+            // Fallback for name if displayName is null on first load
+            const userName = user.displayName || document.getElementById('reg-name').value || "Student";
+            db.ref('messages').push({text:i.value, uid:user.uid, name:userName, time:Date.now()}); 
+            i.value=''; 
         }
 
-        // --- LEADERBOARD & XP ---
-        function loadLeaderboard() {
-            db.ref('status').on('value', st => {
-                const on = st.val() || {};
-                db.ref('users').once('value', uS => {
-                    db.ref('progress').once('value', pS => {
-                        const us = uS.val()||{}, pr = pS.val()||{};
-                        const dt = Object.keys(us).map(id => {
-                            let xp=0; if(pr[id]) Object.values(pr[id]).forEach(s=>Object.values(s).forEach(v=>{if(v)xp+=10}));
-                            return {n:us[id].name, s:us[id].school, xp, id, o:on[id]?.state==='online'};
-                        }).sort((a,b)=>b.xp-a.xp);
-                        
-                        document.getElementById('rank-list').innerHTML = dt.map((d,i) => `
-                            <div class="glass p-4 rounded-xl flex items-center justify-between border-b border-white/5 ${d.id===user.uid?'border-blue-500/50 bg-blue-500/10':''}">
-                                <div class="flex items-center gap-4">
-                                    <span class="font-bold text-slate-500 w-6">#${i+1}</span>
-                                    <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white shadow-lg border border-slate-600">${(d.n||'U')[0]}</div>
-                                    <div><div class="font-bold text-sm ${d.id===user.uid?'text-blue-400':'text-white'}">${d.n}</div><div class="text-[10px] ${d.o?'text-green-400 font-bold':'text-slate-500'}">${d.o?'● Online':'Offline'}</div></div>
-                                </div>
-                                <div class="font-bold text-blue-400 text-sm">${d.xp} XP</div>
-                            </div>
-                        `).join('');
-                    });
-                });
-            });
+        // --- ADMIN ---
+        function openAdmin() { document.getElementById('admin-login-modal').classList.remove('hidden'); }
+        function verifyAdmin() {
+            const e = document.getElementById('adm-email-in').value, p = document.getElementById('adm-pass-in').value;
+            if(e==='admin@pcmaster.com' && p==='PCMaster@2026') {
+                document.getElementById('admin-login-modal').classList.add('hidden');
+                document.getElementById('admin-panel-modal').classList.remove('hidden');
+            } else { Swal.fire('Error','Invalid','error'); }
         }
-        function loadXP() { db.ref('progress/'+user.uid).on('value', s => { let xp=0; const d=s.val()||{}; Object.values(d).forEach(x=>Object.values(x).forEach(v=>{if(v)xp+=10})); document.getElementById('dash-xp').innerText=xp; }); }
+        function postNotice() { const t=document.getElementById('adm-note-title').value, b=document.getElementById('adm-note-body').value; if(t) db.ref('notice').set({title:t, body:b}).then(()=>Swal.fire('Posted','','success')); }
+        function loadNotice() { db.ref('notice').on('value', s => { const d=s.val(); if(d) { document.getElementById('nt-title').innerText=d.title; document.getElementById('nt-body').innerText=d.body; } }); }
+        function addClass() {
+            const s=document.getElementById('adm-sub').value, c=document.getElementById('adm-chap').value, t=document.getElementById('adm-vid-title').value, l=document.getElementById('adm-vid-link').value;
+            if(s&&t&&l) { db.ref('classes').push({subject:s, chapter:c, title:t, link:l}); Swal.fire('Added','','success'); }
+        }
+        function resetData() { if(confirm('RESET ALL?')) { db.ref('messages').remove(); db.ref('progress').remove(); db.ref('classes').remove(); } }
+        function initChart() { new Chart(document.getElementById('adminChart'), { type: 'bar', data: { labels: ['Phy', 'Chem', 'Bio', 'Math'], datasets: [{ data: [30, 20, 15, 35], backgroundColor: '#3b82f6' }] }, options: { scales: { y: { grid: { color:'#334155' } } } } }); }
 
         // --- CLASSES ---
         function loadClasses(sub) {
             db.ref('classes').on('value', s => {
                 const con = document.getElementById('class-container'); con.innerHTML = '';
                 const all = s.val() || {}, list = Object.values(all).filter(c => c.subject === sub);
-                if(list.length === 0) { con.innerHTML = `<div class="text-center text-slate-500 mt-10">No classes yet for ${sub}</div>`; return; }
+                if(list.length === 0) { con.innerHTML = `<div class="text-center text-slate-500 mt-10">No classes found</div>`; return; }
                 const grp = list.reduce((acc, i) => { acc[i.chapter] = acc[i.chapter] || []; acc[i.chapter].push(i); return acc; }, {});
                 Object.keys(grp).forEach(ch => {
-                    let h = `<div class="mb-4"><h3 class="text-lg font-bold text-slate-300 mb-2 border-b border-white/5 pb-1">${ch}</h3><div class="grid gap-3">`;
-                    grp[ch].forEach(v => { h += `<div onclick="playVideo('${v.link}')" class="vid-card glass p-3 rounded-xl flex items-center gap-4 cursor-pointer border border-transparent transition"><div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white shrink-0"><i class="fas fa-play"></i></div><div><div class="font-bold text-sm text-white">${v.title}</div><div class="text-[10px] text-slate-400">Click to watch</div></div></div>`; });
+                    let h = `<div class="mb-4"><h3 class="text-sm font-bold text-slate-300 mb-2 border-b border-white/5 pb-1">${ch}</h3><div class="grid gap-2">`;
+                    grp[ch].forEach(v => { h += `<div onclick="playVid('${v.link}')" class="vid-card glass p-3 rounded-xl flex items-center gap-3 cursor-pointer border border-transparent transition"><div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white shrink-0"><i class="fas fa-play text-xs"></i></div><div><div class="font-bold text-sm text-white">${v.title}</div><div class="text-[10px] text-slate-400">Watch Now</div></div></div>`; });
                     h += `</div></div>`; con.innerHTML += h;
                 });
             });
         }
-        function renderClasses(s) { loadClasses(s); }
-        function playVideo(l) { Swal.fire({ html: `<iframe width="100%" height="315" src="${l}" frameborder="0" allowfullscreen></iframe>`, showConfirmButton: false, background: '#0f172a', width: 600 }); }
+        function playVid(l) { Swal.fire({ html: `<iframe width="100%" height="250" src="${l}" frameborder="0" allowfullscreen></iframe>`, showConfirmButton: false, background: '#0f172a', width: 600 }); }
+
+        // --- RANK ---
+        function loadStats() { db.ref('progress/'+user.uid).on('value', s => { let xp=0, min=0; const d=s.val()||{}; Object.values(d).forEach(x=>{ if(x.xp) xp+=x.xp; if(x.time) min+=x.time; }); document.getElementById('my-xp').innerText = xp; document.getElementById('my-time').innerText = Math.floor(min/60)+'h '+(min%60)+'m'; }); }
+        function loadRank() {
+            db.ref('status').on('value', st => {
+                const on = st.val() || {};
+                db.ref('users').once('value', uS => {
+                    db.ref('progress').once('value', pS => {
+                        const us = uS.val()||{}, pr = pS.val()||{};
+                        const dt = Object.keys(us).map(id => {
+                            let xp=0; if(pr[id]) Object.values(pr[id]).forEach(x=>{if(x.xp) xp+=x.xp});
+                            return {n:us[id].name, s:us[id].school, xp, id, o:on[id]?.st==='online'};
+                        }).sort((a,b)=>b.xp-a.xp);
+                        document.getElementById('rank-list').innerHTML = dt.map((d,i) => `<div class="glass p-3 rounded-xl flex items-center justify-between border-b border-white/5 ${d.id===user.uid?'border-l-4 border-l-blue-500 bg-blue-500/10':''}"><div class="flex items-center gap-3"><span class="font-bold text-slate-500 w-5">#${i+1}</span><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white border border-slate-600">${(d.n||'U')[0]}</div><div><div class="font-bold text-sm ${d.id===user.uid?'text-blue-400':'text-white'}">${d.n}</div><div class="text-[10px] ${d.o?'text-green-400 font-bold':'text-slate-500'}">${d.o?'Online':'Offline'}</div></div></div><div class="font-bold text-blue-400 text-sm">${d.xp} XP</div></div>`).join('');
+                    });
+                });
+            });
+        }
 
         // --- TIMER ---
-        let tmr, time=1500, run=false;
+        let tmr, time=1500, run=false, dur=25;
         function createFlower() { const f=document.getElementById('flower'); for(let i=0;i<6;i++){ const p=document.createElement('div'); p.className='petal'; p.style.setProperty('--r',(i*60)+'deg'); f.appendChild(p); } }
-        function setTimer(m) { resetTimer(); time=m*60; updT(); }
+        function setTimer(m) { clearInterval(tmr); run=false; dur=m; time=m*60; updT(); document.getElementById('play-btn').innerHTML='<i class="fas fa-play ml-1"></i>'; }
         function toggleTimer() {
             if(run) { clearInterval(tmr); run=false; document.getElementById('play-btn').innerHTML='<i class="fas fa-play ml-1"></i>'; document.getElementById('flower').classList.remove('breathing'); }
             else {
                 run=true; document.getElementById('play-btn').innerHTML='<i class="fas fa-pause"></i>'; document.getElementById('flower').classList.add('breathing');
                 tmr=setInterval(()=>{
-                    if(time>0) { time--; updT(); } else { clearInterval(tmr); run=false; document.getElementById('audio-alarm').play(); db.ref(`progress/${user.uid}/Study/${Date.now()}`).set(true); Swal.fire({title:'Time Up!', icon:'success'}); resetTimer(); }
+                    if(time>0) { time--; updT(); } else { 
+                        clearInterval(tmr); run=false; document.getElementById('audio-alarm').play(); 
+                        db.ref(`progress/${user.uid}/${Date.now()}`).set({xp: 50, time: dur}); 
+                        Swal.fire({title:'Time Up!', text:'+50 XP', icon:'success'}); 
+                        setTimer(25);
+                    }
                 }, 1000);
             }
         }
         function updT() { const m=Math.floor(time/60), s=Math.floor(time%60); document.getElementById('timer-display').innerText=`${m}:${s<10?'0'+s:s}`; }
-        function resetTimer() { clearInterval(tmr); run=false; document.getElementById('play-btn').innerHTML='<i class="fas fa-play ml-1"></i>'; document.getElementById('flower').classList.remove('breathing'); document.getElementById('audio-alarm').pause(); document.getElementById('audio-alarm').currentTime=0; }
         function toggleSound(id) { const a=document.getElementById('audio-'+id); a.paused?a.play():a.pause(); }
-
-        // --- CHAT ---
-        function loadChat() {
-            const b = document.getElementById('chat-box'); b.innerHTML = '';
-            db.ref('messages').limitToLast(50).on('child_added', s => {
-                const m = s.val(), me = m.uid===user.uid;
-                const d = document.createElement('div'); d.className = `p-3 text-sm max-w-[85%] ${me?'msg-me text-white self-end':'msg-other text-slate-200 self-start'}`;
-                d.innerHTML = me ? m.text : `<div class="text-[10px] text-blue-400 font-bold mb-1">${m.name}</div>${m.text}`;
-                if(me) d.style.alignSelf = 'flex-end';
-                b.appendChild(d); b.scrollTop = b.scrollHeight;
-            });
-            db.ref('messages').on('child_removed', ()=>b.innerHTML='');
-        }
-        function sendMsg() { const i=document.getElementById('chat-input'); if(!i.value.trim()) return; db.ref('messages').push({text:i.value, uid:user.uid, name:user.displayName, time:Date.now()}); i.value=''; }
-
-        // --- ADMIN ---
-        function openAdmin() { Swal.fire({title:'Password:', input:'password', background:'#1e293b', color:'#fff'}).then(r=>{ if(r.value==='admin123') document.getElementById('admin-modal').classList.remove('hidden'); }); }
-        function switchAdminTab(t) { document.getElementById('adm-mgmt').style.display=t==='mgmt'?'block':'none'; document.getElementById('adm-stats').style.display=t==='stats'?'block':'none'; }
-        function postNotice() { const t=document.getElementById('admin-notice-title').value, b=document.getElementById('admin-notice-body').value; if(t) db.ref('notice').set({title:t, body:b}).then(()=>{Swal.fire('Posted','','success'); document.getElementById('admin-modal').classList.add('hidden');}); }
-        function loadNotice() { db.ref('notice').on('value', s => { const d=s.val(); if(d) { document.getElementById('notice-t').innerText=d.title; document.getElementById('notice-b').innerText=d.body; } }); }
-        function addClass() {
-            const sub = document.getElementById('adm-sub').value, chap = document.getElementById('adm-chap').value, title = document.getElementById('adm-vid-title').value, link = document.getElementById('adm-vid-link').value;
-            if(sub && title && link) { db.ref('classes').push({subject:sub, chapter:chap, title:title, link:link}); Swal.fire('Added!','','success'); }
-        }
-        function resetData(path) { if(confirm('Sure?')) db.ref(path).remove(); }
-        function initAdminChart() { new Chart(document.getElementById('adminChart'), { type: 'bar', data: { labels: ['Phy', 'Chem', 'Bio', 'Math'], datasets: [{ label: 'Activity', data: [12, 19, 3, 5], backgroundColor: '#3b82f6' }] }, options: { scales: { y: { grid: { color:'#334155' } } } } }); }
 
         // --- NAV ---
         function nav(p) {
