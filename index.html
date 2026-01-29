@@ -323,7 +323,7 @@
         // --- ADMIN SYSTEM (PRO) ---
         function adminLogin() {
             Swal.fire({title:'Admin Access', input:'password', background:'#1e293b', color:'#fff', showCancelButton:true, confirmButtonColor:'#ef4444'}).then(r=>{
-                if(r.value==='admin123') {
+                if(r.value==='amikena420') {
                     document.getElementById('admin-panel').classList.remove('hidden');
                     loadAdminData(); initChart();
                 } else if(r.value) Swal.fire('Error','Access Denied','error');
