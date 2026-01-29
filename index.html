@@ -9,35 +9,34 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;500;700;800&display=swap" rel="stylesheet">
 
     <style>
         body { font-family: 'Manrope', sans-serif; background: #0f172a; color: #fff; height: 100dvh; overflow: hidden; }
         
-        /* UI Elements */
-        .glass { background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); }
+        /* Glass Effect */
+        .glass { background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); }
         .nav-active { background: #2563eb; color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
         .mob-active { color: #3b82f6; border-top: 2px solid #3b82f6; }
         
-        /* Chat */
+        /* Chat Bubbles */
         .msg-me { background: #2563eb; border-radius: 12px 12px 0 12px; }
         .msg-other { background: #1e293b; border-radius: 12px 12px 12px 0; border: 1px solid #334155; }
         
-        /* Animation */
+        /* Animations */
         .flower { width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; animation: spin 20s linear infinite; }
         .petal { position: absolute; width: 50px; height: 50px; background: rgba(96, 165, 250, 0.2); border-radius: 50% 50% 0 50%; border: 1px solid rgba(96, 165, 250, 0.4); }
-        .flower.breathing .petal { animation: breathe 3s ease-in-out infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes breathe { 0%, 100% { transform: scale(1) rotate(var(--r)); } 50% { transform: scale(1.15) rotate(var(--r)); background: rgba(96, 165, 250, 0.5); } }
         
-        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; height: 4px; } 
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
     </style>
 </head>
 <body class="flex flex-col md:flex-row h-full">
@@ -73,7 +72,7 @@
                 <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
                     <h3 class="text-xs font-bold text-green-400 mb-3 uppercase">🎬 Add New Class</h3>
                     <div class="grid grid-cols-2 gap-3 mb-3">
-                        <select id="a-sub" class="bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white"><option>Physics</option><option>Chemistry</option><option>Biology</option><option>Math</option></select>
+                        <input id="a-sub" placeholder="Subject (e.g. Physics, ICT)" class="bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white">
                         <input id="a-chap" placeholder="Chapter Name" class="bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white">
                     </div>
                     <input id="a-title" placeholder="Video Title" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white mb-2">
@@ -89,13 +88,8 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <button onclick="resetData('messages')" class="bg-red-500/10 border border-red-500/30 text-red-400 py-3 rounded-xl text-xs font-bold hover:bg-red-600 hover:text-white transition">Clear Chat History</button>
-                    <button onclick="resetData('progress')" class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 py-3 rounded-xl text-xs font-bold hover:bg-yellow-500 hover:text-black transition">Reset Leaderboard</button>
-                </div>
-                
-                <div class="bg-slate-800 p-4 rounded-xl">
-                    <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase">Traffic Analytics</h3>
-                    <canvas id="adminChart"></canvas>
+                    <button onclick="resetData('messages')" class="bg-red-500/10 border border-red-500/30 text-red-400 py-3 rounded-xl text-xs font-bold hover:bg-red-600 hover:text-white transition">Clear Chat</button>
+                    <button onclick="resetData('progress')" class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 py-3 rounded-xl text-xs font-bold hover:bg-yellow-500 hover:text-black transition">Reset Ranks</button>
                 </div>
             </div>
         </div>
@@ -125,7 +119,7 @@
             </div>
         </header>
 
-        <div id="pages" class="flex-1 overflow-y-auto p-4 md:p-8">
+        <div id="pages" class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
             
             <div id="home" class="max-w-4xl mx-auto">
                 <div class="flex justify-between items-end mb-6">
@@ -145,13 +139,14 @@
 
             <div id="classes" class="hidden max-w-4xl mx-auto">
                 <h2 class="text-xl font-bold mb-4">Video Library</h2>
-                <div class="flex gap-2 overflow-x-auto pb-4 mb-2">
-                    <button onclick="loadClasses('Physics')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg whitespace-nowrap">Physics</button>
-                    <button onclick="loadClasses('Chemistry')" class="bg-slate-800 text-slate-300 px-4 py-2 rounded-lg text-xs font-bold border border-slate-700">Chemistry</button>
-                    <button onclick="loadClasses('Biology')" class="bg-slate-800 text-slate-300 px-4 py-2 rounded-lg text-xs font-bold border border-slate-700">Biology</button>
-                    <button onclick="loadClasses('Math')" class="bg-slate-800 text-slate-300 px-4 py-2 rounded-lg text-xs font-bold border border-slate-700">Math</button>
+                
+                <div id="subject-tabs" class="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+                    <div class="text-slate-500 text-xs">Loading subjects...</div>
                 </div>
-                <div id="class-container" class="space-y-3 pb-20"></div>
+
+                <div id="class-container" class="space-y-3">
+                    <div class="text-center text-slate-500 mt-10">Select a subject to view classes</div>
+                </div>
             </div>
 
             <div id="study" class="hidden h-full flex flex-col items-center justify-center">
@@ -159,7 +154,6 @@
                     <div class="flex justify-center gap-3 mb-8">
                         <button onclick="setTimer(25)" class="px-4 py-2 bg-slate-900 rounded border border-slate-700 text-xs font-bold hover:bg-blue-600 transition">25m</button>
                         <button onclick="setTimer(60)" class="px-4 py-2 bg-slate-900 rounded border border-slate-700 text-xs font-bold hover:bg-blue-600 transition">1h</button>
-                        <button onclick="setTimer(0.1)" class="px-4 py-2 bg-slate-900 rounded border border-green-500/30 text-green-400 text-xs font-bold">Test</button>
                     </div>
                     <div class="relative w-40 h-40 mx-auto mb-6 flex items-center justify-center">
                         <div id="flower" class="flower"></div>
@@ -171,13 +165,16 @@
 
             <div id="leaderboard" class="hidden max-w-3xl mx-auto">
                 <h2 class="text-xl font-bold mb-4 text-yellow-500">Top Students</h2>
-                <div id="rank-list" class="space-y-2 pb-20"></div>
+                <div id="rank-list" class="space-y-2"></div>
             </div>
 
-            <div id="chat" class="hidden h-full flex flex-col max-w-4xl mx-auto">
-                <div class="p-3 bg-slate-900 border-b border-slate-800 font-bold sticky top-0 z-10 rounded-t-xl">Chat Room <span class="text-xs text-green-500 ml-2">● Live</span></div>
-                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#0b0e14]"></div>
-                <div class="p-3 bg-slate-900 border-t border-slate-800 sticky bottom-0 rounded-b-xl">
+            <div id="chat" class="hidden h-[calc(100vh-140px)] md:h-[calc(100vh-100px)] flex flex-col max-w-4xl mx-auto relative">
+                <div class="p-3 bg-slate-900 border-b border-slate-800 font-bold rounded-t-xl shrink-0">Chat Room <span class="text-xs text-green-500 ml-2">● Live</span></div>
+                
+                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#0b0e14]">
+                    </div>
+                
+                <div class="p-3 bg-slate-900 border-t border-slate-800 rounded-b-xl shrink-0">
                     <div class="flex gap-2 items-center">
                         <label class="cursor-pointer text-slate-400 hover:text-white"><i class="fas fa-image"></i><input type="file" id="chat-img" class="hidden" accept="image/*" onchange="sendImg()"></label>
                         <input id="chat-in" placeholder="Type message..." class="flex-1 bg-slate-800 border border-slate-700 rounded-full px-4 py-2 text-sm text-white outline-none focus:border-blue-500">
@@ -199,11 +196,13 @@
     <audio id="audio-alarm" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3"></audio>
 
     <script>
-        // --- 🔥 CONFIG (Replace with Yours) ---
+        // CONFIG
         const firebaseConfig = { apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ", authDomain: "masrur-app-dccc1.firebaseapp.com", databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com", projectId: "masrur-app-dccc1", storageBucket: "masrur-app-dccc1.firebasestorage.app", messagingSenderId: "54049170636", appId: "1:54049170636:web:0d0fd5f530027e72688e69" };
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(); const db = firebase.database(); const storage = firebase.storage();
+        const auth = firebase.auth(); const db = firebase.database();
         let user = null;
+        let allClassesData = []; // Store fetched classes
+        let currentSubject = ''; // Current active tab
 
         // AUTH
         let isReg=false;
@@ -233,7 +232,7 @@
         function logout(){ auth.signOut().then(()=>location.reload()); }
 
         // CORE
-        function initApp() { presence(); loadRank(); loadClasses('Physics'); loadNotice(); loadStats(); loadChat(); createFlower(); initChart(); }
+        function initApp() { presence(); loadRank(); initClasses(); loadNotice(); loadStats(); loadChat(); createFlower(); }
 
         // ADMIN
         function adminLogin() {
@@ -244,31 +243,76 @@
         }
         function postNotice(){ db.ref('notice').set({title:document.getElementById('a-note-title').value, body:document.getElementById('a-note-body').value}); Swal.fire('Posted','','success'); }
         function loadNotice(){ db.ref('notice').on('value',s=>{const d=s.val(); if(d){document.getElementById('nt-title').innerText=d.title; document.getElementById('nt-body').innerText=d.body}}); }
+        
         function addClass(){
-            const s=document.getElementById('a-sub').value, c=document.getElementById('a-chap').value, t=document.getElementById('a-title').value, l=document.getElementById('a-link').value;
+            const s=document.getElementById('a-sub').value.trim(), c=document.getElementById('a-chap').value, t=document.getElementById('a-title').value, l=document.getElementById('a-link').value;
             const vId = l.split('v=')[1]?.split('&')[0] || l.split('/').pop();
             if(s&&t&&vId) { db.ref('classes').push({subject:s, chapter:c, title:t, link:`https://www.youtube.com/embed/${vId}`}); Swal.fire('Added','','success'); }
         }
         function resetData(p){ if(confirm('RESET?')) db.ref(p).remove(); }
-        function initChart(){ new Chart(document.getElementById('adminChart'),{type:'doughnut',data:{labels:['Phy','Chem','Bio'],datasets:[{data:[30,20,50],backgroundColor:['#3b82f6','#a855f7','#22c55e']}]},options:{plugins:{legend:{display:false}}}}); }
 
-        // CLASSES
-        function loadClasses(sub){
-            db.ref('classes').on('value',s=>{
-                const c=document.getElementById('class-container'); c.innerHTML='';
-                const all=Object.values(s.val()||{}).filter(x=>x.subject===sub);
-                if(!all.length){c.innerHTML='<div class="text-center text-slate-500 mt-10">No classes</div>';return;}
-                const grp=all.reduce((a,i)=>{a[i.chapter]=a[i.chapter]||[];a[i.chapter].push(i);return a},{});
-                Object.keys(grp).forEach(ch=>{
-                    let h=`<div class="mb-4"><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase border-b border-slate-800 pb-1">${ch}</h3><div class="grid gap-2">`;
-                    grp[ch].forEach(v=>{h+=`<div onclick="playVid('${v.link}')" class="bg-slate-800 p-3 rounded-lg flex items-center gap-3 cursor-pointer hover:bg-slate-700"><div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white shrink-0"><i class="fas fa-play text-xs"></i></div><div><div class="font-bold text-sm text-white">${v.title}</div></div></div>`});
-                    h+=`</div></div>`; c.innerHTML+=h;
-                });
+        // --- NEW DYNAMIC CLASS SYSTEM ---
+        function initClasses() {
+            db.ref('classes').on('value', s => {
+                allClassesData = Object.values(s.val() || {});
+                renderSubjects();
             });
         }
+
+        function renderSubjects() {
+            const tabsContainer = document.getElementById('subject-tabs');
+            tabsContainer.innerHTML = '';
+            
+            // Get unique subjects
+            const subjects = [...new Set(allClassesData.map(c => c.subject))];
+            
+            if(subjects.length === 0) {
+                tabsContainer.innerHTML = '<div class="text-slate-500 text-xs">No classes found</div>';
+                return;
+            }
+
+            // If currentSubject is invalid/empty, set to first one
+            if(!currentSubject || !subjects.includes(currentSubject)) currentSubject = subjects[0];
+
+            subjects.forEach(sub => {
+                const btn = document.createElement('button');
+                const isActive = sub === currentSubject;
+                btn.className = isActive 
+                    ? "bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg whitespace-nowrap" 
+                    : "bg-slate-800 text-slate-300 px-4 py-2 rounded-lg text-xs font-bold border border-slate-700 whitespace-nowrap hover:bg-slate-700";
+                btn.innerText = sub;
+                btn.onclick = () => { currentSubject = sub; renderSubjects(); renderClasses(); };
+                tabsContainer.appendChild(btn);
+            });
+            renderClasses();
+        }
+
+        function renderClasses() {
+            const cContainer = document.getElementById('class-container');
+            cContainer.innerHTML = '';
+            
+            const filtered = allClassesData.filter(x => x.subject === currentSubject);
+            
+            if(!filtered.length) {
+                cContainer.innerHTML = '<div class="text-center text-slate-500 mt-10">No classes in this subject</div>';
+                return;
+            }
+
+            const grp = filtered.reduce((a,i)=>{a[i.chapter]=a[i.chapter]||[];a[i.chapter].push(i);return a},{});
+            
+            Object.keys(grp).forEach(ch => {
+                let h = `<div class="mb-4 animate-fade-in"><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase border-b border-slate-800 pb-1">${ch}</h3><div class="grid gap-2">`;
+                grp[ch].forEach(v => {
+                    h += `<div onclick="playVid('${v.link}')" class="bg-slate-800 p-3 rounded-lg flex items-center gap-3 cursor-pointer hover:bg-slate-700 transition"><div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white shrink-0"><i class="fas fa-play text-xs"></i></div><div><div class="font-bold text-sm text-white">${v.title}</div></div></div>`;
+                });
+                h += `</div></div>`;
+                cContainer.innerHTML += h;
+            });
+        }
+        
         function playVid(l){ Swal.fire({html:`<iframe width="100%" height="250" src="${l}" frameborder="0" allowfullscreen></iframe>`, showConfirmButton:false, background:'#0f172a', width:600}); }
 
-        // CHAT (Fixed Name)
+        // CHAT
         function loadChat(){
             const b=document.getElementById('chat-box'); b.innerHTML='';
             db.ref('messages').limitToLast(50).on('child_added',s=>{
