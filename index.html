@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PC Master Academy | Lite</title>
+    <title>PC Master Academy | Final Pro</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -17,434 +18,414 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; background: #0f172a; color: #fff; -webkit-tap-highlight-color: transparent; }
+        /* Mobile Viewport Height Fix */
+        body { font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; background: #0f172a; color: #fff; -webkit-tap-highlight-color: transparent; height: 100dvh; overflow: hidden; }
         
-        /* Optimized Animation */
-        .page-transition { animation: fadeUp 0.3s ease-out forwards; opacity: 0; transform: translateY(10px); }
-        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
-
-        /* Performance Glass (Lighter blur for mobile) */
         .glass { 
             background: rgba(30, 41, 59, 0.85); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
-        @supports (backdrop-filter: blur(10px)) {
-            .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        }
-        
+
+        /* Nav Active States */
+        .nav-active { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-left: 3px solid #60a5fa; }
+        .mob-active { color: #60a5fa; transform: translateY(-5px); }
+        .mob-active::after { content: ''; display: block; width: 4px; height: 4px; background: #60a5fa; border-radius: 50%; margin: 2px auto 0; }
+
+        /* Animations */
+        .flower { position: relative; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; animation: spin 20s linear infinite; }
+        .petal { position: absolute; width: 50px; height: 50px; background: rgba(96, 165, 250, 0.2); border-radius: 50% 50% 0 50%; border: 1px solid rgba(96, 165, 250, 0.4); }
+        .flower.breathing .petal { animation: breathe 3s ease-in-out infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes breathe { 0%, 100% { transform: scale(1) rotate(var(--r)); } 50% { transform: scale(1.15) rotate(var(--r)); background: rgba(96, 165, 250, 0.5); box-shadow: 0 0 15px rgba(96, 165, 250, 0.4); } }
+
+        /* Chat & Scroll */
+        .msg-me { background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 18px 18px 0 18px; }
+        .msg-other { background: #1e293b; border-radius: 18px 18px 18px 0; border: 1px solid rgba(255,255,255,0.1); }
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
-
-        .nav-active { color: #60a5fa; position: relative; }
-        .nav-active::after {
-            content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
-            width: 4px; height: 4px; background: #60a5fa; border-radius: 50%;
-        }
-        .safe-area-bottom { padding-bottom: calc(70px + env(safe-area-inset-bottom)); }
         
-        .msg-me { align-self: flex-end; background: #2563eb; border-radius: 16px 16px 0 16px; }
-        .msg-other { align-self: flex-start; background: #1e293b; border-radius: 16px 16px 16px 0; border: 1px solid rgba(255,255,255,0.05); }
-
-        /* Pulse Animation for Online Status */
-        .online-indicator { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; }
-        .pulse { animation: pulse-animation 2s infinite; }
-        @keyframes pulse-animation { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+        /* Video Card Hover */
+        .vid-card:active { transform: scale(0.98); }
     </style>
 </head>
-<body class="h-screen flex flex-col md:flex-row overflow-hidden">
+<body class="flex flex-col md:flex-row h-full">
 
-    <div id="auth-screen" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-opacity duration-300">
-        <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-lg rotate-3"><i class="fas fa-graduation-cap text-white"></i></div>
-        <h1 class="text-2xl font-bold mb-1 text-white">PC Master Academy</h1>
-        <p class="text-slate-400 mb-8 text-sm">Sign in to continue</p>
+    <div id="auth-screen" class="fixed inset-0 z-[100] bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-all duration-500">
+        <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-3xl mb-6 shadow-[0_0_40px_rgba(37,99,235,0.6)] animate-pulse">
+            <i class="fas fa-graduation-cap text-white"></i>
+        </div>
+        <h1 class="text-3xl font-bold mb-1 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">PC Master Academy</h1>
+        <p class="text-slate-400 mb-8 text-sm">Empowering Students 🚀</p>
         
-        <div class="w-full max-w-sm glass rounded-2xl p-6 space-y-3">
-            <input type="text" id="reg-name" placeholder="Full Name" class="hidden w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition">
-            <input type="text" id="reg-school" placeholder="School Name" class="hidden w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition">
+        <div class="w-full max-w-sm glass rounded-3xl p-8 space-y-4 shadow-2xl">
+            <div id="reg-fields" class="hidden space-y-4">
+                <input type="text" id="reg-name" placeholder="Full Name (আপনার নাম)" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-5 py-4 outline-none focus:border-blue-500 transition">
+                <input type="text" id="reg-school" placeholder="School/College Name" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-5 py-4 outline-none focus:border-blue-500 transition">
+            </div>
             
-            <input type="email" id="email" placeholder="Email" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition">
-            <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition">
+            <input type="email" id="email" placeholder="Email Address" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-5 py-4 outline-none focus:border-blue-500 transition">
+            <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl px-5 py-4 outline-none focus:border-blue-500 transition">
             
-            <button onclick="handleAuth()" id="auth-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold shadow-lg active:scale-95 transition">লগইন</button>
-            <p class="text-center text-sm text-slate-400 mt-2 cursor-pointer" onclick="toggleAuthMode()" id="auth-toggle">Create Account</p>
+            <button onclick="handleAuth()" id="auth-btn" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 py-4 rounded-xl font-bold shadow-lg shadow-blue-600/30 active:scale-95 transition text-lg">LOG IN</button>
+            
+            <div class="flex justify-between text-xs text-slate-400 mt-4 px-2">
+                <span class="cursor-pointer hover:text-white" onclick="toggleAuthMode()" id="auth-toggle">New here? <b class="text-blue-400">Register</b></span>
+                <span class="cursor-pointer hover:text-red-400" onclick="forgotPass()">Forgot Password?</span>
+            </div>
         </div>
-        <div class="absolute bottom-5 text-[10px] text-slate-600 text-center">Developed by<br>Masrur Muntasir (DIU)</div>
+        <div class="absolute bottom-6 text-[10px] text-slate-600">Dev by Masrur Muntasir (DIU)</div>
     </div>
 
-    <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm transition-all">
-        <div class="glass w-full max-w-sm p-6 rounded-3xl relative text-center border-t border-white/10">
-            <button onclick="document.getElementById('profile-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 p-2"><i class="fas fa-times"></i></button>
+    <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="glass w-full max-w-lg p-6 rounded-3xl relative animate-[fadeIn_0.3s] max-h-[85vh] overflow-y-auto">
+            <button onclick="document.getElementById('admin-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 w-8 h-8 rounded-full"><i class="fas fa-times"></i></button>
             
-            <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-3xl font-bold mb-3 shadow-lg" id="prof-avatar">U</div>
-            <h2 class="text-xl font-bold text-white" id="prof-name">...</h2>
-            <p class="text-slate-400 text-xs mb-4" id="prof-school">...</p>
-            
-            <div id="prof-status" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs mb-6">
-                <span class="w-2 h-2 rounded-full bg-slate-500"></span> Offline
+            <h2 class="text-xl font-bold text-red-500 mb-4 flex items-center gap-2"><i class="fas fa-user-shield"></i> Admin Panel</h2>
+
+            <div class="flex gap-2 mb-4 border-b border-slate-700 pb-2">
+                <button onclick="switchAdminTab('mgmt')" class="text-sm font-bold text-blue-400 hover:bg-slate-800 px-3 py-1 rounded">Management</button>
+                <button onclick="switchAdminTab('stats')" class="text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-800 px-3 py-1 rounded">Analytics 📊</button>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-slate-800/50 p-3 rounded-xl border border-white/5">
-                    <div class="text-blue-400 text-lg mb-1"><i class="fas fa-fire"></i></div>
-                    <div class="font-bold text-lg" id="prof-xp">0</div>
-                    <div class="text-[10px] text-slate-500">XP Earned</div>
+            <div id="adm-mgmt">
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-white/5 mb-4">
+                    <h3 class="text-xs font-bold text-green-400 mb-2 uppercase tracking-wider">🎬 Add Class</h3>
+                    <select id="adm-sub" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs mb-2 text-white">
+                        <option value="Physics">Physics</option><option value="Chemistry">Chemistry</option><option value="Biology">Biology</option><option value="Math">Math</option>
+                    </select>
+                    <input id="adm-chap" type="text" placeholder="Chapter Name" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs mb-2 text-white outline-none">
+                    <input id="adm-vid-title" type="text" placeholder="Video Title" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs mb-2 text-white outline-none">
+                    <input id="adm-vid-link" type="text" placeholder="YouTube Embed Link" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs mb-2 text-white outline-none">
+                    <button onclick="addClass()" class="w-full bg-green-600 hover:bg-green-700 py-2 rounded-lg text-xs font-bold shadow-lg">Save Class</button>
                 </div>
-                <div class="bg-slate-800/50 p-3 rounded-xl border border-white/5">
-                    <div class="text-green-400 text-lg mb-1"><i class="fas fa-clock"></i></div>
-                    <div class="font-bold text-lg" id="prof-sessions">0</div>
-                    <div class="text-[10px] text-slate-500">Sessions</div>
+
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-white/5 mb-4">
+                    <h3 class="text-xs font-bold text-blue-400 mb-2 uppercase tracking-wider">📢 Notice Board</h3>
+                    <input id="admin-notice-title" type="text" placeholder="Title" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs mb-2 text-white outline-none">
+                    <textarea id="admin-notice-body" placeholder="Details..." rows="2" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-white outline-none"></textarea>
+                    <button onclick="postNotice()" class="w-full mt-2 bg-blue-600 hover:bg-blue-700 py-2 rounded-lg text-xs font-bold shadow-lg">Post Notice</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="resetData('messages')" class="bg-red-500/10 text-red-400 border border-red-500/20 py-3 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white transition">Reset Chat</button>
+                    <button onclick="resetData('progress')" class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 py-3 rounded-xl text-xs font-bold hover:bg-yellow-500 hover:text-black transition">Reset Ranks</button>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-md p-6 rounded-3xl relative">
-            <button onclick="document.getElementById('admin-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400"><i class="fas fa-times"></i></button>
-            <h2 class="text-lg font-bold text-red-500 mb-4 flex items-center gap-2"><i class="fas fa-shield-alt"></i> Admin Control</h2>
-            
-            <div class="bg-slate-800 p-4 rounded-xl mb-4">
-                <h3 class="text-xs font-bold text-blue-400 mb-2 uppercase">Publish Notice</h3>
-                <input type="text" id="n-title" placeholder="Title" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm mb-2 text-white">
-                <textarea id="n-body" placeholder="Details..." class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm mb-2 text-white"></textarea>
-                <button onclick="postNotice()" class="w-full bg-blue-600 py-2 rounded text-sm font-bold">Post</button>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="adm('clearChat')" class="bg-red-500/10 text-red-400 py-3 rounded-xl text-xs font-bold">Clear Chat</button>
-                <button onclick="adm('resetRank')" class="bg-red-500/10 text-red-400 py-3 rounded-xl text-xs font-bold">Reset XP</button>
+            <div id="adm-stats" class="hidden">
+                <div class="bg-slate-800 p-4 rounded-xl mb-4 shadow-inner">
+                    <h3 class="text-xs font-bold mb-4 uppercase text-slate-400">Visitor Engagement</h3>
+                    <canvas id="adminChart"></canvas>
+                </div>
+                <div class="text-center text-xs text-slate-500">Live data from database</div>
             </div>
         </div>
     </div>
 
-    <div class="flex flex-1 overflow-hidden h-full flex-col md:flex-row">
-        
-        <aside class="hidden md:flex flex-col w-64 glass border-r border-slate-700/30 z-20">
-            <div class="p-6 text-xl font-bold text-blue-500 flex items-center gap-2"><i class="fas fa-atom"></i> PC MASTER</div>
-            <nav class="flex-1 px-3 space-y-1">
-                <button onclick="nav('home')" id="d-home" class="w-full text-left px-4 py-3 rounded-xl nav-active bg-slate-800/50 text-blue-400 text-sm font-medium"><i class="fas fa-home w-6"></i> Dashboard</button>
-                <button onclick="nav('study')" id="d-study" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 text-sm font-medium hover:bg-slate-800/30"><i class="fas fa-stopwatch w-6"></i> Timer</button>
-                <button onclick="nav('rank')" id="d-rank" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 text-sm font-medium hover:bg-slate-800/30"><i class="fas fa-trophy w-6"></i> Leaderboard</button>
-                <button onclick="nav('chat')" id="d-chat" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 text-sm font-medium hover:bg-slate-800/30"><i class="fas fa-comments w-6"></i> Chat</button>
-                <button onclick="openAdmin()" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 text-sm font-medium hover:bg-slate-800/30"><i class="fas fa-lock w-6"></i> Admin</button>
+    <aside class="hidden md:flex w-64 glass flex-col justify-between border-r border-slate-700/50 z-20">
+        <div>
+            <div class="p-6 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 flex items-center gap-2">
+                <i class="fas fa-atom text-blue-500"></i> PC MASTER
+            </div>
+            <nav class="flex flex-col gap-2 px-3 mt-2">
+                <button onclick="nav('home')" id="d-home" class="nav-active text-left px-4 py-3 rounded-xl text-slate-400 font-medium transition flex items-center gap-3"><i class="fas fa-home w-5"></i> Dashboard</button>
+                <button onclick="nav('study')" id="d-study" class="text-left px-4 py-3 rounded-xl text-slate-400 font-medium transition flex items-center gap-3 hover:bg-slate-800"><i class="fas fa-stopwatch w-5"></i> Timer</button>
+                <button onclick="nav('classes')" id="d-classes" class="text-left px-4 py-3 rounded-xl text-slate-400 font-medium transition flex items-center gap-3 hover:bg-slate-800"><i class="fas fa-play-circle w-5"></i> Classes</button>
+                <button onclick="nav('leaderboard')" id="d-leaderboard" class="text-left px-4 py-3 rounded-xl text-slate-400 font-medium transition flex items-center gap-3 hover:bg-slate-800"><i class="fas fa-trophy w-5"></i> Leaderboard</button>
+                <button onclick="nav('chat')" id="d-chat" class="text-left px-4 py-3 rounded-xl text-slate-400 font-medium transition flex items-center gap-3 hover:bg-slate-800"><i class="fas fa-comments w-5"></i> Chat</button>
+                <button onclick="openAdmin()" class="text-left px-4 py-3 rounded-xl text-red-400 font-medium transition flex items-center gap-3 hover:bg-red-500/10 mt-4"><i class="fas fa-chart-pie w-5"></i> Admin</button>
             </nav>
-            <div class="p-4 border-t border-white/5">
-                <button onclick="logout()" class="w-full py-2 text-red-400 text-xs font-bold hover:bg-red-500/10 rounded-lg">Sign Out</button>
-            </div>
-        </aside>
+        </div>
+        <div class="p-4">
+            <button onclick="logout()" class="w-full py-2 bg-slate-800 text-red-400 text-xs font-bold hover:bg-red-500 hover:text-white rounded-lg transition">Sign Out</button>
+        </div>
+    </aside>
 
-        <main class="flex-1 overflow-y-auto relative bg-[#0f172a] safe-area-bottom scroll-smooth">
+    <main class="flex-1 overflow-y-auto bg-[#0f172a] relative pb-20 md:pb-0 scroll-smooth">
+        
+        <header class="md:hidden sticky top-0 z-30 glass px-5 py-4 flex justify-between items-center shadow-lg">
+            <div class="font-bold text-lg text-blue-500 flex items-center gap-2"><i class="fas fa-atom"></i> PC MASTER</div>
+            <div class="flex gap-4 text-xl">
+                <button onclick="openAdmin()" class="text-slate-400 hover:text-white"><i class="fas fa-user-cog"></i></button>
+                <button onclick="logout()" class="text-red-400"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </header>
+
+        <div id="home" class="p-6 md:p-10 animate-[fadeIn_0.5s]">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold mb-1" id="greeting">Welcome Back!</h1>
+                    <p class="text-slate-400 text-sm" id="user-school">Loading...</p>
+                </div>
+                <div class="glass px-4 py-2 rounded-full flex items-center gap-2 border border-slate-700">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-xs font-bold text-slate-300"><span id="live-count">0</span> Online</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="glass p-5 rounded-2xl border-b-4 border-blue-500">
+                    <div class="text-slate-400 text-[10px] uppercase font-bold mb-1">Total XP</div>
+                    <div class="text-2xl font-bold" id="dash-xp">0</div>
+                </div>
+                <div class="glass p-5 rounded-2xl border-b-4 border-purple-500">
+                    <div class="text-slate-400 text-[10px] uppercase font-bold mb-1">Status</div>
+                    <div class="text-lg font-bold text-green-400">Active</div>
+                </div>
+                </div>
+
+            <div class="glass rounded-2xl p-6 relative overflow-hidden border-l-4 border-blue-500 shadow-xl">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500 blur-[60px] opacity-20"></div>
+                <div class="flex justify-between items-center mb-3">
+                    <span class="bg-blue-600/20 text-blue-400 text-[10px] px-3 py-1 rounded-full font-bold">NOTICE BOARD</span>
+                    <i class="fas fa-thumbtack text-slate-500 rotate-45"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2 text-white" id="notice-t">No Notices</h3>
+                <p class="text-slate-400 text-sm leading-relaxed" id="notice-b">Check back later for updates from admin.</p>
+            </div>
+        </div>
+
+        <div id="study" class="hidden h-full flex flex-col items-center justify-center p-6 animate-[fadeIn_0.5s]">
+            <div class="glass w-full max-w-lg p-8 rounded-[40px] text-center relative shadow-2xl">
+                
+                <div class="flex justify-center gap-2 mb-8 overflow-x-auto pb-2">
+                    <button onclick="setTimer(25)" class="px-5 py-2 rounded-xl bg-slate-800 text-xs font-bold hover:bg-blue-600 transition border border-slate-700">25m</button>
+                    <button onclick="setTimer(60)" class="px-5 py-2 rounded-xl bg-slate-800 text-xs font-bold hover:bg-blue-600 transition border border-slate-700">1h</button>
+                    <button onclick="setTimer(120)" class="px-5 py-2 rounded-xl bg-slate-800 text-xs font-bold hover:bg-blue-600 transition border border-slate-700">2h</button>
+                    <button onclick="setTimer(0.1)" class="px-5 py-2 rounded-xl bg-slate-800 text-xs font-bold hover:bg-green-600 transition border border-green-500/30 text-green-400">Test</button>
+                </div>
+
+                <div class="relative w-64 h-64 mx-auto mb-8 flex items-center justify-center">
+                    <div id="flower" class="flower"></div>
+                    <div class="absolute z-10 text-center pointer-events-none">
+                        <div id="timer-display" class="text-6xl font-bold tabular-nums tracking-tight text-white drop-shadow-lg">25:00</div>
+                        <div id="timer-status" class="text-xs font-bold text-blue-400 mt-2 uppercase tracking-widest">Ready to Focus</div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-8 items-center">
+                    <button onclick="toggleSound('rain')" class="text-slate-400 hover:text-blue-400 transition transform hover:scale-110" title="Rain Sound"><i class="fas fa-cloud-showers-heavy text-2xl"></i></button>
+                    <button onclick="toggleTimer()" id="play-btn" class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white text-3xl shadow-xl shadow-blue-600/40 hover:scale-105 active:scale-95 transition flex items-center justify-center"><i class="fas fa-play ml-1"></i></button>
+                    <button onclick="toggleSound('forest')" class="text-slate-400 hover:text-green-400 transition transform hover:scale-110" title="Forest Sound"><i class="fas fa-tree text-2xl"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="classes" class="hidden p-6 md:p-10 animate-[fadeIn_0.5s]">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i class="fas fa-play-circle text-red-500"></i> Video Library</h2>
             
-            <header class="md:hidden sticky top-0 z-30 glass px-5 py-3 flex justify-between items-center">
-                <div class="font-bold text-blue-500"><i class="fas fa-atom"></i> PC MASTER</div>
-                <div class="flex items-center gap-3">
-                    <button onclick="openAdmin()" class="text-slate-400"><i class="fas fa-shield-alt"></i></button>
-                    <button onclick="logout()" class="text-red-400 text-xs font-bold">EXIT</button>
-                </div>
-            </header>
-
-            <div id="p-home" class="p-5 md:p-10 page-transition">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h1 class="text-2xl font-bold" id="greeting">Hello!</h1>
-                        <p class="text-slate-400 text-xs" id="u-school">...</p>
-                    </div>
-                    <div class="bg-slate-800/80 px-3 py-1.5 rounded-full flex items-center gap-2 border border-slate-700">
-                        <span class="online-indicator pulse"></span>
-                        <span class="text-xs font-bold"><span id="live-cnt">0</span> Online</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 mb-6">
-                    <div class="glass p-4 rounded-2xl border-l-4 border-blue-500">
-                        <div class="text-2xl font-bold" id="my-xp">0</div>
-                        <div class="text-xs text-slate-400">Total XP</div>
-                    </div>
-                    <div class="glass p-4 rounded-2xl border-l-4 border-green-500">
-                        <div class="text-2xl font-bold" id="my-rank">-</div>
-                        <div class="text-xs text-slate-400">My Rank</div>
-                    </div>
-                </div>
-
-                <div class="glass rounded-2xl p-5 border border-blue-500/20 relative overflow-hidden">
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider">NOTICE</span>
-                        <span class="text-[10px] text-slate-500" id="nt-date"></span>
-                    </div>
-                    <h3 class="text-lg font-bold mb-1" id="nt-title">No Notices</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed" id="nt-body">Stay tuned for updates.</p>
-                </div>
+            <div class="flex gap-2 overflow-x-auto pb-4 mb-4">
+                <button onclick="renderClasses('Physics')" class="bg-blue-600 text-white px-6 py-2 rounded-full text-xs font-bold shadow-lg whitespace-nowrap">Physics</button>
+                <button onclick="renderClasses('Chemistry')" class="bg-slate-800 text-slate-400 px-6 py-2 rounded-full text-xs font-bold hover:bg-slate-700 whitespace-nowrap">Chemistry</button>
+                <button onclick="renderClasses('Biology')" class="bg-slate-800 text-slate-400 px-6 py-2 rounded-full text-xs font-bold hover:bg-slate-700 whitespace-nowrap">Biology</button>
+                <button onclick="renderClasses('Math')" class="bg-slate-800 text-slate-400 px-6 py-2 rounded-full text-xs font-bold hover:bg-slate-700 whitespace-nowrap">Math</button>
             </div>
 
-            <div id="p-study" class="hidden h-full flex flex-col items-center justify-center p-6 page-transition">
-                <div class="grid grid-cols-4 gap-2 w-full max-w-sm mb-8">
-                    <button onclick="setSub('phy')" class="s-btn glass text-slate-400 py-3 rounded-xl text-xs font-bold hover:bg-slate-700">PHY</button>
-                    <button onclick="setSub('chem')" class="s-btn glass text-slate-400 py-3 rounded-xl text-xs font-bold hover:bg-slate-700">CHEM</button>
-                    <button onclick="setSub('bio')" class="s-btn glass text-slate-400 py-3 rounded-xl text-xs font-bold hover:bg-slate-700">BIO</button>
-                    <button onclick="setSub('math')" class="s-btn glass text-slate-400 py-3 rounded-xl text-xs font-bold hover:bg-slate-700">MATH</button>
+            <div id="class-container" class="space-y-6 pb-20">
                 </div>
-                <div class="relative w-64 h-64 flex items-center justify-center mb-8">
-                    <div class="absolute inset-0 border-4 border-slate-700/30 rounded-full"></div>
-                    <div class="text-center">
-                        <div id="timer" class="text-6xl font-bold tabular-nums tracking-tight">25:00</div>
-                        <div id="t-status" class="text-blue-400 text-xs font-bold mt-2 uppercase tracking-widest">Select Subject</div>
-                    </div>
+        </div>
+
+        <div id="leaderboard" class="hidden p-6 md:p-10 animate-[fadeIn_0.5s]">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i class="fas fa-trophy text-yellow-500"></i> Leaderboard</h2>
+            <div id="rank-list" class="space-y-3 pb-20">
+                <div class="text-center text-slate-500 mt-10">Loading ranks...</div>
+            </div>
+        </div>
+
+        <div id="chat" class="hidden h-full flex flex-col relative animate-[fadeIn_0.5s]">
+            <div class="p-4 glass border-b border-white/5 flex justify-between items-center sticky top-0 z-10 shadow-sm">
+                <span class="font-bold flex items-center gap-2"><i class="fas fa-hashtag text-slate-400"></i> Discussion</span>
+                <span class="text-[10px] bg-green-500/10 text-green-400 px-2 py-1 rounded-full border border-green-500/20">Live</span>
+            </div>
+            
+            <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 pb-4">
                 </div>
-                <button onclick="toggleT()" id="t-btn" class="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-xl shadow-lg active:scale-95 transition"><i class="fas fa-play text-white"></i></button>
-            </div>
-
-            <div id="p-rank" class="hidden p-5 md:p-10 page-transition">
-                <h2 class="text-xl font-bold mb-4">Top Students</h2>
-                <div id="rank-list" class="space-y-3"></div>
-            </div>
-
-            <div id="p-chat" class="hidden h-full flex flex-col relative pt-16 md:pt-0 page-transition">
-                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3 pb-24"></div>
-                <div class="absolute bottom-0 w-full p-4 glass md:static">
-                    <form onsubmit="sendMsg(); return false;" class="flex gap-2">
-                        <input type="text" id="m-in" placeholder="Type here..." class="flex-1 bg-slate-800 border-none rounded-full px-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none">
-                        <button type="submit" class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-xs text-white"></i></button>
-                    </form>
+            
+            <div class="p-3 glass border-t border-white/5 bg-[#0f172a]/90">
+                <div class="flex gap-2 items-center bg-slate-800 p-1.5 rounded-full border border-slate-700">
+                    <label class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 cursor-pointer transition">
+                        <i class="fas fa-image"></i>
+                        <input type="file" id="img-input" class="hidden" accept="image/*" onchange="handleImage(this)">
+                    </label>
+                    <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 bg-transparent border-none text-sm focus:ring-0 outline-none text-white px-2">
+                    <button onclick="sendMsg()" class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg active:scale-90 transition"><i class="fas fa-paper-plane text-xs"></i></button>
                 </div>
             </div>
-        </main>
+        </div>
 
-        <nav class="md:hidden fixed bottom-0 left-0 w-full glass z-40 pb-[env(safe-area-inset-bottom)] border-t border-white/5">
-            <div class="flex justify-around items-center h-16">
-                <button onclick="nav('home')" id="m-home" class="flex flex-col items-center justify-center w-full h-full text-blue-400 nav-active"><i class="fas fa-home text-lg mb-0.5"></i></button>
-                <button onclick="nav('study')" id="m-study" class="flex flex-col items-center justify-center w-full h-full text-slate-500"><i class="fas fa-stopwatch text-lg mb-0.5"></i></button>
-                <div class="relative -top-5"><button onclick="nav('study')" class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-lg border-4 border-[#0f172a]"><i class="fas fa-play text-white text-sm"></i></button></div>
-                <button onclick="nav('rank')" id="m-rank" class="flex flex-col items-center justify-center w-full h-full text-slate-500"><i class="fas fa-trophy text-lg mb-0.5"></i></button>
-                <button onclick="nav('chat')" id="m-chat" class="flex flex-col items-center justify-center w-full h-full text-slate-500"><i class="fas fa-comments text-lg mb-0.5"></i></button>
-            </div>
-        </nav>
-    </div>
+    </main>
+
+    <nav class="md:hidden glass fixed bottom-0 w-full z-40 flex justify-around py-3 border-t border-white/5 pb-[env(safe-area-inset-bottom)]">
+        <button onclick="nav('home')" id="m-home" class="mob-active flex flex-col items-center text-slate-400 transition"><i class="fas fa-home text-lg mb-1"></i></button>
+        <button onclick="nav('study')" id="m-study" class="flex flex-col items-center text-slate-400 transition"><i class="fas fa-stopwatch text-lg mb-1"></i></button>
+        <div class="relative -top-8">
+            <button onclick="nav('classes')" class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-lg border-4 border-[#0f172a] text-white"><i class="fas fa-play"></i></button>
+        </div>
+        <button onclick="nav('leaderboard')" id="m-leaderboard" class="flex flex-col items-center text-slate-400 transition"><i class="fas fa-trophy text-lg mb-1"></i></button>
+        <button onclick="nav('chat')" id="m-chat" class="flex flex-col items-center text-slate-400 transition"><i class="fas fa-comments text-lg mb-1"></i></button>
+    </nav>
+
+    <audio id="audio-rain" loop src="https://assets.mixkit.co/active_storage/sfx/2499/2499-preview.mp3"></audio>
+    <audio id="audio-forest" loop src="https://assets.mixkit.co/active_storage/sfx/2496/2496-preview.mp3"></audio>
+    <audio id="audio-alarm" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3"></audio>
 
     <script>
-        // --- FIREBASE CONFIG ---
+        // --- CONFIG ---
         const firebaseConfig = { apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ", authDomain: "masrur-app-dccc1.firebaseapp.com", databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com", projectId: "masrur-app-dccc1", storageBucket: "masrur-app-dccc1.firebasestorage.app", messagingSenderId: "54049170636", appId: "1:54049170636:web:0d0fd5f530027e72688e69" };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(); const db = firebase.database();
-        let curUser = null;
+        let user = null;
 
-        // --- AUTH & SETUP ---
-        let isReg=false;
-        function toggleAuthMode(){isReg=!isReg; document.getElementById('reg-name').classList.toggle('hidden'); document.getElementById('reg-school').classList.toggle('hidden'); document.getElementById('auth-btn').innerText=isReg?'Register':'Login'; document.getElementById('auth-toggle').innerText=isReg?'Have account? Login':'No account? Register';}
+        // --- AUTH ---
+        let isReg = false;
+        function toggleAuthMode() { 
+            isReg = !isReg; 
+            document.getElementById('reg-fields').classList.toggle('hidden'); 
+            document.getElementById('auth-btn').innerText = isReg ? 'CREATE ACCOUNT' : 'LOG IN'; 
+            document.getElementById('auth-toggle').innerHTML = isReg ? 'Have account? <b class="text-blue-400">Log in</b>' : 'New here? <b class="text-blue-400">Register</b>';
+        }
         
-        async function handleAuth(){
+        async function handleAuth() {
             const em = document.getElementById('email').value, pw = document.getElementById('pass').value;
             try {
-                if(isReg){
+                if(isReg) {
                     const nm = document.getElementById('reg-name').value, sc = document.getElementById('reg-school').value;
-                    if(!nm||!sc) throw "Fill all fields";
-                    const c = await auth.createUserWithEmailAndPassword(em,pw);
-                    await c.user.updateProfile({displayName:nm});
-                    await db.ref('users/'+c.user.uid).set({name:nm, school:sc});
-                } else { await auth.signInWithEmailAndPassword(em,pw); }
-            } catch(e){ alert(e.message||e); }
+                    if(!nm || !sc) throw new Error("Fill all fields");
+                    const cred = await auth.createUserWithEmailAndPassword(em, pw);
+                    await cred.user.updateProfile({displayName: nm});
+                    await db.ref('users/' + cred.user.uid).set({ name: nm, school: sc, email: em });
+                } else { await auth.signInWithEmailAndPassword(em, pw); }
+            } catch(e) { Swal.fire('Error', e.message, 'error'); }
+        }
+
+        function forgotPass() {
+            Swal.fire({title: 'Reset Password', input: 'email', inputPlaceholder: 'Enter email', background:'#1e293b', color:'#fff', showCancelButton: true}).then((r) => {
+                if(r.value) auth.sendPasswordResetEmail(r.value).then(() => Swal.fire('Sent!', 'Check email.', 'success'));
+            });
         }
 
         auth.onAuthStateChanged(u => {
-            if(u){
-                curUser = u;
-                document.getElementById('auth-screen').style.opacity = '0';
-                setTimeout(()=>document.getElementById('auth-screen').classList.add('hidden'),300);
-                document.getElementById('greeting').innerText = `Hi, ${u.displayName.split(' ')[0]}!`;
-                db.ref('users/'+u.uid).once('value', s=>document.getElementById('u-school').innerText=s.val()?.school||'Student');
-                
+            if(u) {
+                user = u; document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('greeting').innerText = `Hi, ${u.displayName ? u.displayName.split(' ')[0] : 'Student'}!`;
+                db.ref('users/'+u.uid).once('value', s => document.getElementById('user-school').innerText = s.val()?.school || 'Student');
                 initApp();
-            } else { document.getElementById('auth-screen').classList.remove('hidden'); document.getElementById('auth-screen').style.opacity='1'; }
+            } else { document.getElementById('auth-screen').classList.remove('hidden'); }
         });
+        function logout() { auth.signOut().then(() => location.reload()); }
 
-        function logout(){ auth.signOut().then(()=>location.reload()); }
+        // --- CORE ---
+        function initApp() { presenceSystem(); loadChat(); loadLeaderboard(); loadClasses('Physics'); loadNotice(); loadXP(); createFlower(); initAdminChart(); }
 
-        // --- CORE FUNCTIONS (OPTIMIZED) ---
-        function initApp() {
-            presenceSystem();
-            loadNotices();
-            // Load heavy items only when needed or lazy load
-            loadChat(); 
-            loadRank();
-            trackMyXP();
-        }
-
-        // 1. PRESENCE SYSTEM (FIXED)
+        // --- REALTIME PRESENCE ---
         function presenceSystem() {
-            const connectedRef = db.ref(".info/connected");
-            const myStatusRef = db.ref("/status/" + curUser.uid);
-            
-            connectedRef.on("value", (snap) => {
-                if (snap.val() === false) return;
-                myStatusRef.onDisconnect().set({ state: 'offline', last_changed: firebase.database.ServerValue.TIMESTAMP })
-                    .then(() => {
-                        myStatusRef.set({ state: 'online', last_changed: firebase.database.ServerValue.TIMESTAMP });
-                    });
+            const con = db.ref(".info/connected"), myStatus = db.ref("/status/" + user.uid);
+            con.on("value", s => { 
+                if (s.val()) myStatus.onDisconnect().set({state:'offline'}).then(()=>myStatus.set({state:'online'})); 
             });
-
-            // Efficient Count
-            db.ref('status').on('value', s => {
-                let c = 0; s.forEach(x => { if(x.val().state==='online') c++ });
-                document.getElementById('live-cnt').innerText = c;
-            });
+            db.ref('status').on('value', s => { let c=0; s.forEach(x => { if(x.val().state==='online') c++ }); document.getElementById('live-count').innerText=c; });
         }
 
-        // 2. LEADERBOARD (Optimized Rendering)
-        function loadRank() {
-            // Fetch everything once to avoid N+1 queries
-            Promise.all([db.ref('users').once('value'), db.ref('progress').once('value'), db.ref('status').once('value')]).then(([uS, pS, sS]) => {
-                const users = uS.val()||{}, prog = pS.val()||{}, stats = sS.val()||{};
-                
-                // Subscribe to status changes ONLY for dots (lightweight)
-                db.ref('status').on('value', rtStatus => {
-                    const st = rtStatus.val()||{};
-                    const list = [];
-                    Object.keys(users).forEach(uid => {
-                        let xp = 0;
-                        if(prog[uid]) Object.values(prog[uid]).forEach(sub=>Object.values(sub).forEach(v=>{if(v)xp+=10}));
-                        list.push({ uid, name: users[uid].name, school: users[uid].school, xp, online: st[uid]?.state==='online' });
-                    });
-                    
-                    list.sort((a,b)=>b.xp-a.xp);
-                    
-                    // Update My Rank UI
-                    const myIdx = list.findIndex(x=>x.uid===curUser.uid);
-                    document.getElementById('my-rank').innerText = myIdx >= 0 ? `#${myIdx+1}` : '-';
-
-                    // Render List
-                    document.getElementById('rank-list').innerHTML = list.map((d,i) => `
-                        <div onclick="showProf('${d.uid}')" class="glass p-3 rounded-xl flex items-center justify-between cursor-pointer active:scale-95 transition ${d.uid===curUser.uid?'border border-blue-500/50 bg-blue-500/10':''}">
-                            <div class="flex items-center gap-3">
-                                <div class="font-bold text-slate-500 text-sm w-5">#${i+1}</div>
-                                <div>
-                                    <div class="font-bold text-sm flex items-center gap-2 text-slate-200">
-                                        ${d.name} ${d.online ? '<span class="online-indicator pulse" style="width:6px;height:6px;"></span>' : ''}
-                                    </div>
-                                    <div class="text-[10px] text-slate-500">${d.school}</div>
+        // --- LEADERBOARD & XP ---
+        function loadLeaderboard() {
+            db.ref('status').on('value', st => {
+                const on = st.val() || {};
+                db.ref('users').once('value', uS => {
+                    db.ref('progress').once('value', pS => {
+                        const us = uS.val()||{}, pr = pS.val()||{};
+                        const dt = Object.keys(us).map(id => {
+                            let xp=0; if(pr[id]) Object.values(pr[id]).forEach(s=>Object.values(s).forEach(v=>{if(v)xp+=10}));
+                            return {n:us[id].name, s:us[id].school, xp, id, o:on[id]?.state==='online'};
+                        }).sort((a,b)=>b.xp-a.xp);
+                        
+                        document.getElementById('rank-list').innerHTML = dt.map((d,i) => `
+                            <div class="glass p-4 rounded-xl flex items-center justify-between border-b border-white/5 ${d.id===user.uid?'border-blue-500/50 bg-blue-500/10':''}">
+                                <div class="flex items-center gap-4">
+                                    <span class="font-bold text-slate-500 w-6">#${i+1}</span>
+                                    <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white shadow-lg border border-slate-600">${(d.n||'U')[0]}</div>
+                                    <div><div class="font-bold text-sm ${d.id===user.uid?'text-blue-400':'text-white'}">${d.n}</div><div class="text-[10px] ${d.o?'text-green-400 font-bold':'text-slate-500'}">${d.o?'● Online':'Offline'}</div></div>
                                 </div>
+                                <div class="font-bold text-blue-400 text-sm">${d.xp} XP</div>
                             </div>
-                            <div class="font-bold text-blue-400 text-sm">${d.xp} XP</div>
-                        </div>
-                    `).join('');
+                        `).join('');
+                    });
                 });
             });
         }
+        function loadXP() { db.ref('progress/'+user.uid).on('value', s => { let xp=0; const d=s.val()||{}; Object.values(d).forEach(x=>Object.values(x).forEach(v=>{if(v)xp+=10})); document.getElementById('dash-xp').innerText=xp; }); }
 
-        // 3. PROFILE & LAST SEEN
-        function showProf(uid) {
-            document.getElementById('profile-modal').classList.remove('hidden');
-            // Reset UI
-            document.getElementById('prof-name').innerText = '...';
-            document.getElementById('prof-status').innerHTML = 'Checking...';
-
-            db.ref('users/'+uid).once('value', s => {
-                const u = s.val();
-                document.getElementById('prof-name').innerText = u.name;
-                document.getElementById('prof-school').innerText = u.school;
-                document.getElementById('prof-avatar').innerText = u.name[0];
-            });
-
-            db.ref('status/'+uid).once('value', s => {
-                const st = s.val();
-                const el = document.getElementById('prof-status');
-                if(st?.state === 'online') {
-                    el.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span> Active Now';
-                    el.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 text-xs mb-6';
-                } else {
-                    const time = st?.last_changed ? timeAgo(st.last_changed) : 'Offline';
-                    el.innerHTML = `<span class="w-2 h-2 bg-slate-500 rounded-full mr-1"></span> Last seen: ${time}`;
-                    el.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-400 text-xs mb-6';
-                }
-            });
-            
-            // Stats
-            db.ref('progress/'+uid).once('value', s=>{
-                let xp=0, ses=0; const d=s.val()||{};
-                Object.values(d).forEach(sub=>Object.values(sub).forEach(v=>{if(v){xp+=10;ses++}}));
-                document.getElementById('prof-xp').innerText = xp;
-                document.getElementById('prof-sessions').innerText = ses;
+        // --- CLASSES ---
+        function loadClasses(sub) {
+            db.ref('classes').on('value', s => {
+                const con = document.getElementById('class-container'); con.innerHTML = '';
+                const all = s.val() || {}, list = Object.values(all).filter(c => c.subject === sub);
+                if(list.length === 0) { con.innerHTML = `<div class="text-center text-slate-500 mt-10">No classes yet for ${sub}</div>`; return; }
+                const grp = list.reduce((acc, i) => { acc[i.chapter] = acc[i.chapter] || []; acc[i.chapter].push(i); return acc; }, {});
+                Object.keys(grp).forEach(ch => {
+                    let h = `<div class="mb-4"><h3 class="text-lg font-bold text-slate-300 mb-2 border-b border-white/5 pb-1">${ch}</h3><div class="grid gap-3">`;
+                    grp[ch].forEach(v => { h += `<div onclick="playVideo('${v.link}')" class="vid-card glass p-3 rounded-xl flex items-center gap-4 cursor-pointer border border-transparent transition"><div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white shrink-0"><i class="fas fa-play"></i></div><div><div class="font-bold text-sm text-white">${v.title}</div><div class="text-[10px] text-slate-400">Click to watch</div></div></div>`; });
+                    h += `</div></div>`; con.innerHTML += h;
+                });
             });
         }
+        function renderClasses(s) { loadClasses(s); }
+        function playVideo(l) { Swal.fire({ html: `<iframe width="100%" height="315" src="${l}" frameborder="0" allowfullscreen></iframe>`, showConfirmButton: false, background: '#0f172a', width: 600 }); }
 
-        function timeAgo(ts) {
-            const s = Math.floor((Date.now() - ts) / 1000);
-            if(s < 60) return 'Just now';
-            if(s < 3600) return Math.floor(s/60) + 'm ago';
-            if(s < 86400) return Math.floor(s/3600) + 'h ago';
-            return 'Days ago';
+        // --- TIMER ---
+        let tmr, time=1500, run=false;
+        function createFlower() { const f=document.getElementById('flower'); for(let i=0;i<6;i++){ const p=document.createElement('div'); p.className='petal'; p.style.setProperty('--r',(i*60)+'deg'); f.appendChild(p); } }
+        function setTimer(m) { resetTimer(); time=m*60; updT(); }
+        function toggleTimer() {
+            if(run) { clearInterval(tmr); run=false; document.getElementById('play-btn').innerHTML='<i class="fas fa-play ml-1"></i>'; document.getElementById('flower').classList.remove('breathing'); }
+            else {
+                run=true; document.getElementById('play-btn').innerHTML='<i class="fas fa-pause"></i>'; document.getElementById('flower').classList.add('breathing');
+                tmr=setInterval(()=>{
+                    if(time>0) { time--; updT(); } else { clearInterval(tmr); run=false; document.getElementById('audio-alarm').play(); db.ref(`progress/${user.uid}/Study/${Date.now()}`).set(true); Swal.fire({title:'Time Up!', icon:'success'}); resetTimer(); }
+                }, 1000);
+            }
         }
+        function updT() { const m=Math.floor(time/60), s=Math.floor(time%60); document.getElementById('timer-display').innerText=`${m}:${s<10?'0'+s:s}`; }
+        function resetTimer() { clearInterval(tmr); run=false; document.getElementById('play-btn').innerHTML='<i class="fas fa-play ml-1"></i>'; document.getElementById('flower').classList.remove('breathing'); document.getElementById('audio-alarm').pause(); document.getElementById('audio-alarm').currentTime=0; }
+        function toggleSound(id) { const a=document.getElementById('audio-'+id); a.paused?a.play():a.pause(); }
 
-        // 4. CHAT
+        // --- CHAT ---
         function loadChat() {
-            const b = document.getElementById('chat-box');
-            b.innerHTML = '';
+            const b = document.getElementById('chat-box'); b.innerHTML = '';
             db.ref('messages').limitToLast(50).on('child_added', s => {
-                const m = s.val(); const me = m.uid===curUser.uid;
-                const d = document.createElement('div');
-                d.className = `p-3 text-sm max-w-[85%] ${me?'msg-me text-white':'msg-other text-slate-300'}`;
-                d.onclick = ()=>showProf(m.uid);
+                const m = s.val(), me = m.uid===user.uid;
+                const d = document.createElement('div'); d.className = `p-3 text-sm max-w-[85%] ${me?'msg-me text-white self-end':'msg-other text-slate-200 self-start'}`;
                 d.innerHTML = me ? m.text : `<div class="text-[10px] text-blue-400 font-bold mb-1">${m.name}</div>${m.text}`;
-                b.appendChild(d); b.scrollTo(0, b.scrollHeight);
+                if(me) d.style.alignSelf = 'flex-end';
+                b.appendChild(d); b.scrollTop = b.scrollHeight;
             });
             db.ref('messages').on('child_removed', ()=>b.innerHTML='');
         }
-        function sendMsg() {
-            const i = document.getElementById('m-in'); const t = i.value.trim();
-            if(!t) return;
-            db.ref('messages').push({text:t, uid:curUser.uid, name:curUser.displayName, time:Date.now()});
-            i.value='';
-        }
+        function sendMsg() { const i=document.getElementById('chat-input'); if(!i.value.trim()) return; db.ref('messages').push({text:i.value, uid:user.uid, name:user.displayName, time:Date.now()}); i.value=''; }
 
-        // 5. NOTICE & ADMIN
-        function loadNotices(){
-            db.ref('notice').on('value', s=>{
-                const d=s.val();
-                if(d){
-                    document.getElementById('nt-title').innerText=d.title;
-                    document.getElementById('nt-body').innerText=d.body;
-                    document.getElementById('nt-date').innerText=new Date(d.date).toLocaleDateString();
-                }
-            });
+        // --- ADMIN ---
+        function openAdmin() { Swal.fire({title:'Password:', input:'password', background:'#1e293b', color:'#fff'}).then(r=>{ if(r.value==='admin123') document.getElementById('admin-modal').classList.remove('hidden'); }); }
+        function switchAdminTab(t) { document.getElementById('adm-mgmt').style.display=t==='mgmt'?'block':'none'; document.getElementById('adm-stats').style.display=t==='stats'?'block':'none'; }
+        function postNotice() { const t=document.getElementById('admin-notice-title').value, b=document.getElementById('admin-notice-body').value; if(t) db.ref('notice').set({title:t, body:b}).then(()=>{Swal.fire('Posted','','success'); document.getElementById('admin-modal').classList.add('hidden');}); }
+        function loadNotice() { db.ref('notice').on('value', s => { const d=s.val(); if(d) { document.getElementById('notice-t').innerText=d.title; document.getElementById('notice-b').innerText=d.body; } }); }
+        function addClass() {
+            const sub = document.getElementById('adm-sub').value, chap = document.getElementById('adm-chap').value, title = document.getElementById('adm-vid-title').value, link = document.getElementById('adm-vid-link').value;
+            if(sub && title && link) { db.ref('classes').push({subject:sub, chapter:chap, title:title, link:link}); Swal.fire('Added!','','success'); }
         }
-        function openAdmin(){
-            const p = prompt("Admin Pass:");
-            if(p==="masrur1234") document.getElementById('admin-modal').classList.remove('hidden');
-            else alert("Wrong Pass");
-        }
-        function postNotice(){
-            const t=document.getElementById('n-title').value, b=document.getElementById('n-body').value;
-            if(t&&b) db.ref('notice').set({title:t, body:b, date:Date.now()}).then(()=>{alert('Posted');document.getElementById('admin-modal').classList.add('hidden')});
-        }
-        function adm(a){ if(confirm('Sure?')) { if(a=='clearChat') db.ref('messages').remove(); if(a=='resetRank') db.ref('progress').remove(); } }
+        function resetData(path) { if(confirm('Sure?')) db.ref(path).remove(); }
+        function initAdminChart() { new Chart(document.getElementById('adminChart'), { type: 'bar', data: { labels: ['Phy', 'Chem', 'Bio', 'Math'], datasets: [{ label: 'Activity', data: [12, 19, 3, 5], backgroundColor: '#3b82f6' }] }, options: { scales: { y: { grid: { color:'#334155' } } } } }); }
 
-        // 6. TIMER & XP
-        function trackMyXP() { db.ref('progress/'+curUser.uid).on('value', s=>{ let xp=0; const d=s.val()||{}; Object.values(d).forEach(x=>Object.values(x).forEach(v=>{if(v)xp+=10})); document.getElementById('my-xp').innerText=xp; }); }
-        
-        let tmr, time=1500, run=false, sub=null;
-        function setSub(s){ sub=s; document.querySelectorAll('.s-btn').forEach(b=>b.classList.remove('bg-slate-700','text-white')); event.target.classList.add('bg-slate-700','text-white'); document.getElementById('t-status').innerText=s; }
-        function toggleT(){
-            if(!sub) return alert("Select Subject");
-            if(run){ clearInterval(tmr); run=false; document.querySelector('#t-btn i').className='fas fa-play text-white'; }
-            else {
-                run=true; document.querySelector('#t-btn i').className='fas fa-pause text-white';
-                tmr=setInterval(()=>{
-                    if(time>0){ time--; let m=Math.floor(time/60), s=time%60; document.getElementById('timer').innerText=`${m}:${s<10?'0'+s:s}`; }
-                    else { clearInterval(tmr); run=false; confetti(); db.ref(`progress/${curUser.uid}/${sub}/${Date.now()}`).set(true); alert("Done! +10 XP"); time=1500; }
-                },1000);
-            }
-        }
-
-        // 7. NAV
+        // --- NAV ---
         function nav(p) {
-            ['home','study','rank','chat'].forEach(i => {
-                document.getElementById('p-'+i).classList.add('hidden');
-                document.getElementById('d-'+i)?.classList.remove('nav-active','bg-slate-800/50','text-blue-400');
-                document.getElementById('m-'+i)?.classList.remove('nav-active','text-blue-400');
+            ['home','study','classes','leaderboard','chat'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+                document.getElementById('d-'+id)?.classList.remove('nav-active', 'text-blue-500');
+                document.getElementById('m-'+id)?.classList.remove('mob-active', 'text-blue-500');
             });
-            document.getElementById('p-'+p).classList.remove('hidden');
-            document.getElementById('d-'+p)?.classList.add('nav-active','bg-slate-800/50','text-blue-400');
-            document.getElementById('m-'+p)?.classList.add('nav-active','text-blue-400');
+            document.getElementById(p).classList.remove('hidden');
+            document.getElementById('d-'+p)?.classList.add('nav-active', 'text-blue-500');
+            document.getElementById('m-'+p)?.classList.add('mob-active', 'text-blue-500');
         }
     </script>
 </body>
