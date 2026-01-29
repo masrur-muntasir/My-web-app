@@ -1,451 +1,567 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PC Master Academy | Lite</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>SSC-26 Premium Study Hub</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; background-color: #0f172a; color: white; overflow-x: hidden; }
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    /* Advanced Glassmorphism */
+    .glass { 
+      background: rgba(30, 41, 59, 0.7); 
+      backdrop-filter: blur(20px); 
+      -webkit-backdrop-filter: blur(20px); 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
 
-    <style>
-        body { font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; background: #0f172a; color: #fff; -webkit-tap-highlight-color: transparent; }
-        
-        /* Optimized Animation */
-        .page-transition { animation: fadeUp 0.3s ease-out forwards; opacity: 0; transform: translateY(10px); }
-        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    /* Page Transitions */
+    .page { animation: fadeUp 0.4s ease-out forwards; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-        /* Performance Glass (Lighter blur for mobile) */
-        .glass { 
-            background: rgba(30, 41, 59, 0.85); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        @supports (backdrop-filter: blur(10px)) {
-            .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        }
-        
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+    /* Nav Active State */
+    .nav-btn.active { color: #4ade80; border-left: 3px solid #4ade80; background: rgba(74, 222, 128, 0.1); }
+    .mobile-nav-btn.active { color: #4ade80; transform: translateY(-5px); }
 
-        .nav-active { color: #60a5fa; position: relative; }
-        .nav-active::after {
-            content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
-            width: 4px; height: 4px; background: #60a5fa; border-radius: 50%;
-        }
-        .safe-area-bottom { padding-bottom: calc(70px + env(safe-area-inset-bottom)); }
-        
-        .msg-me { align-self: flex-end; background: #2563eb; border-radius: 16px 16px 0 16px; }
-        .msg-other { align-self: flex-start; background: #1e293b; border-radius: 16px 16px 16px 0; border: 1px solid rgba(255,255,255,0.05); }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
 
-        /* Pulse Animation for Online Status */
-        .online-indicator { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; }
-        .pulse { animation: pulse-animation 2s infinite; }
-        @keyframes pulse-animation { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
-    </style>
+    /* Circular Timer */
+    .progress-ring__circle {
+      transition: stroke-dashoffset 0.35s;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+  </style>
 </head>
-<body class="h-screen flex flex-col md:flex-row overflow-hidden">
 
-    <div id="auth-screen" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-opacity duration-300">
-        <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-lg rotate-3"><i class="fas fa-graduation-cap text-white"></i></div>
-        <h1 class="text-2xl font-bold mb-1 text-white">PC Master Academy</h1>
-        <p class="text-slate-400 mb-8 text-sm">Sign in to continue</p>
-        
-        <div class="w-full max-w-sm glass rounded-2xl p-6 space-y-3">
-            <input type="text" id="reg-name" placeholder="Full Name" class="hidden w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition">
-            <input type="text" id="reg-school" placeholder="School Name" class="hidden w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition">
-            
-            <input type="email" id="email" placeholder="Email" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition">
-            <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-3 outline-none focus:border-blue-500 transition">
-            
-            <button onclick="handleAuth()" id="auth-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold shadow-lg active:scale-95 transition">লগইন</button>
-            <p class="text-center text-sm text-slate-400 mt-2 cursor-pointer" onclick="toggleAuthMode()" id="auth-toggle">Create Account</p>
-        </div>
-        <div class="absolute bottom-5 text-[10px] text-slate-600 text-center">Developed by<br>Masrur Muntasir (DIU)</div>
+<body class="min-h-screen flex flex-col md:flex-row">
+
+  <div id="loader" class="fixed inset-0 z-50 bg-slate-900 flex items-center justify-center transition-opacity duration-500">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-500"></div>
+  </div>
+
+  <div id="auth" class="fixed inset-0 z-40 bg-[url('https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center flex items-center justify-center">
+    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm"></div>
+    <div class="glass p-8 rounded-2xl w-full max-w-md space-y-4 relative z-10 mx-4 shadow-2xl">
+      <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">SSC-26 HUB</h1>
+        <p class="text-slate-400 text-sm">Login to continue your journey</p>
+      </div>
+      
+      <div id="regFields" class="space-y-3 hidden">
+        <input id="name" placeholder="Full Name" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg p-3 focus:outline-none focus:border-green-500 transition"/>
+        <input id="schoolInput" placeholder="School Name" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg p-3 focus:outline-none focus:border-green-500 transition"/>
+      </div>
+      
+      <input id="email" placeholder="Email Address" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg p-3 focus:outline-none focus:border-green-500 transition"/>
+      <input id="pass" type="password" placeholder="Password" class="w-full bg-slate-800/50 border border-slate-600 rounded-lg p-3 focus:outline-none focus:border-green-500 transition"/>
+      
+      <button onclick="login()" id="loginBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 py-3 rounded-lg font-bold shadow-lg transition transform active:scale-95">LOGIN</button>
+      <button onclick="toggleAuth()" id="toggleAuthBtn" class="w-full text-slate-400 text-sm hover:text-white transition">Create an account</button>
     </div>
+  </div>
 
-    <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm transition-all">
-        <div class="glass w-full max-w-sm p-6 rounded-3xl relative text-center border-t border-white/10">
-            <button onclick="document.getElementById('profile-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 p-2"><i class="fas fa-times"></i></button>
-            
-            <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-3xl font-bold mb-3 shadow-lg" id="prof-avatar">U</div>
-            <h2 class="text-xl font-bold text-white" id="prof-name">...</h2>
-            <p class="text-slate-400 text-xs mb-4" id="prof-school">...</p>
-            
-            <div id="prof-status" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs mb-6">
-                <span class="w-2 h-2 rounded-full bg-slate-500"></span> Offline
-            </div>
+  <div id="app" class="hidden w-full h-screen flex flex-col md:flex-row overflow-hidden">
 
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-slate-800/50 p-3 rounded-xl border border-white/5">
-                    <div class="text-blue-400 text-lg mb-1"><i class="fas fa-fire"></i></div>
-                    <div class="font-bold text-lg" id="prof-xp">0</div>
-                    <div class="text-[10px] text-slate-500">XP Earned</div>
-                </div>
-                <div class="bg-slate-800/50 p-3 rounded-xl border border-white/5">
-                    <div class="text-green-400 text-lg mb-1"><i class="fas fa-clock"></i></div>
-                    <div class="font-bold text-lg" id="prof-sessions">0</div>
-                    <div class="text-[10px] text-slate-500">Sessions</div>
-                </div>
-            </div>
+    <aside class="hidden md:flex w-64 glass flex-col justify-between border-r border-slate-700 z-20">
+      <div>
+        <div class="p-6 text-2xl font-bold tracking-wider text-green-400 flex items-center gap-2">
+          <i class="fas fa-graduation-cap"></i> SSC-26
         </div>
-    </div>
-
-    <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-md p-6 rounded-3xl relative">
-            <button onclick="document.getElementById('admin-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400"><i class="fas fa-times"></i></button>
-            <h2 class="text-lg font-bold text-red-500 mb-4 flex items-center gap-2"><i class="fas fa-shield-alt"></i> Admin Control</h2>
-            
-            <div class="bg-slate-800 p-4 rounded-xl mb-4">
-                <h3 class="text-xs font-bold text-blue-400 mb-2 uppercase">Publish Notice</h3>
-                <input type="text" id="n-title" placeholder="Title" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm mb-2 text-white">
-                <textarea id="n-body" placeholder="Details..." class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm mb-2 text-white"></textarea>
-                <button onclick="postNotice()" class="w-full bg-blue-600 py-2 rounded text-sm font-bold">Post</button>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="adm('clearChat')" class="bg-red-500/10 text-red-400 py-3 rounded-xl text-xs font-bold">Clear Chat</button>
-                <button onclick="adm('resetRank')" class="bg-red-500/10 text-red-400 py-3 rounded-xl text-xs font-bold">Reset XP</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="flex flex-1 overflow-hidden h-full flex-col md:flex-row">
-        
-        <aside class="hidden md:flex flex-col w-64 glass border-r border-slate-700/30 z-20">
-            <div class="p-6 text-xl font-bold text-blue-500 flex items-center gap-2"><i class="fas fa-atom"></i> PC MASTER</div>
-            <nav class="flex-1 px-3 space-y-1">
-                <button onclick="nav('home')" id="d-home" class="w-full text-left px-4 py-3 rounded-xl nav-active bg-slate-800/50 text-blue-400 text-sm font-medium"><i class="fas fa-home w-6"></i> Dashboard</button>
-                <button onclick="nav('study')" id="d-study" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 text-sm font-medium hover:bg-slate-800/30"><i class="fas fa-stopwatch w-6"></i> Timer</button>
-                <button onclick="nav('rank')" id="d-rank" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 text-sm font-medium hover:bg-slate-800/30"><i class="fas fa-trophy w-6"></i> Leaderboard</button>
-                <button onclick="nav('chat')" id="d-chat" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 text-sm font-medium hover:bg-slate-800/30"><i class="fas fa-comments w-6"></i> Chat</button>
-                <button onclick="openAdmin()" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 text-sm font-medium hover:bg-slate-800/30"><i class="fas fa-lock w-6"></i> Admin</button>
-            </nav>
-            <div class="p-4 border-t border-white/5">
-                <button onclick="logout()" class="w-full py-2 text-red-400 text-xs font-bold hover:bg-red-500/10 rounded-lg">Sign Out</button>
-            </div>
-        </aside>
-
-        <main class="flex-1 overflow-y-auto relative bg-[#0f172a] safe-area-bottom scroll-smooth">
-            
-            <header class="md:hidden sticky top-0 z-30 glass px-5 py-3 flex justify-between items-center">
-                <div class="font-bold text-blue-500"><i class="fas fa-atom"></i> PC MASTER</div>
-                <div class="flex items-center gap-3">
-                    <button onclick="openAdmin()" class="text-slate-400"><i class="fas fa-shield-alt"></i></button>
-                    <button onclick="logout()" class="text-red-400 text-xs font-bold">EXIT</button>
-                </div>
-            </header>
-
-            <div id="p-home" class="p-5 md:p-10 page-transition">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h1 class="text-2xl font-bold" id="greeting">Hello!</h1>
-                        <p class="text-slate-400 text-xs" id="u-school">...</p>
-                    </div>
-                    <div class="bg-slate-800/80 px-3 py-1.5 rounded-full flex items-center gap-2 border border-slate-700">
-                        <span class="online-indicator pulse"></span>
-                        <span class="text-xs font-bold"><span id="live-cnt">0</span> Online</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 mb-6">
-                    <div class="glass p-4 rounded-2xl border-l-4 border-blue-500">
-                        <div class="text-2xl font-bold" id="my-xp">0</div>
-                        <div class="text-xs text-slate-400">Total XP</div>
-                    </div>
-                    <div class="glass p-4 rounded-2xl border-l-4 border-green-500">
-                        <div class="text-2xl font-bold" id="my-rank">-</div>
-                        <div class="text-xs text-slate-400">My Rank</div>
-                    </div>
-                </div>
-
-                <div class="glass rounded-2xl p-5 border border-blue-500/20 relative overflow-hidden">
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider">NOTICE</span>
-                        <span class="text-[10px] text-slate-500" id="nt-date"></span>
-                    </div>
-                    <h3 class="text-lg font-bold mb-1" id="nt-title">No Notices</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed" id="nt-body">Stay tuned for updates.</p>
-                </div>
-            </div>
-
-            <div id="p-study" class="hidden h-full flex flex-col items-center justify-center p-6 page-transition">
-                <div class="grid grid-cols-4 gap-2 w-full max-w-sm mb-8">
-                    <button onclick="setSub('phy')" class="s-btn glass text-slate-400 py-3 rounded-xl text-xs font-bold hover:bg-slate-700">PHY</button>
-                    <button onclick="setSub('chem')" class="s-btn glass text-slate-400 py-3 rounded-xl text-xs font-bold hover:bg-slate-700">CHEM</button>
-                    <button onclick="setSub('bio')" class="s-btn glass text-slate-400 py-3 rounded-xl text-xs font-bold hover:bg-slate-700">BIO</button>
-                    <button onclick="setSub('math')" class="s-btn glass text-slate-400 py-3 rounded-xl text-xs font-bold hover:bg-slate-700">MATH</button>
-                </div>
-                <div class="relative w-64 h-64 flex items-center justify-center mb-8">
-                    <div class="absolute inset-0 border-4 border-slate-700/30 rounded-full"></div>
-                    <div class="text-center">
-                        <div id="timer" class="text-6xl font-bold tabular-nums tracking-tight">25:00</div>
-                        <div id="t-status" class="text-blue-400 text-xs font-bold mt-2 uppercase tracking-widest">Select Subject</div>
-                    </div>
-                </div>
-                <button onclick="toggleT()" id="t-btn" class="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-xl shadow-lg active:scale-95 transition"><i class="fas fa-play text-white"></i></button>
-            </div>
-
-            <div id="p-rank" class="hidden p-5 md:p-10 page-transition">
-                <h2 class="text-xl font-bold mb-4">Top Students</h2>
-                <div id="rank-list" class="space-y-3"></div>
-            </div>
-
-            <div id="p-chat" class="hidden h-full flex flex-col relative pt-16 md:pt-0 page-transition">
-                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3 pb-24"></div>
-                <div class="absolute bottom-0 w-full p-4 glass md:static">
-                    <form onsubmit="sendMsg(); return false;" class="flex gap-2">
-                        <input type="text" id="m-in" placeholder="Type here..." class="flex-1 bg-slate-800 border-none rounded-full px-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none">
-                        <button type="submit" class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-xs text-white"></i></button>
-                    </form>
-                </div>
-            </div>
-        </main>
-
-        <nav class="md:hidden fixed bottom-0 left-0 w-full glass z-40 pb-[env(safe-area-inset-bottom)] border-t border-white/5">
-            <div class="flex justify-around items-center h-16">
-                <button onclick="nav('home')" id="m-home" class="flex flex-col items-center justify-center w-full h-full text-blue-400 nav-active"><i class="fas fa-home text-lg mb-0.5"></i></button>
-                <button onclick="nav('study')" id="m-study" class="flex flex-col items-center justify-center w-full h-full text-slate-500"><i class="fas fa-stopwatch text-lg mb-0.5"></i></button>
-                <div class="relative -top-5"><button onclick="nav('study')" class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-lg border-4 border-[#0f172a]"><i class="fas fa-play text-white text-sm"></i></button></div>
-                <button onclick="nav('rank')" id="m-rank" class="flex flex-col items-center justify-center w-full h-full text-slate-500"><i class="fas fa-trophy text-lg mb-0.5"></i></button>
-                <button onclick="nav('chat')" id="m-chat" class="flex flex-col items-center justify-center w-full h-full text-slate-500"><i class="fas fa-comments text-lg mb-0.5"></i></button>
-            </div>
+        <nav class="flex flex-col gap-2 px-4 mt-4">
+          <button onclick="nav('home')" id="d-home" class="nav-btn text-left px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 transition flex items-center gap-3"><i class="fas fa-home w-5"></i> Home</button>
+          <button onclick="nav('study')" id="d-study" class="nav-btn text-left px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 transition flex items-center gap-3"><i class="fas fa-book-reader w-5"></i> Study Room</button>
+          <button onclick="nav('leaderboard')" id="d-leaderboard" class="nav-btn text-left px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 transition flex items-center gap-3"><i class="fas fa-trophy w-5"></i> Leaderboard</button>
+          <button onclick="nav('chat')" id="d-chat" class="nav-btn text-left px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 transition flex items-center gap-3"><i class="fas fa-comments w-5"></i> Group Chat</button>
+          <button onclick="nav('profile')" id="d-profile" class="nav-btn text-left px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 transition flex items-center gap-3"><i class="fas fa-user w-5"></i> Profile</button>
         </nav>
-    </div>
+      </div>
+      <div class="p-4 border-t border-slate-700">
+        <button onclick="auth.signOut()" class="w-full py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </aside>
 
-    <script>
-        // --- FIREBASE CONFIG ---
-        const firebaseConfig = { apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ", authDomain: "masrur-app-dccc1.firebaseapp.com", databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com", projectId: "masrur-app-dccc1", storageBucket: "masrur-app-dccc1.firebasestorage.app", messagingSenderId: "54049170636", appId: "1:54049170636:web:0d0fd5f530027e72688e69" };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(); const db = firebase.database();
-        let curUser = null;
+    <main class="flex-1 overflow-y-auto relative bg-slate-900 pb-20 md:pb-0">
+      
+      <div class="md:hidden glass p-4 flex justify-between items-center sticky top-0 z-30">
+        <span class="font-bold text-green-400 text-lg">SSC-26</span>
+        <div class="flex items-center gap-2">
+          <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full"><i class="fas fa-circle text-[8px] animate-pulse"></i> <span id="mobOnline">0</span></span>
+          <button onclick="auth.signOut()" class="text-slate-400"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+      </div>
 
-        // --- AUTH & SETUP ---
-        let isReg=false;
-        function toggleAuthMode(){isReg=!isReg; document.getElementById('reg-name').classList.toggle('hidden'); document.getElementById('reg-school').classList.toggle('hidden'); document.getElementById('auth-btn').innerText=isReg?'Register':'Login'; document.getElementById('auth-toggle').innerText=isReg?'Have account? Login':'No account? Register';}
-        
-        async function handleAuth(){
-            const em = document.getElementById('email').value, pw = document.getElementById('pass').value;
-            try {
-                if(isReg){
-                    const nm = document.getElementById('reg-name').value, sc = document.getElementById('reg-school').value;
-                    if(!nm||!sc) throw "Fill all fields";
-                    const c = await auth.createUserWithEmailAndPassword(em,pw);
-                    await c.user.updateProfile({displayName:nm});
-                    await db.ref('users/'+c.user.uid).set({name:nm, school:sc});
-                } else { await auth.signInWithEmailAndPassword(em,pw); }
-            } catch(e){ alert(e.message||e); }
-        }
+      <div class="p-4 md:p-8 max-w-5xl mx-auto min-h-full">
 
-        auth.onAuthStateChanged(u => {
-            if(u){
-                curUser = u;
-                document.getElementById('auth-screen').style.opacity = '0';
-                setTimeout(()=>document.getElementById('auth-screen').classList.add('hidden'),300);
-                document.getElementById('greeting').innerText = `Hi, ${u.displayName.split(' ')[0]}!`;
-                db.ref('users/'+u.uid).once('value', s=>document.getElementById('u-school').innerText=s.val()?.school||'Student');
-                
-                initApp();
-            } else { document.getElementById('auth-screen').classList.remove('hidden'); document.getElementById('auth-screen').style.opacity='1'; }
+        <section id="home" class="page space-y-6">
+          <div class="glass rounded-2xl p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-atom text-9xl"></i></div>
+            <h2 id="greet" class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 mb-1">Welcome</h2>
+            <p id="school" class="text-slate-400 text-sm mb-6 flex items-center gap-2"><i class="fas fa-school"></i> <span>Loading...</span></p>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                <p class="text-slate-400 text-xs uppercase">Online</p>
+                <p class="text-2xl font-bold text-green-400" id="onlineCount">0</p>
+              </div>
+              <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                <p class="text-slate-400 text-xs uppercase">Total Study</p>
+                <p class="text-2xl font-bold text-blue-400"><span id="totalTime">0</span> <span class="text-sm text-slate-500">min</span></p>
+              </div>
+              <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                <p class="text-slate-400 text-xs uppercase">XP Points</p>
+                <p class="text-2xl font-bold text-yellow-400" id="xp">0</p>
+              </div>
+              <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                <p class="text-slate-400 text-xs uppercase">Rank</p>
+                <p class="text-2xl font-bold text-purple-400">#<span id="rank">-</span></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass rounded-2xl p-6 border-l-4 border-green-500">
+            <h3 class="text-lg font-bold mb-2 flex items-center gap-2"><i class="fas fa-bullhorn text-green-400"></i> Notice Board</h3>
+            <p id="notice" class="text-slate-300 leading-relaxed">নোটিশ লোড হচ্ছে...</p>
+          </div>
+        </section>
+
+        <section id="study" class="page hidden flex flex-col items-center justify-center min-h-[70vh]">
+          <div class="glass w-full max-w-lg p-8 rounded-3xl text-center relative">
+            
+            <div class="flex gap-2 mb-6">
+              <select id="subject" class="flex-1 bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm focus:border-green-500 outline-none">
+                <option>Physics</option><option>Chemistry</option><option>Biology</option><option>Higher Math</option><option>Gen Math</option>
+              </select>
+              <select id="chapter" class="flex-1 bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm focus:border-green-500 outline-none">
+                <option>Chapter 1</option><option>Chapter 2</option><option>Chapter 3</option><option>MCQ Practice</option>
+              </select>
+            </div>
+
+            <div class="relative w-64 h-64 mx-auto mb-8">
+              <svg class="progress-ring w-64 h-64">
+                <circle class="text-slate-700" stroke="currentColor" stroke-width="8" fill="transparent" r="120" cx="128" cy="128"/>
+                <circle id="progressCircle" class="text-green-500 progress-ring__circle" stroke="currentColor" stroke-width="8" fill="transparent" r="120" cx="128" cy="128" stroke-dasharray="753.98" stroke-dashoffset="753.98"/>
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center flex-col">
+                <span id="timer" class="text-5xl font-bold tabular-nums tracking-wider">00:00</span>
+                <span class="text-xs text-slate-400 mt-2 uppercase tracking-widest animate-pulse" id="timerStatus">Ready to Focus</span>
+              </div>
+            </div>
+
+            <div class="flex justify-center gap-4">
+              <button onclick="startTimer()" class="w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center text-xl shadow-lg transition transform hover:scale-110"><i class="fas fa-play"></i></button>
+              <button onclick="pauseTimer()" class="w-14 h-14 rounded-full bg-yellow-500 hover:bg-yellow-600 flex items-center justify-center text-xl shadow-lg transition transform hover:scale-110"><i class="fas fa-pause"></i></button>
+              <button onclick="resetTimer()" class="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center text-xl shadow-lg transition transform hover:scale-110"><i class="fas fa-stop"></i></button>
+            </div>
+          </div>
+        </section>
+
+        <section id="leaderboard" class="page hidden">
+          <div class="glass rounded-2xl p-6">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i class="fas fa-crown text-yellow-400"></i> Top Learners</h2>
+            <div id="leaderboardList" class="space-y-3">
+              </div>
+          </div>
+        </section>
+
+        <section id="chat" class="page hidden h-[85vh] md:h-[90vh] flex flex-col glass rounded-2xl overflow-hidden">
+          <div class="p-4 bg-slate-800/50 border-b border-slate-700 flex justify-between items-center">
+            <span class="font-bold"><i class="fas fa-comments text-green-400"></i> Discussion Room</span>
+            <span class="text-xs text-slate-400">Be respectful</span>
+          </div>
+          
+          <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900/30">
+            </div>
+
+          <div class="p-4 bg-slate-800/50 border-t border-slate-700 flex gap-2 items-center">
+            <label class="cursor-pointer text-slate-400 hover:text-green-400 transition p-2">
+              <i class="fas fa-image text-xl"></i>
+              <input type="file" id="imgInput" class="hidden" accept="image/*" onchange="previewImage()"/>
+            </label>
+            <input id="msgInput" class="flex-1 bg-slate-900 border border-slate-600 rounded-full px-4 py-2 text-sm focus:border-green-500 outline-none" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMsg()"/>
+            <button onclick="sendMsg()" class="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center shadow-lg transition"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </section>
+
+        <section id="profile" class="page hidden flex items-center justify-center min-h-[70vh]">
+          <div class="glass w-full max-w-md p-8 rounded-3xl text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-green-400 to-blue-500 opacity-20"></div>
+            
+            <div class="w-24 h-24 mx-auto bg-slate-800 rounded-full flex items-center justify-center text-4xl font-bold border-4 border-slate-900 shadow-xl relative z-10 mb-4" id="pAvatar">
+              </div>
+            
+            <h2 id="pName" class="text-2xl font-bold">Loading...</h2>
+            <p id="pSchool" class="text-slate-400 text-sm mb-6"></p>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div class="bg-slate-800 p-4 rounded-xl">
+                <i class="fas fa-clock text-blue-400 text-xl mb-2"></i>
+                <p id="pTime" class="font-bold text-xl">0</p>
+                <p class="text-xs text-slate-500">Minutes Studied</p>
+              </div>
+              <div class="bg-slate-800 p-4 rounded-xl">
+                <i class="fas fa-wifi text-green-400 text-xl mb-2"></i>
+                <p id="pStatus" class="font-bold text-xl">Offline</p>
+                <p class="text-xs text-slate-500">Current Status</p>
+              </div>
+            </div>
+            
+            <div class="text-xs text-slate-500">Member since 2024 • SSC Batch 26</div>
+          </div>
+        </section>
+
+        <section id="admin" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div class="glass w-full max-w-md p-6 rounded-2xl relative">
+            <button onclick="nav('home')" class="absolute top-3 right-4 text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+            <h2 class="text-xl font-bold text-red-500 mb-4 flex items-center gap-2"><i class="fas fa-shield-alt"></i> Admin Panel</h2>
+            <div class="space-y-4">
+              <div>
+                <label class="text-xs text-slate-400">Post Notice</label>
+                <textarea id="adminNotice" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 mt-1 focus:border-red-500 outline-none" rows="3"></textarea>
+              </div>
+              <button onclick="postNotice()" class="w-full bg-green-600 hover:bg-green-700 py-2 rounded-lg font-bold">Publish Notice</button>
+              <hr class="border-slate-700"/>
+              <button onclick="clearChat()" class="w-full bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white py-2 rounded-lg transition border border-red-600/50">Clear Chat History</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <nav class="md:hidden glass fixed bottom-0 w-full z-40 flex justify-around py-3 border-t border-slate-700/50">
+      <button onclick="nav('home')" id="m-home" class="mobile-nav-btn flex flex-col items-center text-slate-400 transition"><i class="fas fa-home text-lg mb-1"></i><span class="text-[10px]">Home</span></button>
+      <button onclick="nav('study')" id="m-study" class="mobile-nav-btn flex flex-col items-center text-slate-400 transition"><i class="fas fa-book-reader text-lg mb-1"></i><span class="text-[10px]">Study</span></button>
+      <div class="relative -top-8">
+        <button onclick="nav('study')" class="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg border-4 border-slate-900"><i class="fas fa-play text-white"></i></button>
+      </div>
+      <button onclick="nav('leaderboard')" id="m-leaderboard" class="mobile-nav-btn flex flex-col items-center text-slate-400 transition"><i class="fas fa-trophy text-lg mb-1"></i><span class="text-[10px]">Rank</span></button>
+      <button onclick="nav('chat')" id="m-chat" class="mobile-nav-btn flex flex-col items-center text-slate-400 transition"><i class="fas fa-comments text-lg mb-1"></i><span class="text-[10px]">Chat</span></button>
+    </nav>
+  </div>
+
+  <script>
+    /* --- CONFIGURATION --- */
+    const firebaseConfig = { apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ", authDomain: "masrur-app-dccc1.firebaseapp.com", databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com", projectId: "masrur-app-dccc1", storageBucket: "masrur-app-dccc1.firebasestorage.app", messagingSenderId: "54049170636", appId: "1:54049170636:web:0d0fd5f530027e72688e69" };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+    const storage = firebase.storage();
+
+    let user, timerInt, seconds=0, isTimerRunning=false;
+    const circle = document.querySelector('.progress-ring__circle');
+    const radius = circle.r.baseVal.value;
+    const circumference = radius * 2 * Math.PI;
+    
+    // Init Progress Ring
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    circle.style.strokeDashoffset = circumference;
+
+    /* --- AUTH LOGIC --- */
+    let isRegisterMode = false;
+    function toggleAuth() {
+      isRegisterMode = !isRegisterMode;
+      document.getElementById('regFields').classList.toggle('hidden');
+      document.getElementById('loginBtn').innerText = isRegisterMode ? 'REGISTER' : 'LOGIN';
+      document.getElementById('toggleAuthBtn').innerText = isRegisterMode ? 'Already have an account? Login' : 'Create an account';
+    }
+
+    function register() {
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('pass').value;
+      const name = document.getElementById('name').value;
+      const school = document.getElementById('schoolInput').value;
+
+      if(!email || !pass || !name || !school) return Swal.fire('Error', 'Please fill all fields', 'error');
+
+      auth.createUserWithEmailAndPassword(email, pass).then(res => {
+        user = res.user;
+        user.updateProfile({ displayName: name });
+        db.ref('users/' + user.uid).set({
+          name: name, school: school, time: 0, xp: 0, online: true, last: Date.now()
         });
+      }).catch(e => Swal.fire('Error', e.message, 'error'));
+    }
 
-        function logout(){ auth.signOut().then(()=>location.reload()); }
+    function login() {
+      if(isRegisterMode) return register();
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('pass').value;
+      auth.signInWithEmailAndPassword(email, pass).catch(e => Swal.fire('Error', e.message, 'error'));
+    }
 
-        // --- CORE FUNCTIONS (OPTIMIZED) ---
-        function initApp() {
-            presenceSystem();
-            loadNotices();
-            // Load heavy items only when needed or lazy load
-            loadChat(); 
-            loadRank();
-            trackMyXP();
-        }
+    auth.onAuthStateChanged(u => {
+      document.getElementById('loader').style.opacity = '0';
+      setTimeout(()=>document.getElementById('loader').style.display='none', 500);
 
-        // 1. PRESENCE SYSTEM (FIXED)
-        function presenceSystem() {
-            const connectedRef = db.ref(".info/connected");
-            const myStatusRef = db.ref("/status/" + curUser.uid);
-            
-            connectedRef.on("value", (snap) => {
-                if (snap.val() === false) return;
-                myStatusRef.onDisconnect().set({ state: 'offline', last_changed: firebase.database.ServerValue.TIMESTAMP })
-                    .then(() => {
-                        myStatusRef.set({ state: 'online', last_changed: firebase.database.ServerValue.TIMESTAMP });
-                    });
-            });
+      if (u) {
+        user = u;
+        document.getElementById('auth').style.display = 'none';
+        document.getElementById('app').classList.remove('hidden');
+        initUser();
+      } else {
+        document.getElementById('auth').style.display = 'flex';
+        document.getElementById('app').classList.add('hidden');
+      }
+    });
 
-            // Efficient Count
-            db.ref('status').on('value', s => {
-                let c = 0; s.forEach(x => { if(x.val().state==='online') c++ });
-                document.getElementById('live-cnt').innerText = c;
-            });
-        }
-
-        // 2. LEADERBOARD (Optimized Rendering)
-        function loadRank() {
-            // Fetch everything once to avoid N+1 queries
-            Promise.all([db.ref('users').once('value'), db.ref('progress').once('value'), db.ref('status').once('value')]).then(([uS, pS, sS]) => {
-                const users = uS.val()||{}, prog = pS.val()||{}, stats = sS.val()||{};
-                
-                // Subscribe to status changes ONLY for dots (lightweight)
-                db.ref('status').on('value', rtStatus => {
-                    const st = rtStatus.val()||{};
-                    const list = [];
-                    Object.keys(users).forEach(uid => {
-                        let xp = 0;
-                        if(prog[uid]) Object.values(prog[uid]).forEach(sub=>Object.values(sub).forEach(v=>{if(v)xp+=10}));
-                        list.push({ uid, name: users[uid].name, school: users[uid].school, xp, online: st[uid]?.state==='online' });
-                    });
-                    
-                    list.sort((a,b)=>b.xp-a.xp);
-                    
-                    // Update My Rank UI
-                    const myIdx = list.findIndex(x=>x.uid===curUser.uid);
-                    document.getElementById('my-rank').innerText = myIdx >= 0 ? `#${myIdx+1}` : '-';
-
-                    // Render List
-                    document.getElementById('rank-list').innerHTML = list.map((d,i) => `
-                        <div onclick="showProf('${d.uid}')" class="glass p-3 rounded-xl flex items-center justify-between cursor-pointer active:scale-95 transition ${d.uid===curUser.uid?'border border-blue-500/50 bg-blue-500/10':''}">
-                            <div class="flex items-center gap-3">
-                                <div class="font-bold text-slate-500 text-sm w-5">#${i+1}</div>
-                                <div>
-                                    <div class="font-bold text-sm flex items-center gap-2 text-slate-200">
-                                        ${d.name} ${d.online ? '<span class="online-indicator pulse" style="width:6px;height:6px;"></span>' : ''}
-                                    </div>
-                                    <div class="text-[10px] text-slate-500">${d.school}</div>
-                                </div>
-                            </div>
-                            <div class="font-bold text-blue-400 text-sm">${d.xp} XP</div>
-                        </div>
-                    `).join('');
-                });
-            });
-        }
-
-        // 3. PROFILE & LAST SEEN
-        function showProf(uid) {
-            document.getElementById('profile-modal').classList.remove('hidden');
-            // Reset UI
-            document.getElementById('prof-name').innerText = '...';
-            document.getElementById('prof-status').innerHTML = 'Checking...';
-
-            db.ref('users/'+uid).once('value', s => {
-                const u = s.val();
-                document.getElementById('prof-name').innerText = u.name;
-                document.getElementById('prof-school').innerText = u.school;
-                document.getElementById('prof-avatar').innerText = u.name[0];
-            });
-
-            db.ref('status/'+uid).once('value', s => {
-                const st = s.val();
-                const el = document.getElementById('prof-status');
-                if(st?.state === 'online') {
-                    el.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span> Active Now';
-                    el.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 text-xs mb-6';
-                } else {
-                    const time = st?.last_changed ? timeAgo(st.last_changed) : 'Offline';
-                    el.innerHTML = `<span class="w-2 h-2 bg-slate-500 rounded-full mr-1"></span> Last seen: ${time}`;
-                    el.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-400 text-xs mb-6';
-                }
-            });
-            
-            // Stats
-            db.ref('progress/'+uid).once('value', s=>{
-                let xp=0, ses=0; const d=s.val()||{};
-                Object.values(d).forEach(sub=>Object.values(sub).forEach(v=>{if(v){xp+=10;ses++}}));
-                document.getElementById('prof-xp').innerText = xp;
-                document.getElementById('prof-sessions').innerText = ses;
-            });
-        }
-
-        function timeAgo(ts) {
-            const s = Math.floor((Date.now() - ts) / 1000);
-            if(s < 60) return 'Just now';
-            if(s < 3600) return Math.floor(s/60) + 'm ago';
-            if(s < 86400) return Math.floor(s/3600) + 'h ago';
-            return 'Days ago';
-        }
-
-        // 4. CHAT
-        function loadChat() {
-            const b = document.getElementById('chat-box');
-            b.innerHTML = '';
-            db.ref('messages').limitToLast(50).on('child_added', s => {
-                const m = s.val(); const me = m.uid===curUser.uid;
-                const d = document.createElement('div');
-                d.className = `p-3 text-sm max-w-[85%] ${me?'msg-me text-white':'msg-other text-slate-300'}`;
-                d.onclick = ()=>showProf(m.uid);
-                d.innerHTML = me ? m.text : `<div class="text-[10px] text-blue-400 font-bold mb-1">${m.name}</div>${m.text}`;
-                b.appendChild(d); b.scrollTo(0, b.scrollHeight);
-            });
-            db.ref('messages').on('child_removed', ()=>b.innerHTML='');
-        }
-        function sendMsg() {
-            const i = document.getElementById('m-in'); const t = i.value.trim();
-            if(!t) return;
-            db.ref('messages').push({text:t, uid:curUser.uid, name:curUser.displayName, time:Date.now()});
-            i.value='';
-        }
-
-        // 5. NOTICE & ADMIN
-        function loadNotices(){
-            db.ref('notice').on('value', s=>{
-                const d=s.val();
-                if(d){
-                    document.getElementById('nt-title').innerText=d.title;
-                    document.getElementById('nt-body').innerText=d.body;
-                    document.getElementById('nt-date').innerText=new Date(d.date).toLocaleDateString();
-                }
-            });
-        }
-        function openAdmin(){
-            const p = prompt("Admin Pass:");
-            if(p==="masrur1234") document.getElementById('admin-modal').classList.remove('hidden');
-            else alert("Wrong Pass");
-        }
-        function postNotice(){
-            const t=document.getElementById('n-title').value, b=document.getElementById('n-body').value;
-            if(t&&b) db.ref('notice').set({title:t, body:b, date:Date.now()}).then(()=>{alert('Posted');document.getElementById('admin-modal').classList.add('hidden')});
-        }
-        function adm(a){ if(confirm('Sure?')) { if(a=='clearChat') db.ref('messages').remove(); if(a=='resetRank') db.ref('progress').remove(); } }
-
-        // 6. TIMER & XP
-        function trackMyXP() { db.ref('progress/'+curUser.uid).on('value', s=>{ let xp=0; const d=s.val()||{}; Object.values(d).forEach(x=>Object.values(x).forEach(v=>{if(v)xp+=10})); document.getElementById('my-xp').innerText=xp; }); }
+    /* --- USER DATA & PRESENCE --- */
+    function initUser() {
+      const ref = db.ref('users/' + user.uid);
+      ref.on('value', s => {
+        const d = s.val();
+        if(!d) return;
+        document.getElementById('greet').innerText = 'Hi, ' + d.name.split(' ')[0];
+        document.getElementById('school').innerHTML = `<i class="fas fa-school text-green-400"></i> ${d.school}`;
+        document.getElementById('totalTime').innerText = d.time;
+        document.getElementById('xp').innerText = d.xp;
         
-        let tmr, time=1500, run=false, sub=null;
-        function setSub(s){ sub=s; document.querySelectorAll('.s-btn').forEach(b=>b.classList.remove('bg-slate-700','text-white')); event.target.classList.add('bg-slate-700','text-white'); document.getElementById('t-status').innerText=s; }
-        function toggleT(){
-            if(!sub) return alert("Select Subject");
-            if(run){ clearInterval(tmr); run=false; document.querySelector('#t-btn i').className='fas fa-play text-white'; }
-            else {
-                run=true; document.querySelector('#t-btn i').className='fas fa-pause text-white';
-                tmr=setInterval(()=>{
-                    if(time>0){ time--; let m=Math.floor(time/60), s=time%60; document.getElementById('timer').innerText=`${m}:${s<10?'0'+s:s}`; }
-                    else { clearInterval(tmr); run=false; confetti(); db.ref(`progress/${curUser.uid}/${sub}/${Date.now()}`).set(true); alert("Done! +10 XP"); time=1500; }
-                },1000);
-            }
-        }
+        // Profile Page
+        document.getElementById('pName').innerText = d.name;
+        document.getElementById('pAvatar').innerText = d.name.charAt(0);
+        document.getElementById('pSchool').innerText = d.school;
+        document.getElementById('pTime').innerText = d.time;
+        document.getElementById('pStatus').innerText = 'Online';
+        document.getElementById('pStatus').className = 'font-bold text-xl text-green-400';
+      });
 
-        // 7. NAV
-        function nav(p) {
-            ['home','study','rank','chat'].forEach(i => {
-                document.getElementById('p-'+i).classList.add('hidden');
-                document.getElementById('d-'+i)?.classList.remove('nav-active','bg-slate-800/50','text-blue-400');
-                document.getElementById('m-'+i)?.classList.remove('nav-active','text-blue-400');
+      // Presence System
+      const presenceRef = db.ref('presence/' + user.uid);
+      presenceRef.onDisconnect().set({ online: false, last: Date.now() });
+      presenceRef.set({ online: true, last: Date.now() });
+    }
+
+    /* --- NAVIGATION --- */
+    function nav(id) {
+      if(id === 'admin') {
+        document.getElementById('admin').classList.remove('hidden');
+        return;
+      }
+      // Hide admin if open
+      document.getElementById('admin').classList.add('hidden');
+
+      // Hide all pages with animation reset
+      document.querySelectorAll('.page').forEach(p => {
+        p.style.display = 'none';
+        p.classList.remove('page'); // reset animation
+      });
+
+      // Show selected page
+      const activePage = document.getElementById(id);
+      activePage.style.display = (id === 'study' || id === 'profile') ? 'flex' : 'block';
+      void activePage.offsetWidth; // trigger reflow
+      activePage.classList.add('page');
+
+      // Update Nav Buttons
+      document.querySelectorAll('.nav-btn, .mobile-nav-btn').forEach(b => b.classList.remove('active'));
+      if(document.getElementById('d-'+id)) document.getElementById('d-'+id).classList.add('active');
+      if(document.getElementById('m-'+id)) document.getElementById('m-'+id).classList.add('active');
+    }
+
+    /* --- TIMER LOGIC --- */
+    function setProgress(percent) {
+      const offset = circumference - percent / 100 * circumference;
+      circle.style.strokeDashoffset = offset;
+    }
+
+    function startTimer() {
+      if (isTimerRunning) return;
+      isTimerRunning = true;
+      document.getElementById('timerStatus').innerText = "Focusing...";
+      document.getElementById('timerStatus').classList.remove('animate-pulse');
+      
+      timerInt = setInterval(() => {
+        seconds++;
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        document.getElementById('timer').innerText = 
+          `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        // Progress visual (just a visual loop for 60s)
+        const progress = (secs / 60) * 100;
+        setProgress(progress);
+
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      isTimerRunning = false;
+      clearInterval(timerInt);
+      document.getElementById('timerStatus').innerText = "Paused";
+      document.getElementById('timerStatus').classList.add('animate-pulse');
+    }
+
+    function resetTimer() {
+      if(seconds > 0) {
+        const minsAdded = Math.floor(seconds / 60);
+        // Transaction to ensure data integrity
+        if(minsAdded > 0) {
+            db.ref('users/' + user.uid + '/time').transaction(t => (t || 0) + minsAdded);
+            db.ref('users/' + user.uid + '/xp').transaction(x => (x || 0) + (minsAdded * 10)); // 10 XP per min
+            Swal.fire({
+                title: 'Session Ended!',
+                text: `You studied for ${minsAdded} mins. +${minsAdded*10} XP`,
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
             });
-            document.getElementById('p-'+p).classList.remove('hidden');
-            document.getElementById('d-'+p)?.classList.add('nav-active','bg-slate-800/50','text-blue-400');
-            document.getElementById('m-'+p)?.classList.add('nav-active','text-blue-400');
         }
-    </script>
+      }
+      pauseTimer();
+      seconds = 0;
+      document.getElementById('timer').innerText = '00:00';
+      document.getElementById('timerStatus').innerText = "Ready to Focus";
+      setProgress(100); // Full circle
+    }
+
+    /* --- LEADERBOARD --- */
+    db.ref('users').on('value', s => {
+      const list = document.getElementById('leaderboardList');
+      list.innerHTML = '';
+      
+      const arr = Object.entries(s.val() || {}).sort((a, b) => b[1].time - a[1].time);
+      
+      arr.forEach((u, i) => {
+        const d = u[1];
+        const isMe = u[0] === user.uid;
+        if (isMe) document.getElementById('rank').innerText = i + 1;
+        
+        list.innerHTML += `
+          <div class="glass p-4 rounded-xl flex items-center justify-between ${isMe ? 'border border-green-500/50 bg-green-500/10' : ''}">
+            <div class="flex items-center gap-4">
+              <span class="font-bold text-slate-500 w-6">#${i + 1}</span>
+              <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-green-400 border border-slate-700">
+                ${d.name.charAt(0)}
+              </div>
+              <div>
+                <p class="font-bold text-sm ${isMe ? 'text-green-400' : 'text-white'}">${d.name}</p>
+                <p class="text-xs text-slate-500">${d.school}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-bold text-blue-400">${d.time}m</p>
+              <p class="text-xs text-yellow-500 font-bold">${d.xp} XP</p>
+            </div>
+          </div>
+        `;
+      });
+    });
+
+    /* --- CHAT --- */
+    function previewImage() {
+        Swal.fire('Image Selected', 'Press send to upload', 'info');
+    }
+
+    function sendMsg() {
+      const msg = document.getElementById('msgInput').value;
+      const img = document.getElementById('imgInput').files[0];
+      
+      if (!msg && !img) return;
+
+      if (img) {
+        Swal.fire({title: 'Uploading...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+        const ref = storage.ref('chat/' + Date.now());
+        ref.put(img).then(r => r.ref.getDownloadURL().then(url => {
+          db.ref('chat').push({ uid: user.uid, name: user.displayName, img: url, time: Date.now() });
+          Swal.close();
+        }));
+        document.getElementById('imgInput').value = ""; // clear file
+      } else {
+        db.ref('chat').push({ uid: user.uid, name: user.displayName, text: msg, time: Date.now() });
+      }
+      document.getElementById('msgInput').value = '';
+    }
+
+    db.ref('chat').limitToLast(50).on('child_added', s => {
+      const m = s.val();
+      const isMe = m.uid === user.uid;
+      const time = new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      
+      const content = m.text ? `<p>${m.text}</p>` : `<img src="${m.img}" class="rounded-lg max-w-[200px] border border-slate-600">`;
+      
+      const html = `
+        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-2">
+          <div class="max-w-[80%] ${isMe ? 'bg-green-600 text-white rounded-l-xl rounded-tr-xl' : 'bg-slate-700 text-slate-200 rounded-r-xl rounded-tl-xl'} p-3 shadow-md text-sm">
+            ${!isMe ? `<p class="text-[10px] text-green-300 font-bold mb-1">${m.name}</p>` : ''}
+            ${content}
+          </div>
+          <span class="text-[10px] text-slate-500 mt-1">${time}</span>
+        </div>
+      `;
+      
+      const box = document.getElementById('messages');
+      box.insertAdjacentHTML('beforeend', html);
+      box.scrollTop = box.scrollHeight;
+    });
+
+    /* --- ADMIN & EXTRAS --- */
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey && e.key === 'a') {
+        Swal.fire({
+            title: 'Admin Access',
+            input: 'password',
+            showCancelButton: true
+        }).then((result) => {
+            if (result.value === 'admin123') nav('admin');
+            else if(result.value) Swal.fire('Error', 'Wrong Password', 'error');
+        });
+      }
+    });
+
+    function postNotice() {
+      db.ref('notice').set(document.getElementById('adminNotice').value)
+        .then(() => Swal.fire('Success', 'Notice Posted', 'success'));
+    }
+    
+    function clearChat() {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Yes, clear it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                db.ref('chat').remove();
+                document.getElementById('messages').innerHTML = '';
+                Swal.fire('Deleted!', 'Chat cleared.', 'success');
+            }
+        })
+    }
+
+    db.ref('notice').on('value', s => document.getElementById('notice').innerText = s.val() || 'No notices yet.');
+
+    db.ref('presence').on('value', s => {
+      let c = 0;
+      s.forEach(x => x.val().online && c++);
+      document.getElementById('onlineCount').innerText = c;
+      document.getElementById('mobOnline').innerText = c;
+    });
+    
+    // Initial Nav
+    nav('home');
+  </script>
 </body>
 </html>
