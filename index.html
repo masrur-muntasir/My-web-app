@@ -3,50 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PC Master | Ultimate</title>
+    <title>PC Master | Fixed Pro</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; background: #0f172a; color: #fff; height: 100dvh; overflow: hidden; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; color: #fff; height: 100vh; overflow: hidden; }
         
-        /* Modern Glass UI */
-        .glass { 
-            background: rgba(30, 41, 59, 0.75); 
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-        }
+        /* Premium Glass & Scrollbar */
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
 
-        /* Nav & Scroll */
+        /* Nav Active */
         .nav-active { background: #2563eb; color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
         .mob-active { color: #3b82f6; transform: translateY(-3px); }
-        ::-webkit-scrollbar { width: 0px; } /* Clean scroll */
 
-        /* Flower Animation */
+        /* Animations */
         .flower { position: relative; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; animation: spin 20s linear infinite; }
         .petal { position: absolute; width: 50px; height: 50px; background: rgba(96, 165, 250, 0.2); border-radius: 50% 50% 0 50%; border: 1px solid rgba(96, 165, 250, 0.4); }
         .flower.breathing .petal { animation: breathe 3s ease-in-out infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes breathe { 0%, 100% { transform: scale(1) rotate(var(--r)); } 50% { transform: scale(1.15) rotate(var(--r)); background: rgba(96, 165, 250, 0.5); } }
 
-        /* Video Card */
-        .vid-card { transition: all 0.3s ease; }
-        .vid-card:active { transform: scale(0.98); }
-        
-        /* Chat */
+        /* Chat & Cards */
         .msg-me { background: linear-gradient(135deg, #2563eb, #1d4ed8); border-radius: 16px 16px 0 16px; }
-        .msg-other { background: #1e293b; border-radius: 16px 16px 16px 0; }
+        .msg-other { background: #1e293b; border-radius: 16px 16px 16px 0; border: 1px solid rgba(255,255,255,0.1); }
+        .vid-card:hover { transform: translateY(-3px); border-color: #3b82f6; background: rgba(30, 41, 59, 0.9); }
     </style>
 </head>
 <body class="flex flex-col md:flex-row h-full">
@@ -54,47 +48,45 @@
     <div id="admin-login-modal" class="hidden fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-6 backdrop-blur-md">
         <div class="glass w-full max-w-sm p-8 rounded-3xl relative">
             <button onclick="document.getElementById('admin-login-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400"><i class="fas fa-times"></i></button>
-            <h2 class="text-2xl font-bold text-red-500 mb-6 flex items-center gap-2"><i class="fas fa-user-shield"></i> Admin Panel</h2>
+            <h2 class="text-2xl font-bold text-red-500 mb-6"><i class="fas fa-lock"></i> Admin Access</h2>
             <div class="space-y-4">
-                <input id="adm-pass" type="password" placeholder="Enter Admin Password" class="w-full bg-[#0f172a] border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-red-500 transition">
+                <input id="adm-pass" type="password" placeholder="Pass: admin123" class="w-full bg-[#0f172a] border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-red-500 transition">
                 <button onclick="checkAdmin()" class="w-full bg-red-600 hover:bg-red-700 py-3 rounded-xl font-bold shadow-lg transition">UNLOCK</button>
             </div>
         </div>
     </div>
 
     <div id="admin-panel" class="hidden fixed inset-0 z-[190] bg-black/95 flex items-center justify-center p-4">
-        <div class="glass w-full max-w-2xl h-[85vh] rounded-3xl p-6 overflow-y-auto relative">
-            <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
-                <h2 class="text-xl font-bold text-white">Admin Controls</h2>
-                <button onclick="document.getElementById('admin-panel').classList.add('hidden')" class="bg-slate-800 p-2 rounded-full"><i class="fas fa-times"></i></button>
-            </div>
-
-            <div class="bg-slate-800/50 p-5 rounded-2xl mb-6 border border-white/5">
-                <h3 class="text-sm font-bold text-green-400 mb-4 uppercase tracking-wider">🎬 Add New Class</h3>
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <select id="a-sub" class="bg-[#0f172a] border border-slate-700 rounded-lg p-3 text-sm text-white">
-                        <option>Physics</option><option>Chemistry</option><option>Biology</option><option>Math</option>
-                    </select>
-                    <input id="a-chap" placeholder="Chapter Name" class="bg-[#0f172a] border border-slate-700 rounded-lg p-3 text-sm text-white">
-                </div>
-                <input id="a-title" placeholder="Video Title" class="w-full bg-[#0f172a] border border-slate-700 rounded-lg p-3 text-sm text-white mb-3">
-                <input id="a-link" placeholder="YouTube Link (e.g. https://youtu.be/...)" class="w-full bg-[#0f172a] border border-slate-700 rounded-lg p-3 text-sm text-white mb-4">
-                <button onclick="addClass()" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl font-bold">Add to Library</button>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="resetDB('messages')" class="bg-blue-600/10 border border-blue-500/30 text-blue-400 py-4 rounded-2xl font-bold hover:bg-blue-600 hover:text-white transition flex flex-col items-center gap-2">
-                    <i class="fas fa-comments text-2xl"></i> Clear Chat
-                </button>
-                <button onclick="resetDB('progress')" class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 py-4 rounded-2xl font-bold hover:bg-yellow-500 hover:text-black transition flex flex-col items-center gap-2">
-                    <i class="fas fa-trophy text-2xl"></i> Reset Ranks
-                </button>
+        <div class="glass w-full max-w-2xl h-[85vh] rounded-3xl p-6 overflow-y-auto relative flex flex-col">
+            <div class="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
+                <h2 class="text-xl font-bold text-white">Admin Dashboard</h2>
+                <button onclick="document.getElementById('admin-panel').classList.add('hidden')" class="bg-slate-800 p-2 rounded-full hover:bg-red-500"><i class="fas fa-times"></i></button>
             </div>
             
-            <div class="mt-6 bg-slate-800 p-4 rounded-xl">
-                <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase">Publish Notice</h3>
-                <input id="a-note" placeholder="Write notice..." class="w-full bg-[#0f172a] p-3 rounded-lg text-sm text-white mb-2">
-                <button onclick="postNotice()" class="bg-blue-600 px-4 py-2 rounded-lg text-xs font-bold">Post</button>
+            <div class="flex-1 overflow-y-auto space-y-6 pr-2">
+                <div class="bg-slate-800/50 p-5 rounded-2xl border border-white/5">
+                    <h3 class="text-sm font-bold text-green-400 mb-4 uppercase">🎬 Add Class</h3>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <select id="a-sub" class="bg-[#0f172a] border border-slate-700 rounded-lg p-3 text-sm text-white">
+                            <option>Physics</option><option>Chemistry</option><option>Biology</option><option>Math</option>
+                        </select>
+                        <input id="a-chap" placeholder="Chapter Name" class="bg-[#0f172a] border border-slate-700 rounded-lg p-3 text-sm text-white">
+                    </div>
+                    <input id="a-title" placeholder="Video Title" class="w-full bg-[#0f172a] border border-slate-700 rounded-lg p-3 text-sm text-white mb-3">
+                    <input id="a-link" placeholder="YouTube Link" class="w-full bg-[#0f172a] border border-slate-700 rounded-lg p-3 text-sm text-white mb-4">
+                    <button onclick="addClass()" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl font-bold">Add to Library</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="resetDB('messages')" class="bg-blue-600/10 border border-blue-500/30 text-blue-400 py-4 rounded-2xl font-bold hover:bg-blue-600 hover:text-white transition">Clear Chat</button>
+                    <button onclick="resetDB('progress')" class="bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 py-4 rounded-2xl font-bold hover:bg-yellow-500 hover:text-black transition">Reset Ranks</button>
+                </div>
+                
+                <div class="bg-slate-800 p-4 rounded-xl">
+                    <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase">Publish Notice</h3>
+                    <input id="a-note" placeholder="Write notice..." class="w-full bg-[#0f172a] p-3 rounded-lg text-sm text-white mb-2">
+                    <button onclick="postNotice()" class="bg-blue-600 px-4 py-2 rounded-lg text-xs font-bold">Post</button>
+                </div>
             </div>
         </div>
     </div>
@@ -103,40 +95,36 @@
         <div class="glass w-full max-w-sm rounded-3xl p-8 shadow-2xl text-center">
             <h1 class="text-3xl font-bold text-blue-500 mb-1">PC Master</h1>
             <p class="text-slate-400 text-sm mb-6">Student Portal</p>
-            
             <div id="reg-box" class="hidden space-y-3 mb-3">
                 <input id="r-name" placeholder="Full Name" class="w-full bg-[#0f172a] border border-slate-700 p-3 rounded-xl text-white outline-none">
                 <input id="r-school" placeholder="School Name" class="w-full bg-[#0f172a] border border-slate-700 p-3 rounded-xl text-white outline-none">
             </div>
-            
             <input id="l-email" placeholder="Email" class="w-full bg-[#0f172a] border border-slate-700 p-3 rounded-xl text-white outline-none mb-3">
             <input id="l-pass" type="password" placeholder="Password" class="w-full bg-[#0f172a] border border-slate-700 p-3 rounded-xl text-white outline-none mb-6">
-            
             <button onclick="handleAuth()" id="btn-auth" class="w-full bg-blue-600 py-3 rounded-xl font-bold hover:bg-blue-700 transition">LOG IN</button>
-            
             <p class="text-xs text-slate-400 mt-4 cursor-pointer hover:text-white" onclick="toggleAuth()" id="txt-auth">Create Account</p>
         </div>
     </div>
 
-    <aside class="hidden md:flex w-64 glass flex-col justify-between border-r border-slate-700/50 z-20">
+    <aside class="hidden md:flex w-72 glass flex-col justify-between border-r border-slate-700/50 z-20">
         <div>
             <div class="p-6 text-xl font-bold text-white flex gap-2 items-center"><i class="fas fa-atom text-blue-500"></i> PC MASTER</div>
-            <nav class="flex flex-col gap-2 px-3 mt-4">
-                <button onclick="nav('home')" id="d-home" class="nav-active text-left px-4 py-3 rounded-xl text-slate-300 font-medium transition flex gap-3 items-center"><i class="fas fa-home w-5"></i> Dashboard</button>
+            <nav class="flex flex-col gap-2 px-4 mt-4">
+                <button onclick="nav('home')" id="d-home" class="nav-active text-left px-4 py-3 rounded-xl text-slate-300 font-medium transition flex gap-3 items-center hover:bg-slate-800"><i class="fas fa-home w-5"></i> Dashboard</button>
                 <button onclick="nav('classes')" id="d-classes" class="text-left px-4 py-3 rounded-xl text-slate-300 font-medium transition flex gap-3 items-center hover:bg-slate-800"><i class="fas fa-play-circle w-5"></i> Classes</button>
                 <button onclick="nav('study')" id="d-study" class="text-left px-4 py-3 rounded-xl text-slate-300 font-medium transition flex gap-3 items-center hover:bg-slate-800"><i class="fas fa-clock w-5"></i> Timer</button>
                 <button onclick="nav('leaderboard')" id="d-leaderboard" class="text-left px-4 py-3 rounded-xl text-slate-300 font-medium transition flex gap-3 items-center hover:bg-slate-800"><i class="fas fa-trophy w-5"></i> Rank</button>
                 <button onclick="nav('chat')" id="d-chat" class="text-left px-4 py-3 rounded-xl text-slate-300 font-medium transition flex gap-3 items-center hover:bg-slate-800"><i class="fas fa-comments w-5"></i> Chat</button>
             </nav>
         </div>
-        <div class="p-4">
-            <button onclick="document.getElementById('admin-login-modal').classList.remove('hidden')" class="w-full py-2 mb-2 text-red-400 text-xs font-bold border border-red-500/20 rounded-lg hover:bg-red-500/10">ADMIN PANEL</button>
+        <div class="p-4 space-y-2">
+            <button onclick="document.getElementById('admin-login-modal').classList.remove('hidden')" class="w-full py-2 text-red-400 text-xs font-bold border border-red-500/20 rounded-lg hover:bg-red-500/10">ADMIN PANEL</button>
             <button onclick="logout()" class="w-full py-2 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg hover:text-white">Sign Out</button>
         </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto relative bg-[#0f172a]">
-        <header class="md:hidden sticky top-0 z-30 glass px-5 py-4 flex justify-between items-center">
+    <main class="flex-1 h-full overflow-hidden relative bg-[#0f172a] flex flex-col">
+        <header class="md:hidden shrink-0 z-30 glass px-5 py-4 flex justify-between items-center shadow-lg">
             <div class="font-bold text-lg text-white">PC MASTER</div>
             <div class="flex gap-4">
                 <button onclick="document.getElementById('admin-login-modal').classList.remove('hidden')" class="text-red-400"><i class="fas fa-user-shield text-xl"></i></button>
@@ -144,85 +132,90 @@
             </div>
         </header>
 
-        <div id="home" class="p-6 md:p-10">
-            <div class="flex justify-between items-end mb-8">
-                <div><h1 class="text-2xl font-bold mb-1">Hi, <span id="u-name" class="text-blue-400">Student</span>!</h1><p class="text-slate-400 text-xs" id="u-school">Loading...</p></div>
-                <div class="glass px-3 py-1 rounded-full border border-slate-700 text-xs font-bold text-green-400 flex gap-2 items-center"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> <span id="live-cnt">0</span> Online</div>
-            </div>
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><div class="text-slate-400 text-[10px] font-bold">Total XP</div><div class="text-2xl font-bold" id="dash-xp">0</div></div>
-                <div class="glass p-5 rounded-2xl border-l-4 border-purple-500"><div class="text-slate-400 text-[10px] font-bold">Study Time</div><div class="text-xl font-bold" id="dash-time">0m</div></div>
-            </div>
-            <div class="glass p-6 rounded-2xl border border-blue-500/20">
-                <h3 class="font-bold text-lg mb-1" id="nt-title">No Notice</h3>
-                <p class="text-slate-400 text-sm" id="nt-body">Check back later.</p>
-            </div>
-        </div>
-
-        <div id="classes" class="hidden p-6 md:p-10">
-            <h2 class="text-xl font-bold mb-6 flex items-center gap-2"><i class="fas fa-play-circle text-red-500"></i> Video Library</h2>
-            <div class="flex gap-2 overflow-x-auto pb-4 mb-2">
-                <button onclick="loadClasses('Physics')" class="bg-blue-600 text-white px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap">Physics</button>
-                <button onclick="loadClasses('Chemistry')" class="bg-slate-800 text-slate-300 px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap">Chemistry</button>
-                <button onclick="loadClasses('Biology')" class="bg-slate-800 text-slate-300 px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap">Biology</button>
-                <button onclick="loadClasses('Math')" class="bg-slate-800 text-slate-300 px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap">Math</button>
-            </div>
-            <div id="class-container" class="space-y-4 pb-24">
-                <div class="text-center text-slate-500 mt-10">Select a subject to view classes</div>
-            </div>
-        </div>
-
-        <div id="study" class="hidden h-full flex flex-col items-center justify-center p-6">
-            <div class="glass w-full max-w-md p-8 rounded-[40px] text-center relative">
-                <div class="flex justify-center gap-3 mb-8">
-                    <button onclick="setTimer(25)" class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold">25m</button>
-                    <button onclick="setTimer(60)" class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold">1h</button>
-                    <button onclick="setTimer(0.1)" class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold text-green-400 border border-green-500/30">Test</button>
+        <div id="main-scroll" class="flex-1 overflow-y-auto pb-24 md:pb-0 p-6 md:p-10">
+            
+            <div id="home" class="max-w-5xl mx-auto">
+                <div class="flex justify-between items-end mb-8">
+                    <div><h1 class="text-2xl md:text-3xl font-bold mb-1">Hi, <span id="u-name" class="text-blue-400">Student</span>!</h1><p class="text-slate-400 text-sm" id="u-school">Loading...</p></div>
+                    <div class="glass px-3 py-1 rounded-full border border-slate-700 text-xs font-bold text-green-400 flex gap-2 items-center"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> <span id="live-cnt">0</span> Online</div>
                 </div>
-                <div class="relative w-64 h-64 mx-auto mb-8 flex items-center justify-center">
-                    <div id="flower" class="flower"></div>
-                    <div class="absolute z-10 text-center"><div id="t-disp" class="text-6xl font-bold">25:00</div><div class="text-xs text-blue-400 font-bold mt-2">FOCUS</div></div>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><div class="text-slate-400 text-[10px] font-bold uppercase">Total XP</div><div class="text-3xl font-bold mt-1" id="dash-xp">0</div></div>
+                    <div class="glass p-5 rounded-2xl border-l-4 border-purple-500"><div class="text-slate-400 text-[10px] font-bold uppercase">Study Time</div><div class="text-2xl font-bold mt-1" id="dash-time">0m</div></div>
                 </div>
-                <button onclick="toggleTimer()" id="play-btn" class="w-16 h-16 bg-blue-600 rounded-full text-2xl flex items-center justify-center shadow-lg"><i class="fas fa-play"></i></button>
+                <div class="glass p-6 rounded-2xl border border-blue-500/20">
+                    <h3 class="font-bold text-lg mb-1" id="nt-title">No Notice</h3>
+                    <p class="text-slate-400 text-sm" id="nt-body">Check back later.</p>
+                </div>
             </div>
-        </div>
 
-        <div id="leaderboard" class="hidden p-6 md:p-10">
-            <h2 class="text-xl font-bold mb-6">Top Learners</h2>
-            <div id="rank-list" class="space-y-3 pb-24"></div>
-        </div>
+            <div id="classes" class="hidden max-w-5xl mx-auto">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i class="fas fa-play-circle text-red-500"></i> Video Library</h2>
+                <div class="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide">
+                    <button onclick="loadClasses('Physics')" class="bg-blue-600 text-white px-5 py-2 rounded-full text-xs font-bold shadow-lg whitespace-nowrap">Physics</button>
+                    <button onclick="loadClasses('Chemistry')" class="bg-slate-800 text-slate-300 px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap">Chemistry</button>
+                    <button onclick="loadClasses('Biology')" class="bg-slate-800 text-slate-300 px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap">Biology</button>
+                    <button onclick="loadClasses('Math')" class="bg-slate-800 text-slate-300 px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap">Math</button>
+                </div>
+                <div id="class-container" class="space-y-4">
+                    <div class="text-center text-slate-500 mt-10">Select a subject to view classes</div>
+                </div>
+            </div>
 
-        <div id="chat" class="hidden h-full flex flex-col relative">
-            <div class="p-4 glass border-b border-white/5 sticky top-0 z-10 font-bold">Group Chat</div>
-            <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3 pb-4"></div>
-            <div class="p-3 glass border-t border-white/5 bg-[#0f172a]">
-                <div class="flex gap-2 items-center bg-slate-800 p-2 rounded-full border border-slate-700">
-                    <input id="chat-in" placeholder="Message..." class="flex-1 bg-transparent border-none text-sm outline-none text-white px-2">
-                    <button onclick="sendMsg()" class="w-9 h-9 bg-blue-600 rounded-full text-white flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane text-xs"></i></button>
+            <div id="study" class="hidden h-full flex flex-col items-center justify-center">
+                <div class="glass w-full max-w-md p-8 rounded-[40px] text-center relative">
+                    <div class="flex justify-center gap-3 mb-8">
+                        <button onclick="setTimer(25)" class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold hover:bg-blue-600 transition">25m</button>
+                        <button onclick="setTimer(60)" class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold hover:bg-blue-600 transition">1h</button>
+                        <button onclick="setTimer(0.1)" class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold text-green-400 border border-green-500/30 hover:bg-green-900 transition">Test</button>
+                    </div>
+                    <div class="relative w-64 h-64 mx-auto mb-8 flex items-center justify-center">
+                        <div id="flower" class="flower"></div>
+                        <div class="absolute z-10 text-center"><div id="t-disp" class="text-6xl font-bold tracking-tight">25:00</div><div class="text-xs text-blue-400 font-bold mt-2 tracking-widest uppercase">FOCUS</div></div>
+                    </div>
+                    <button onclick="toggleTimer()" id="play-btn" class="w-16 h-16 bg-blue-600 rounded-full text-2xl flex items-center justify-center shadow-lg hover:scale-105 transition"><i class="fas fa-play"></i></button>
+                </div>
+            </div>
+
+            <div id="leaderboard" class="hidden max-w-4xl mx-auto">
+                <h2 class="text-2xl font-bold mb-6">Top Learners</h2>
+                <div id="rank-list" class="space-y-3"></div>
+            </div>
+
+            <div id="chat" class="hidden h-full flex flex-col">
+                <div class="p-4 glass border-b border-white/5 sticky top-0 z-10 font-bold flex justify-between items-center">
+                    <span>Chat Room</span> <span class="text-xs text-green-400">● Live</span>
+                </div>
+                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+                <div class="p-3 glass border-t border-white/5 sticky bottom-0">
+                    <div class="flex gap-2 items-center bg-slate-800 p-2 rounded-full border border-slate-700">
+                        <input id="chat-in" placeholder="Type a message..." class="flex-1 bg-transparent border-none text-sm outline-none text-white px-2" onkeypress="if(event.key==='Enter') sendMsg()">
+                        <button onclick="sendMsg()" class="w-9 h-9 bg-blue-600 rounded-full text-white flex items-center justify-center shadow-lg hover:bg-blue-500 transition"><i class="fas fa-paper-plane text-xs"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <nav class="md:hidden glass fixed bottom-0 w-full z-40 flex justify-around py-3 pb-[env(safe-area-inset-bottom)] border-t border-white/10">
-        <button onclick="nav('home')" id="m-home" class="mob-active text-slate-400 flex flex-col items-center"><i class="fas fa-home text-lg"></i></button>
-        <button onclick="nav('classes')" id="m-classes" class="text-slate-400 flex flex-col items-center"><i class="fas fa-play-circle text-lg"></i></button>
+    <nav class="md:hidden glass fixed bottom-0 w-full z-40 flex justify-around py-3 border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
+        <button onclick="nav('home')" id="m-home" class="mob-active text-slate-400 flex flex-col items-center"><i class="fas fa-home text-lg mb-1"></i></button>
+        <button onclick="nav('classes')" id="m-classes" class="text-slate-400 flex flex-col items-center"><i class="fas fa-play-circle text-lg mb-1"></i></button>
         <div class="relative -top-8"><button onclick="nav('study')" class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-lg border-4 border-[#0f172a] text-white"><i class="fas fa-clock text-xl"></i></button></div>
-        <button onclick="nav('leaderboard')" id="m-leaderboard" class="text-slate-400 flex flex-col items-center"><i class="fas fa-trophy text-lg"></i></button>
-        <button onclick="nav('chat')" id="m-chat" class="text-slate-400 flex flex-col items-center"><i class="fas fa-comments text-lg"></i></button>
+        <button onclick="nav('leaderboard')" id="m-leaderboard" class="text-slate-400 flex flex-col items-center"><i class="fas fa-trophy text-lg mb-1"></i></button>
+        <button onclick="nav('chat')" id="m-chat" class="text-slate-400 flex flex-col items-center"><i class="fas fa-comments text-lg mb-1"></i></button>
     </nav>
 
     <audio id="audio-alarm" src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3"></audio>
 
     <script>
-        // --- 🔴 REPLACE THIS WITH YOUR FIREBASE CONFIG 🔴 ---
+        // --- 🔴 YOUR FIREBASE CONFIG HERE 🔴 ---
         const firebaseConfig = { apiKey: "AIzaSyC3vbUgm1kXdzDjrWxW4o6HHBDlpL8mJyQ", authDomain: "masrur-app-dccc1.firebaseapp.com", databaseURL: "https://masrur-app-dccc1-default-rtdb.firebaseio.com", projectId: "masrur-app-dccc1", storageBucket: "masrur-app-dccc1.firebasestorage.app", messagingSenderId: "54049170636", appId: "1:54049170636:web:0d0fd5f530027e72688e69" };
         
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(); const db = firebase.database();
         let user = null;
 
-        // --- AUTH ---
+        // AUTH
         let isReg = false;
         function toggleAuth() { isReg=!isReg; document.getElementById('reg-box').classList.toggle('hidden'); document.getElementById('btn-auth').innerText=isReg?'REGISTER':'LOGIN'; }
         
@@ -250,12 +243,18 @@
         });
         function logout() { auth.signOut().then(()=>location.reload()); }
 
-        // --- CORE ---
+        // CORE
         function init() {
             presence(); loadRank(); loadClasses('Physics'); loadNotice(); loadStats(); loadChat(); createFlower();
+            
+            // HISTORY API FIX (Back Button)
+            window.history.replaceState({page: 'home'}, "", "#home");
+            window.onpopstate = function(e) {
+                if(e.state) nav(e.state.page, false);
+            };
         }
 
-        // --- ADMIN (PASSWORD: admin123) ---
+        // ADMIN
         function checkAdmin() {
             const p = document.getElementById('adm-pass').value;
             if(p === 'admin123') {
@@ -268,8 +267,6 @@
             const chap = document.getElementById('a-chap').value;
             const title = document.getElementById('a-title').value;
             const link = document.getElementById('a-link').value;
-            
-            // Extract Video ID from URL
             const vidId = link.split('v=')[1]?.split('&')[0] || link.split('/').pop();
             const embedUrl = `https://www.youtube.com/embed/${vidId}`;
 
@@ -279,9 +276,9 @@
             } else { Swal.fire('Error','Invalid Link','error'); }
         }
         function resetDB(path) { if(confirm('SURE?')) db.ref(path).remove(); }
-        function postNotice() { db.ref('notice').set({title:'Notice', body:document.getElementById('a-note').value}); }
+        function postNotice() { db.ref('notice').set({title:'Notice', body:document.getElementById('a-note').value}); Swal.fire('Posted','','success'); }
 
-        // --- CLASSES (FIXED) ---
+        // CLASSES
         function loadClasses(sub) {
             db.ref('classes').on('value', s => {
                 const con = document.getElementById('class-container'); con.innerHTML='';
@@ -297,7 +294,7 @@
         }
         function playVid(l) { Swal.fire({html:`<iframe width="100%" height="250" src="${l}" frameborder="0" allowfullscreen></iframe>`, showConfirmButton:false, background:'#0f172a', width:600}); }
 
-        // --- TIMER ---
+        // TIMER
         let tmr, time=1500, run=false, dur=25;
         function createFlower(){const f=document.getElementById('flower');for(let i=0;i<6;i++){const p=document.createElement('div');p.className='petal';p.style.setProperty('--r',(i*60)+'deg');f.appendChild(p)}}
         function setTimer(m){clearInterval(tmr);run=false;dur=m;time=m*60;updT();document.getElementById('play-btn').innerHTML='<i class="fas fa-play"></i>';document.getElementById('flower').classList.remove('breathing');}
@@ -316,14 +313,18 @@
         }
         function updT(){const m=Math.floor(time/60),s=Math.floor(time%60);document.getElementById('t-disp').innerText=`${m}:${s<10?'0'+s:s}`}
 
-        // --- EXTRAS ---
+        // EXTRAS
         function loadStats(){db.ref('progress/'+user.uid).on('value',s=>{let xp=0,m=0;Object.values(s.val()||{}).forEach(x=>{if(x.xp)xp+=x.xp;if(x.time)m+=x.time});document.getElementById('dash-xp').innerText=xp;document.getElementById('dash-time').innerText=Math.floor(m/60)+'h'});}
         function loadNotice(){db.ref('notice').on('value',s=>{const d=s.val();if(d){document.getElementById('nt-title').innerText=d.title;document.getElementById('nt-body').innerText=d.body}});}
         function loadChat(){const b=document.getElementById('chat-box');b.innerHTML='';db.ref('messages').limitToLast(50).on('child_added',s=>{const m=s.val(),me=m.uid===user.uid;const d=document.createElement('div');d.className=`p-3 text-sm max-w-[85%] rounded-xl mb-2 ${me?'msg-me self-end text-white':'msg-other self-start text-slate-300'}`;d.innerHTML=me?m.text:`<div class="text-[10px] text-blue-400 font-bold mb-1">${m.name}</div>${m.text}`;if(me)d.style.alignSelf='flex-end';b.appendChild(d);b.scrollTop=b.scrollHeight;});db.ref('messages').on('child_removed',()=>b.innerHTML='');}
         function sendMsg(){const i=document.getElementById('chat-in');if(i.value.trim()){db.ref('messages').push({text:i.value,uid:user.uid,name:user.displayName,time:Date.now()});i.value=''}}
         function loadRank(){db.ref('users').once('value',uS=>{db.ref('progress').once('value',pS=>{const us=uS.val()||{},pr=pS.val()||{},l=[];Object.keys(us).forEach(id=>{let xp=0;if(pr[id])Object.values(pr[id]).forEach(x=>{if(x.xp)xp+=x.xp});l.push({n:us[id].name,s:us[id].school,xp,id})});l.sort((a,b)=>b.xp-a.xp);document.getElementById('rank-list').innerHTML=l.map((d,i)=>`<div class="glass p-3 flex justify-between mb-2 border-b border-white/5 ${d.id===user.uid?'border-l-4 border-l-blue-500 bg-blue-500/10':''}"><div class="flex gap-3"><span class="font-bold text-slate-500">#${i+1}</span><div><div class="font-bold text-sm text-white">${d.n}</div><div class="text-[10px] text-slate-500">${d.s}</div></div></div><div class="font-bold text-blue-400 text-sm">${d.xp} XP</div></div>`).join('')})})}
         function presence(){const c=db.ref(".info/connected"),s=db.ref("/status/"+user.uid);c.on("value",v=>{if(v.val())s.onDisconnect().set({st:'off'}).then(()=>s.set({st:'on'}))});db.ref('status').on('value',v=>{let c=0;v.forEach(x=>{if(x.val().st==='on')c++});document.getElementById('live-cnt').innerText=c})}
-        function nav(p){['home','study','classes','leaderboard','chat'].forEach(i=>{document.getElementById(i).classList.add('hidden');document.getElementById('d-'+i)?.classList.remove('nav-active');document.getElementById('m-'+i)?.classList.remove('mob-active')});document.getElementById(p).classList.remove('hidden');document.getElementById('d-'+p)?.classList.add('nav-active');document.getElementById('m-'+p)?.classList.add('mob-active')}
+        
+        function nav(p, push=true) {
+            ['home','study','classes','leaderboard','chat'].forEach(i=>{document.getElementById(i).classList.add('hidden');document.getElementById('d-'+i)?.classList.remove('nav-active');document.getElementById('m-'+i)?.classList.remove('mob-active')});document.getElementById(p).classList.remove('hidden');document.getElementById('d-'+p)?.classList.add('nav-active');document.getElementById('m-'+p)?.classList.add('mob-active');
+            if(push) window.history.pushState({page: p}, "", "#"+p);
+        }
     </script>
 </body>
 </html>
